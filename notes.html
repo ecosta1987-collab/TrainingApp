@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>(function(){var t=localStorage.getItem('aw_theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})()</script>
+<link rel="stylesheet" href="shared-r14.css?v=20261009a">
+<script src="edition.js?v=202610161633"></script>
+<script src="shared.js?v=20261016f"></script>
+<script src="translations.js?v=20261016e"></script>
+<script src="content.js?v=202610161633"></script>
+<script src="pkx_translations.js?v=20261016f"></script>
+<script src="glossary_data.js?t=63"></script>
+<title data-i18n="title.notes">My Notes · Training Platform</title>
+<style>
+/* ── Sidebar toggle ── */
+.layout{transition:grid-template-columns .26s cubic-bezier(.4,0,.2,1)}
+.sidebar{transition:opacity .2s ease}
+body.sb-collapsed .layout{grid-template-columns:0 1fr}
+body.sb-collapsed .sidebar{min-width:0;width:0;padding-left:0;padding-right:0;opacity:0;overflow:hidden;pointer-events:none;border-right:none}
+.sb-toggle{width:30px;height:30px;border-radius:var(--rsm);border:1px solid rgba(255,255,255,.18);background:transparent;color:rgba(255,255,255,.62);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s,color .15s}
+.sb-toggle:hover{background:rgba(255,255,255,.09);color:#fff}
+.sb-toggle:active{transform:translateY(1px)}
+.sb-toggle svg{width:16px;height:16px;transition:transform .26s cubic-bezier(.4,0,.2,1)}
+body.sb-collapsed .sb-toggle svg{transform:rotate(180deg)}
+
+/* ── Wrapper ── */
+.nt-wrap{max-width:1600px}
+
+/* ── Page header ── */
+.nt-page-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:12px}
+.nt-hd-l{display:flex;flex-direction:column;gap:5px}
+.nt-hd-title{font-size:var(--fs-h1);font-weight:var(--fw-b);color:var(--text);line-height:var(--lh-snug);letter-spacing:-.3px;margin:0}
+.nt-hd-badges{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.nt-bdg-count{background:var(--bg);border:.5px solid var(--border2);border-radius:20px;padding:2px 10px;font-size:var(--fs-xs);color:var(--text2);box-shadow:var(--e1)}
+.nt-bdg-live{background:rgba(224,49,138,.08);border:.5px solid rgba(224,49,138,.28);border-radius:20px;padding:2px 10px;font-size:var(--fs-xs);color:var(--aw-pink);display:inline-flex;align-items:center;gap:5px}
+.nt-bdg-live::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--aw-pink);animation:ntPulse 1.6s ease-in-out infinite}
+@keyframes ntPulse{0%,100%{opacity:1}50%{opacity:.25}}
+.nt-btn-new{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border:none;border-radius:var(--rsm);background:var(--aw-pink);color:#fff;font-size:var(--fs-sm);font-weight:var(--fw-sb);font-family:var(--font);cursor:pointer;white-space:nowrap;box-shadow:0 2px 8px rgba(224,49,138,.30);transition:filter .15s,transform .1s}
+.nt-btn-new:hover{filter:brightness(1.05)}
+.nt-btn-new:active{transform:translateY(1px)}
+
+/* ── Search + filter row ── */
+.nt-search-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:nowrap;overflow:hidden}
+.nt-search-box{flex:1;min-width:0;position:relative}
+.nt-search-box input{width:100%;box-sizing:border-box;padding:9px 14px 9px 37px;border:.5px solid var(--border2);border-radius:999px;background:rgba(255,255,255,.45);color:var(--text);font-family:var(--font);font-size:var(--fs-sm);box-shadow:var(--e1);transition:border-color .14s,box-shadow .14s,background .14s;outline:none}
+[data-theme="dark"] .nt-search-box input{background:rgba(255,255,255,.06)}
+.nt-search-box input::placeholder{color:var(--text3)}
+.nt-search-box input:focus{background:var(--bg);border-color:rgba(224,49,138,.45);box-shadow:0 0 0 3px rgba(224,49,138,.12)}
+.nt-search-box .nt-search-ic{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none;width:15px;height:15px}
+.nt-filter-dd{appearance:none;-webkit-appearance:none;font-family:var(--font);border:.5px solid var(--border2);border-radius:999px;background-color:var(--bg);color:var(--text2);outline:none;cursor:pointer;padding:9px 26px 9px 13px;font-size:var(--fs-xs);width:110px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;box-shadow:var(--e1);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a93a6' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;transition:border-color .14s,box-shadow .14s}
+.nt-filter-dd:focus{border-color:rgba(224,49,138,.45);box-shadow:0 0 0 3px rgba(224,49,138,.12)}
+
+/* ── Chip type filters ── */
+.nt-chips-row{display:flex;align-items:center;gap:6px;margin-bottom:18px;flex-wrap:wrap}
+.nt-chips-label{font-size:var(--fs-xs);color:var(--text3);margin-right:2px;white-space:nowrap}
+.nt-type-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:var(--fs-xs);font-weight:var(--fw-med);cursor:pointer;border:.5px solid var(--border2);background:var(--bg);color:var(--text2);box-shadow:var(--e1);transition:background .12s,border-color .12s,color .12s,box-shadow .15s,transform .12s;user-select:none}
+.nt-type-chip:hover{box-shadow:var(--e2);transform:translateY(-1px)}
+.nt-type-chip svg{flex-shrink:0;opacity:.7}
+.nt-type-chip.active{background:var(--aw-navy);color:#fff;border-color:var(--aw-navy)}
+.nt-type-chip.active svg{opacity:1}
+.nt-type-chip.c-note.active{background:var(--blue);border-color:var(--blue)}
+.nt-type-chip.c-question.active{background:var(--amber);border-color:var(--amber)}
+.nt-type-chip.c-issue.active{background:var(--red);border-color:var(--red)}
+
+/* ── Notes grid ── */
+.nt-wall{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-items:start}
+@media(max-width:900px){.nt-wall{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.nt-wall{grid-template-columns:1fr}}
+
+/* ── Note card ── */
+.nt-card{background:var(--bg);border:.5px solid var(--border);border-radius:var(--r);padding:14px;position:relative;overflow:hidden;box-shadow:var(--e2);transition:box-shadow .18s,border-color .15s,transform .15s;cursor:default}
+.nt-card:hover{box-shadow:var(--e3);border-color:var(--border2);transform:translateY(-2px)}
+.nt-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
+.nt-card.t-note::before{background:var(--blue)}
+.nt-card.t-question::before{background:var(--amber)}
+.nt-card.t-issue::before{background:var(--red)}
+.nt-card.is-live{border-left:3px solid var(--aw-pink)}
+.nt-card.is-live::before{display:none}
+.nt-card.nt-hl{border-color:var(--aw-pink);box-shadow:0 0 0 3px rgba(224,49,138,.28),var(--e3);animation:ntHl 1.7s ease}
+@keyframes ntHl{0%,100%{box-shadow:0 0 0 3px rgba(224,49,138,.28),var(--e3)}50%{box-shadow:0 0 0 7px rgba(224,49,138,.10),var(--e3)}}
+/* tags */
+.nt-card-tags{display:flex;align-items:center;gap:5px;margin-bottom:10px;flex-wrap:wrap}
+.nt-tag{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:var(--fw-b);letter-spacing:.04em;text-transform:uppercase}
+.t-note    .nt-tag.cat{background:rgba(69,101,173,.10);color:var(--blue-d)}
+.t-question .nt-tag.cat{background:rgba(230,119,0,.10);color:var(--amber-d)}
+.t-issue   .nt-tag.cat{background:rgba(193,32,38,.10);color:var(--red-d)}
+.nt-tag.live{background:rgba(224,49,138,.10);color:var(--aw-pink);display:inline-flex;align-items:center;gap:4px}
+.nt-tag.live::before{content:'';width:5px;height:5px;background:var(--aw-pink);border-radius:50%;flex-shrink:0}
+/* note body */
+.nt-text{font-size:var(--fs-sm);color:var(--text);line-height:var(--lh-read);white-space:pre-wrap;word-break:break-word;margin:0 0 10px;padding-left:4px}
+/* bottom meta row */
+.nt-card-meta{display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap}
+.nt-mod-pill{font-size:11px;color:var(--text2);background:var(--bg2);border:.5px solid var(--border2);border-radius:20px;padding:2px 9px;display:inline-flex;align-items:center;gap:4px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nt-date{font-size:11px;color:var(--text3);font-variant-numeric:tabular-nums;flex-shrink:0}
+/* badges on card (priority, status) */
+.nt-badge{font-size:10px;font-weight:var(--fw-b);border-radius:20px;padding:2px 8px;display:inline-flex;align-items:center;gap:4px;border:.5px solid}
+.nt-badge.p-low     {background:var(--bg2);color:var(--text2);border-color:var(--border2)}
+.nt-badge.p-med     {background:var(--amber-l);color:var(--amber-d);border-color:var(--amber)}
+.nt-badge.p-high    {background:var(--red-l);color:var(--red-d);border-color:var(--red)}
+.nt-badge.s-open    {background:var(--blue-l);color:var(--blue-d);border-color:var(--blue)}
+.nt-badge.s-progress{background:var(--amber-l);color:var(--amber-d);border-color:var(--amber)}
+.nt-badge.s-resolved{background:var(--teal-l);color:var(--teal-d);border-color:var(--teal)}
+.nt-badge.st{cursor:pointer;transition:filter .12s}
+.nt-badge.st:hover{filter:brightness(.95)}
+.nt-att-pill{font-size:10px;color:var(--text2);background:var(--bg2);border:.5px solid var(--border2);border-radius:20px;padding:2px 8px;display:inline-flex;align-items:center;gap:4px;max-width:140px;overflow:hidden}
+.nt-att-pill span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* card actions */
+.nt-card-actions{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:.5px solid var(--border)}
+.nt-action-btn{font-size:var(--fs-xs);color:var(--text2);display:inline-flex;align-items:center;gap:4px;background:none;border:none;cursor:pointer;padding:3px 6px;border-radius:var(--rsm);font-family:var(--font);transition:background .12s,color .12s}
+.nt-action-btn:hover{background:var(--bg2);color:var(--text)}
+.nt-action-btn.del:hover{background:var(--red-l);color:var(--red-d)}
+
+/* ── Empty state ── */
+.nt-empty{text-align:center;padding:48px 24px;color:var(--text3);font-size:var(--fs-body);border:.5px dashed var(--border2);border-radius:var(--r)}
+.nt-empty svg{display:block;margin:0 auto 14px;opacity:.35}
+
+/* ── Modal overlay ── */
+.nt-modal-bg{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.38);display:flex;align-items:center;justify-content:center;padding:20px}
+.nt-modal{background:var(--bg);border-radius:var(--r);box-shadow:var(--e3);width:100%;max-width:540px;overflow:hidden;position:relative}
+.nt-modal::before{content:'';position:absolute;left:0;top:0;right:0;height:3px;background:var(--aw-pink)}
+.nt-modal-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 14px;border-bottom:.5px solid var(--border)}
+.nt-modal-title{font-size:var(--fs-h3);font-weight:var(--fw-sb);color:var(--text);letter-spacing:-.2px}
+.nt-modal-close{width:28px;height:28px;border-radius:var(--rsm);border:.5px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s}
+.nt-modal-close:hover{background:var(--bg2);color:var(--text)}
+.nt-modal-body{padding:16px 18px}
+.nt-textarea{width:100%;box-sizing:border-box;min-height:72px;resize:vertical;padding:10px 13px;border:.5px solid var(--border2);border-radius:var(--rsm);background:var(--bg2);color:var(--text);font-size:var(--fs-body);font-family:var(--font);line-height:var(--lh-body);outline:none;transition:border-color .15s,box-shadow .15s}
+.nt-textarea:focus{border-color:var(--aw-blue);box-shadow:0 0 0 3px rgba(69,101,173,.13)}
+.nt-textarea::placeholder{color:var(--text3)}
+.nt-ctrls{display:flex;flex-wrap:wrap;align-items:flex-end;gap:11px;margin-top:11px}
+.nt-field{display:inline-flex;flex-direction:column;gap:5px}
+.nt-field-l{font-size:var(--fs-3xs);font-weight:var(--fw-b);letter-spacing:.07em;text-transform:uppercase;color:var(--text3)}
+.nt-live{display:inline-flex;align-items:center;gap:7px;font-size:var(--fs-xs);color:var(--text2);cursor:pointer;user-select:none;padding-bottom:9px}
+.nt-live input{accent-color:var(--aw-pink);cursor:pointer;width:15px;height:15px}
+.nt-attach-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 13px;border:.5px solid var(--border2);border-radius:var(--rsm);background:var(--bg);color:var(--text2);font-size:var(--fs-xs);font-weight:var(--fw-med);font-family:var(--font);cursor:pointer;transition:background .12s,border-color .12s}
+.nt-attach-btn:hover{background:var(--bg2);border-color:var(--text3);color:var(--text)}
+.nt-pending{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
+.nt-chip-att{display:inline-flex;align-items:center;gap:5px;max-width:200px;padding:3px 9px;border-radius:20px;background:var(--bg2);border:.5px solid var(--border2);font-size:var(--fs-3xs);color:var(--text2)}
+.nt-chip-att-x{cursor:pointer;color:var(--text3);display:inline-flex;align-items:center}
+.nt-chip-att-x:hover{color:var(--red)}
+.nt-modal-foot{display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:12px 18px 16px}
+.nt-btn-cancel{padding:8px 16px;border:.5px solid var(--border2);border-radius:var(--rsm);background:var(--bg2);color:var(--text2);font-size:var(--fs-sm);font-weight:var(--fw-med);font-family:var(--font);cursor:pointer;transition:background .12s}
+.nt-btn-cancel:hover{background:var(--bg3)}
+.nt-btn-save{padding:9px 20px;border:none;border-radius:var(--rsm);background:var(--aw-pink);color:#fff;font-size:var(--fs-sm);font-weight:var(--fw-sb);font-family:var(--font);cursor:pointer;box-shadow:0 2px 8px rgba(224,49,138,.30);transition:filter .15s,transform .1s}
+.nt-btn-save:hover{filter:brightness(1.05)}
+.nt-btn-save:active{transform:translateY(1px)}
+
+/* ── Styled selects in modal ── */
+.nt-select{appearance:none;-webkit-appearance:none;font-family:var(--font);border:.5px solid var(--border2);border-radius:var(--rsm);background-color:var(--bg);color:var(--text);outline:none;cursor:pointer;padding:8px 30px 8px 12px;font-size:var(--fs-xs);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a93a6' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;transition:border-color .15s}
+.nt-select:focus{border-color:var(--aw-blue)}
+
+@media(max-width:560px){.nt-search-row{gap:6px}.nt-filter-dd{font-size:var(--fs-xs)}.nt-ctrls{gap:9px}.nt-btn-save{margin-left:0;width:100%}}
+</style>
+<link rel="stylesheet" href="tema-2026.css?v=44">
+</head>
+<body>
+
+<!-- legacy shell markup (hidden, replaced by renderChrome) -->
+<div class="aw-topbar" id="mod-topbar" style="display:none"></div>
+<!-- Grafica del prototipo "New Design" (screens/05-notes.html): stesse funzioni di prima (nuova nota, modifica,
+     allegati, priorità/stato, filtri), colonna destra = .pt-rail come nelle altre pagine -->
+<div class="h-wrap">
+  <div class="h-main">
+
+    <!-- ── Intestazione di pagina: titolo + conteggi | nuova nota ── -->
+    <div class="pt-pagehd pt-pagehd-row">
+      <div class="pt-grow">
+        <h1 class="pt-h1" data-i18n="notes.title">My Notes</h1>
+        <p class="pt-lead"><span id="nt-bdg-count"></span><span class="nt-bdg-live" id="nt-bdg-live" style="display:none"></span></p>
+      </div>
+      <button class="pt-cta nt-btn-new" onclick="openModal()">+ <span data-i18n="notes.add">New note</span></button>
+    </div>
+
+    <!-- ── Filtri: tipi (con conteggio) + ricerca + menu ── -->
+    <div class="nt-toolbar">
+      <div class="nt-chips-row" id="nt-chips-row"></div>
+      <div class="nt-search-row">
+        <div class="nt-search-box">
+          <svg class="nt-search-ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="nt-search" data-i18n-attr="placeholder:notes.search.ph" placeholder="Search notes…" oninput="render()">
+        </div>
+        <select id="nt-fmodule" class="nt-filter-dd" onchange="setModuleFilter(this.value)"></select>
+        <select id="nt-ftype" class="nt-filter-dd" onchange="setCatFromSelect(this.value)"></select>
+        <select id="nt-fstatus" class="nt-filter-dd" onchange="setStatusFilter(this.value)"></select>
+      </div>
+    </div>
+
+    <!-- ── Note in un contenitore ── -->
+    <section class="pt-lib">
+      <div class="pt-lib-hd">
+        <span class="pt-ic"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7"/><path d="M9 16h5"/></svg></span>
+        <div class="pt-grow"><h2 data-i18n="notes.title">My Notes</h2><div class="pt-lib-sub" id="nt-shown"></div></div>
+      </div>
+      <div id="nt-groups"></div>
+    </section>
+
+  </div>
+  <aside class="h-side pt-rail" id="pt-side"></aside>
+</div>
+
+<!-- ── Modal: new / edit note ── -->
+<div class="nt-modal-bg" id="nt-modal-bg" style="display:none" onclick="closeModalBg(event)">
+  <div class="nt-modal">
+    <div class="nt-modal-hd">
+      <span class="nt-modal-title" id="nt-modal-title" data-i18n="notes.add">New note</span>
+      <button class="nt-modal-close" onclick="closeModal()" aria-label="Close">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="nt-modal-body">
+      <textarea id="nt-text" class="nt-textarea" data-i18n-attr="placeholder:note.placeholder" placeholder="Write your note, question or issue…"></textarea>
+      <div class="nt-ctrls">
+        <div class="nt-field">
+          <span class="nt-field-l" data-i18n="note.tab">Type</span>
+          <select id="nt-category" class="nt-select" onchange="updateComposerFields()"></select>
+        </div>
+        <div class="nt-field">
+          <span class="nt-field-l" data-i18n="notes.f.module">Module</span>
+          <select id="nt-module" class="nt-select"></select>
+        </div>
+        <div class="nt-field" id="nt-prio-wrap">
+          <span class="nt-field-l" data-i18n="notes.f.priority">Priority</span>
+          <select id="nt-priority" class="nt-select"></select>
+        </div>
+        <div class="nt-field" id="nt-status-wrap">
+          <span class="nt-field-l" data-i18n="notes.f.status">Status</span>
+          <select id="nt-status" class="nt-select"></select>
+        </div>
+        <label class="nt-live"><input type="checkbox" id="nt-live"> <span data-i18n="note.cat.live">Live session</span></label>
+        <button type="button" class="nt-attach-btn" onclick="document.getElementById('nt-files').click()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+          <span data-i18n="notes.f.attach">Attach</span>
+        </button>
+        <input type="file" id="nt-files" multiple style="display:none" onchange="onFiles(this)">
+      </div>
+      <div class="nt-pending" id="nt-pending"></div>
+    </div>
+    <div class="nt-modal-foot">
+      <button class="nt-btn-cancel" onclick="closeModal()" data-i18n="notes.cancel">Cancel</button>
+      <button class="nt-btn-save" onclick="saveNote()" data-i18n="note.save">Save Note</button>
+    </div>
+  </div>
+</div>
+
+<div class="aw-footer" data-i18n="footer">© {year} autoware · Beyond Operations Management · Training Platform</div>
+
+<script>
+var LANG = localStorage.getItem('aw_lang') || 'en';
+var activeCat = 'all', activeModule = 'all', activeStatus = 'all';
+var pendingAtts = [];
+var editingId = null;
+
+var CAT_ORDER = ['Appunto', 'Domanda', 'Problema'];
+var CAT_KEY   = { 'Appunto':'note.cat.note', 'Domanda':'note.cat.question', 'Problema':'note.cat.issue' };
+var CAT_CLS   = { 'Appunto':'t-note', 'Domanda':'t-question', 'Problema':'t-issue' };
+var CAT_CHIP_CLS = { 'Appunto':'c-note', 'Domanda':'c-question', 'Problema':'c-issue' };
+
+// Moduli dal catalogo (window.AW_MODULES, shared.js): solo quelli che esistono davvero (con una
+// pagina). Nel laboratorio = OP-01/02/03 come prima; in un'edizione = le lezioni del training.
+var MODULE_OPTS = [{ v:'', short:'' }].concat((window.AW_MODULES || []).filter(function (m) { return m.href; })
+  .map(function (m) { return { v: m.num + ' - ' + m.title, short: window.awChapNo ? awChapNo(m) : m.num }; }));
+var PRIOS = [ {v:'low',k:'notes.prio.low'}, {v:'med',k:'notes.prio.med'}, {v:'high',k:'notes.prio.high'} ];
+var PRIO_CLS = { low:'p-low', med:'p-med', high:'p-high' };
+var STATUSES = [ {v:'open',k:'notes.st.open'}, {v:'progress',k:'notes.st.progress'}, {v:'resolved',k:'notes.st.resolved'} ];
+var STATUS_CLS = { open:'s-open', progress:'s-progress', resolved:'s-resolved' };
+
+// SVG icons for chips
+var CHIP_ICONS = {
+  all:     '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>',
+  Appunto: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+  Domanda: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+  Problema:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
+};
+
+// ── Sidebar collapse ─────────────────────────────────────────────────
+function toggleSidebar() {
+  var collapsed = document.body.classList.toggle('sb-collapsed');
+  localStorage.setItem('aw_sb_collapsed', collapsed ? '1' : '0');
+}
+if (localStorage.getItem('aw_sb_collapsed') === '1') document.body.classList.add('sb-collapsed');
+
+// ── Helpers ──────────────────────────────────────────────────────────
+function tl(key) {
+  var dict = (window.T && window.T[LANG]) || (window.T && window.T.en) || {};
+  return dict[key] !== undefined ? dict[key] : ((window.T && window.T.en && window.T.en[key]) || key);
+}
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function moduleShort(m) {
+  if (!m) return tl('notes.general');
+  for (var i=0;i<MODULE_OPTS.length;i++) if (MODULE_OPTS[i].v===m && MODULE_OPTS[i].short) return MODULE_OPTS[i].short;
+  return m.split(' - ')[0];
+}
+function loadNotes()  { return (window.awLoadNotes ? window.awLoadNotes() : []); }
+function persist(arr) { if (window.awSaveNotes) window.awSaveNotes(arr); }
+function paperclip(sz){ return '<svg width="'+sz+'" height="'+sz+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>'; }
+
+// ── Build modal selects ──────────────────────────────────────────────
+function buildSelects() {
+  var cat = document.getElementById('nt-category');
+  if (cat) cat.innerHTML = CAT_ORDER.map(function(v){ return '<option value="'+v+'">'+esc(tl(CAT_KEY[v]))+'</option>'; }).join('');
+  var mod = document.getElementById('nt-module');
+  if (mod) mod.innerHTML = MODULE_OPTS.map(function(o){
+    var lbl = o.v ? o.short : tl('notes.general');
+    return '<option value="'+esc(o.v)+'">'+esc(lbl)+'</option>';
+  }).join('');
+  var prio = document.getElementById('nt-priority');
+  if (prio) prio.innerHTML = PRIOS.map(function(p){ return '<option value="'+p.v+'">'+esc(tl(p.k))+'</option>'; }).join('');
+  var st = document.getElementById('nt-status');
+  if (st) st.innerHTML = STATUSES.map(function(s){ return '<option value="'+s.v+'">'+esc(tl(s.k))+'</option>'; }).join('');
+  if (prio) prio.value = 'med';
+  updateComposerFields();
+}
+
+window.updateComposerFields = function() {
+  var cat = document.getElementById('nt-category').value;
+  var showPrio = (cat === 'Domanda' || cat === 'Problema');
+  var showStatus = (cat === 'Problema');
+  document.getElementById('nt-prio-wrap').style.display   = showPrio ? '' : 'none';
+  document.getElementById('nt-status-wrap').style.display = showStatus ? '' : 'none';
+};
+
+// ── Build filter dropdowns (search row) ─────────────────────────────
+function buildFilterDropdowns() {
+  var fm = document.getElementById('nt-fmodule');
+  if (fm) {
+    var mh = '<option value="all">'+esc(tl('notes.f.module'))+'</option>';
+    MODULE_OPTS.filter(function(o){ return o.v; }).forEach(function(o){
+      mh += '<option value="'+esc(o.v)+'"'+(activeModule===o.v?' selected':'')+'>'+esc(o.short)+'</option>';
+    });
+    fm.innerHTML = mh;
+    fm.value = activeModule === 'all' ? 'all' : activeModule;
+  }
+  var ft = document.getElementById('nt-ftype');
+  if (ft) {
+    var th = '<option value="all">'+esc(tl('note.tab'))+'</option>';
+    CAT_ORDER.forEach(function(v){ th += '<option value="'+v+'"'+(activeCat===v?' selected':'')+'>'+esc(tl(CAT_KEY[v]))+'</option>'; });
+    ft.innerHTML = th;
+    ft.value = activeCat === 'all' ? 'all' : activeCat;
+  }
+  var fs = document.getElementById('nt-fstatus');
+  if (fs) {
+    var sh = '<option value="all">'+esc(tl('notes.f.status'))+'</option>';
+    STATUSES.forEach(function(s){ sh += '<option value="'+s.v+'"'+(activeStatus===s.v?' selected':'')+'>'+esc(tl(s.k))+'</option>'; });
+    fs.innerHTML = sh;
+    fs.value = activeStatus === 'all' ? 'all' : activeStatus;
+  }
+}
+
+// ── Build chip filters ───────────────────────────────────────────────
+function buildChips() {
+  var el = document.getElementById('nt-chips-row');
+  if (!el) return;
+  var defs = [
+    { cat:'all', chipCls:'', key:'notes.all' },
+    { cat:'Appunto',  chipCls:'c-note',     key:'note.cat.note' },
+    { cat:'Domanda',  chipCls:'c-question',  key:'note.cat.question' },
+    { cat:'Problema', chipCls:'c-issue',     key:'note.cat.issue' }
+  ];
+  var all = loadNotes();
+  el.innerHTML = defs.map(function(d){
+    var active = activeCat === d.cat ? ' active' : '';
+    var n = d.cat === 'all' ? all.length : all.filter(function(x){ return x.category === d.cat; }).length;   // conteggio (prototipo: "All · 4")
+    return '<button class="nt-type-chip '+d.chipCls+active+'" onclick="setCat(\''+d.cat+'\')">'
+         + CHIP_ICONS[d.cat === 'all' ? 'all' : d.cat]
+         + esc(tl(d.key)) + ' <span class="nt-chip-n">\xB7 ' + n + '</span></button>';
+  }).join('');
+}
+
+// ── Header badges ────────────────────────────────────────────────────
+function updateHeaderBadges(notes) {
+  var total = notes.length;
+  var live  = notes.filter(function(n){ return n.live; }).length;
+  var bc = document.getElementById('nt-bdg-count');
+  if (bc) bc.textContent = total + ' ' + tl('notes.stat.total');
+  var bl = document.getElementById('nt-bdg-live');
+  if (bl) {
+    bl.style.display = live > 0 ? 'inline-flex' : 'none';
+    var liveLabel = live + ' ' + tl('notes.stat.live');
+    bl.lastChild && bl.lastChild.nodeType === 3
+      ? (bl.lastChild.textContent = liveLabel)
+      : (bl.appendChild(document.createTextNode(liveLabel)));
+    // keep only the text node (::before is CSS)
+    while (bl.childNodes.length > 1) bl.removeChild(bl.firstChild);
+    bl.textContent = liveLabel;
+  }
+}
+
+function updateSidebarBadge(n) {
+  var b = document.getElementById('sb-notes-badge');
+  if (b) { b.textContent = n; b.style.display = n > 0 ? 'block' : 'none'; }
+}
+
+// ── Filters ──────────────────────────────────────────────────────────
+window.setCat = function(c) {
+  activeCat = c;
+  buildChips();
+  // sync Tipo dropdown
+  var ft = document.getElementById('nt-ftype');
+  if (ft) ft.value = c;
+  render();
+};
+window.setCatFromSelect = function(v) {
+  activeCat = v;
+  buildChips();
+  render();
+};
+window.setModuleFilter = function(v) { activeModule = v; render(); };
+window.setStatusFilter = function(v) { activeStatus = v; render(); };
+
+// ── Modal: open / close ──────────────────────────────────────────────
+window.openModal = function(id) {
+  editingId = id || null;
+  pendingAtts = [];
+  renderPending();
+  buildSelects();
+  var ta = document.getElementById('nt-text');
+  var title = document.getElementById('nt-modal-title');
+  if (id) {
+    var notes = loadNotes();
+    var note = null;
+    for (var i=0;i<notes.length;i++) if (notes[i].id===id) { note=notes[i]; break; }
+    if (note) {
+      if (ta) ta.value = note.text || '';
+      var cat = document.getElementById('nt-category');
+      if (cat) { cat.value = note.category || 'Appunto'; }
+      var mod = document.getElementById('nt-module');
+      if (mod) mod.value = note.module || '';
+      var lv = document.getElementById('nt-live');
+      if (lv) lv.checked = !!note.live;
+      if (note.priority) { var pr=document.getElementById('nt-priority'); if(pr) pr.value=note.priority; }
+      if (note.status)   { var st=document.getElementById('nt-status'); if(st) st.value=note.status; }
+      pendingAtts = (note.attachments || []).slice();
+      renderPending();
+      updateComposerFields();
+      if (title) title.textContent = tl('notes.edit') || 'Edit note';
+    }
+  } else {
+    if (ta) ta.value = '';
+    if (title) title.textContent = tl('notes.add') || 'New note';
+    var lv2 = document.getElementById('nt-live');
+    if (lv2) lv2.checked = false;
+    updateComposerFields();
+  }
+  document.getElementById('nt-modal-bg').style.display = 'flex';
+  if (ta) setTimeout(function(){ ta.focus(); }, 50);
+};
+
+window.closeModal = function() {
+  document.getElementById('nt-modal-bg').style.display = 'none';
+  editingId = null;
+  pendingAtts = [];
+  renderPending();
+};
+
+window.closeModalBg = function(e) {
+  if (e.target === document.getElementById('nt-modal-bg')) closeModal();
+};
+
+// ESC closes modal
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModal();
+});
+
+// ── Attachments ──────────────────────────────────────────────────────
+window.onFiles = function(input) {
+  var files = input.files;
+  for (var i=0;i<files.length;i++) pendingAtts.push({ name: files[i].name });
+  input.value = '';
+  renderPending();
+};
+window.removePending = function(idx){ pendingAtts.splice(idx,1); renderPending(); };
+function renderPending() {
+  var el = document.getElementById('nt-pending');
+  if (!el) return;
+  el.innerHTML = pendingAtts.map(function(a,i){
+    return '<span class="nt-chip-att">'+paperclip(11)
+      +'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px">'+esc(a.name)+'</span>'
+      +'<span class="nt-chip-att-x" onclick="removePending('+i+')">'
+      +'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+      +'</span></span>';
+  }).join('');
+}
+
+// ── Save note (add or edit) ──────────────────────────────────────────
+window.saveNote = function() {
+  var ta = document.getElementById('nt-text');
+  var text = (ta ? ta.value : '').trim();
+  if (!text && pendingAtts.length === 0) return;
+  var cat  = document.getElementById('nt-category').value;
+  var mod  = document.getElementById('nt-module').value;
+  var live = document.getElementById('nt-live').checked;
+  var notes = loadNotes();
+
+  if (editingId) {
+    notes = notes.map(function(n) {
+      if (n.id !== editingId) return n;
+      var updated = { id:n.id, text:text, category:cat, live:live, module:mod, time:n.time, attachments:pendingAtts.slice() };
+      if (cat==='Domanda'||cat==='Problema') updated.priority = document.getElementById('nt-priority').value;
+      if (cat==='Problema') updated.status = document.getElementById('nt-status').value;
+      return updated;
+    });
+  } else {
+    var now = new Date();
+    var lc = (window.awLangCode ? awLangCode() : 'en-GB');
+    var time = now.toLocaleDateString(lc, {day:'2-digit', month:'short'})
+             + ' ' + now.toLocaleTimeString(lc, {hour:'2-digit', minute:'2-digit'});
+    var note = { id: Date.now(), text:text, category:cat, live:live, module:mod, time:time, attachments:pendingAtts.slice() };
+    if (cat==='Domanda'||cat==='Problema') note.priority = document.getElementById('nt-priority').value;
+    if (cat==='Problema') note.status = document.getElementById('nt-status').value;
+    notes.unshift(note);
+  }
+  persist(notes);
+  closeModal();
+  render();
+};
+
+window.delNote = function(id) {
+  var notes = loadNotes().filter(function(n){ return n.id !== id; });
+  persist(notes);
+  render();
+};
+
+window.cycleStatus = function(id) {
+  var notes = loadNotes();
+  var order = ['open','progress','resolved'];
+  notes.forEach(function(n){
+    if (n.id===id) { var cur=order.indexOf(n.status||'open'); n.status=order[(cur+1)%order.length]; }
+  });
+  persist(notes);
+  render();
+};
+
+// ── Render ───────────────────────────────────────────────────────────
+function render() {
+  var notes = loadNotes();
+  var searchText = (document.getElementById('nt-search') ? document.getElementById('nt-search').value : '').toLowerCase().trim();
+  var filtered = notes.filter(function(n){
+    if (activeCat !== 'all' && n.category !== activeCat) return false;
+    if (activeModule !== 'all' && (n.module||'') !== activeModule) return false;
+    if (activeStatus !== 'all' && (n.status||'') !== activeStatus) return false;
+    if (searchText && (n.text||'').toLowerCase().indexOf(searchText) === -1
+        && moduleShort(n.module).toLowerCase().indexOf(searchText) === -1) return false;
+    return true;
+  });
+
+  updateSidebarBadge(notes.length);
+  updateHeaderBadges(notes);
+  buildChips();
+  ntRenderSide(notes);
+  var shown = document.getElementById('nt-shown');
+  if (shown) shown.textContent = filtered.length + ' / ' + notes.length;
+
+  var wrap = document.getElementById('nt-groups');
+  if (!wrap) return;
+
+  if (filtered.length === 0) {
+    wrap.innerHTML = '<div class="nt-empty">'
+      + '<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>'
+      + esc(tl('note.empty')) + '</div>';
+    return;
+  }
+
+  wrap.innerHTML = '<div class="nt-wall">' + filtered.map(cardHtml).join('') + '</div>';
+}
+
+function cardHtml(n) {
+  var cls = CAT_CLS[n.category] || 't-note';
+  var liveClass = n.live ? ' is-live' : '';
+
+  // tags row
+  var tags = '<span class="nt-tag cat">'+esc(tl(CAT_KEY[n.category]||'note.cat.note'))+'</span>';
+  if (n.live) tags += '<span class="nt-tag live">'+esc(tl('note.cat.live'))+'</span>';
+
+  // meta badges (priority, status, attachments)
+  var metaBadges = '';
+  if (n.priority) {
+    var pk = {low:'notes.prio.low',med:'notes.prio.med',high:'notes.prio.high'}[n.priority];
+    metaBadges += '<span class="nt-badge '+(PRIO_CLS[n.priority]||'')+'">'+esc(tl(pk))+'</span>';
+  }
+  if (n.status) {
+    var sk = {open:'notes.st.open',progress:'notes.st.progress',resolved:'notes.st.resolved'}[n.status];
+    metaBadges += '<span class="nt-badge st '+(STATUS_CLS[n.status]||'')+'" onclick="cycleStatus('+n.id+')" title="'+esc(tl('notes.f.status'))+'">'+esc(tl(sk))+'</span>';
+  }
+  (n.attachments||[]).forEach(function(a){
+    metaBadges += '<span class="nt-att-pill">'+paperclip(10)+'<span>'+esc(a.name)+'</span></span>';
+  });
+
+  return '<div class="nt-card '+cls+liveClass+'" data-nid="'+n.id+'">'
+    + '<div class="nt-card-tags">'+tags+'</div>'
+    + (n.text ? '<p class="nt-text">'+esc(n.text)+'</p>' : '')
+    + (metaBadges ? '<div class="nt-meta" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;padding-left:4px">'+metaBadges+'</div>' : '')
+    + '<div class="nt-card-meta">'
+    + '<span class="nt-mod-pill">'+esc(moduleShort(n.module))+'</span>'
+    + '<span class="nt-date">'+esc(n.time||'')+'</span>'
+    + '</div>'
+    + '<div class="nt-card-actions">'
+    + '<button class="nt-action-btn" onclick="openModal('+n.id+')">'
+    + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>'
+    + esc(tl('notes.edit')||'Edit') + '</button>'
+    + '<button class="nt-action-btn del" onclick="delNote('+n.id+')">'
+    + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>'
+    + esc(tl('note.delete')) + '</button>'
+    + '</div>'
+    + '</div>';
+}
+
+// ── Colonna destra (prototipo): in attesa di risposta · note per modulo · prossima sessione live ──
+function ntRenderSide(notes) {
+  var side = document.getElementById('pt-side'); if (!side) return;
+  function sec(icon, title, body) {
+    return '<section class="pt-sec"><div class="pt-sec-hd"><span class="pt-ic">' + icon + '</span><span class="pt-sec-t">' + title + '</span><span class="pt-rule"></span></div><div class="pt-sec-bd">' + body + '</div></section>';
+  }
+  function tt(k, fb) { var v = tl(k); return v === k ? fb : v; }
+  var IC_Q = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.5v.7"/><path d="M12 17h.01"/></svg>';
+  var IC_L = '<svg viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg>';
+  var IC_V = '<svg viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3"/></svg>';
+  // domande e problemi non ancora risolti
+  var waiting = notes.filter(function (n) { return (n.category === 'Domanda' || n.category === 'Problema') && n.status !== 'resolved'; });
+  var html = sec(IC_Q, tt('notes.side.waiting', 'Waiting for an answer'), waiting.length
+    ? waiting.slice(0, 4).map(function (n) {
+        return '<a class="nt-wait" href="#" onclick="openModal(' + n.id + ');return false;"><i class="' + (n.category === 'Problema' ? 'issue' : 'question') + '"></i><span><b>' + esc(n.text) + '</b>'
+          + '<span class="pt-sub">' + esc(tl(CAT_KEY[n.category])) + ' \xB7 ' + esc(n.time || '') + '</span></span></a>';
+      }).join('')
+    : '<span class="pt-sub">' + tt('notes.side.nowaiting', 'Nothing waiting — all answered.') + '</span>');
+  // note per modulo
+  html += sec(IC_L, tt('notes.side.bymod', 'Notes by module'), MODULE_OPTS.filter(function (o) { return o.v; }).map(function (o) {
+    var c = notes.filter(function (n) { return (n.module || '') === o.v; }).length;
+    return '<a class="pt-count" href="#" onclick="setModuleFilter(\'' + esc(o.v).replace(/'/g, "\\'") + '\');document.getElementById(\'nt-fmodule\').value=\'' + esc(o.v).replace(/'/g, "\\'") + '\';return false;"><i class="' + (c ? 'cur' : '') + '"></i><span class="pt-grow">' + esc(o.short) + ' \xB7 ' + esc(o.v.split(' - ').slice(1).join(' - ')) + '</span><b>' + c + '</b></a>';
+  }).join(''));
+  // prossima sessione live (dal manager; altrimenti lo stesso esempio della Home)
+  var ses = null; try { ses = (window.awLoadSessions ? awLoadSessions() : [])[0] || null; } catch (e) {}
+  var d = new Date(); d.setDate(d.getDate() + 2);
+  var when = ses && ses.date ? ses.date : d.toISOString().slice(0, 10);
+  // 14/10: nell'edizione solo una sessione vera (niente "E. Bianchi" inventato); ora e host nel formato della lingua
+  if (ses || !window.AW_CONTENT)
+  html += '<div class="pt-term"><div class="pt-sec-hd"><span class="pt-ic">' + IC_V + '</span><span class="pt-sec-t">' + tt('notes.side.live', 'Next live Q&A') + '</span></div><div class="pt-term-bd">'
+    + '<span class="pt-term-name">' + awFmtISO(when, { weekday: 'short', day: 'numeric', month: 'short' }) + ' \xB7 ' + esc(awFmtTime((ses && ses.time) || '14:00')) + '</span>'
+    + '<span class="pt-term-desc">' + esc(awWho(ses && ses.host) || 'E. Bianchi') + ' \xB7 ' + tt('notes.side.livesub', 'bring your open questions') + '</span></div></div>';
+  side.innerHTML = html;
+}
+
+// ── Lang change ──────────────────────────────────────────────────────
+window._onLangChange = function(lang) {
+  LANG = lang;
+  buildSelects();
+  buildFilterDropdowns();
+  buildChips();
+  renderPending();
+  render();
+  setTimeout(fixSidebarActive, 0);
+};
+
+function fixSidebarActive() {
+  var sb = document.getElementById('sb-modules');
+  if (!sb) return;
+  sb.querySelectorAll('a.sb-item').forEach(function(a) {
+    var href = a.getAttribute('href') || '';
+    if (href.indexOf('notes.html') !== -1) a.classList.add('active');
+    else a.classList.remove('active');
+  });
+}
+
+// ── Seed demo notes (solo se localStorage è vuoto) ──────────────────
+function seedDemoNotes() {
+  var existing = loadNotes();
+  if (existing.length > 0) return;
+  // Note di esempio: testo generico (vale per qualunque training) agganciato a moduli che
+  // esistono davvero nel catalogo — mai a un modulo che l'utente non trova.
+  var mods = MODULE_OPTS.slice(1).map(function (o) { return o.v; });
+  function modAt(i) { return mods.length ? mods[Math.min(i, mods.length - 1)] : ''; }
+  // 14/10: nell'edizione le note parlano dei capitoli fatti, sono nella lingua scelta e datate ieri / 2-3 giorni fa
+  // (prima: giugno, solo inglese, su OEE e un grafico dei downtime che il training non ha).
+  if (window.AW_CONTENT) {
+    var lc = window.awLangCode(), ago = function (days, h, m) { var x = new Date(); x.setDate(x.getDate() - days); x.setHours(h, m, 0, 0);
+      return x.toLocaleTimeString(lc, { hour: '2-digit', minute: '2-digit' }) + ' - ' + x.toLocaleDateString(lc, { day: '2-digit', month: 'short' }); };
+    persist([
+      { id: 1750000001, text: awDictT('Who puts the order in Ready on our line: the supervisor or me?'), category: 'Domanda', live: false, module: modAt(1), time: ago(1, 16, 40), priority: 'med', attachments: [] },
+      { id: 1750000002, text: awDictT('Activities: open one, claim it, then submit it.'), category: 'Appunto', live: false, module: modAt(2), time: ago(2, 10, 15), attachments: [] },
+      { id: 1750000003, text: awDictT('For the live Q&A: ask what purple OFFLINE means for our machines.'), category: 'Appunto', live: true, module: modAt(0), time: ago(3, 9, 5), attachments: [] }
+    ]);
+    return;
+  }
+  var demo = [
+    {
+      id: 1750000001,
+      text: 'Remember to check the threshold values in the report before Wednesday’s session.',
+      category: 'Appunto',
+      live: true,
+      module: modAt(1),
+      time: '18 Jun 23:37',
+      attachments: []
+    },
+    {
+      id: 1750000002,
+      text: 'What is the difference between calculated and declared OEE? The trainer said it depends on how micro-stops are recorded.',
+      category: 'Domanda',
+      live: false,
+      module: modAt(0),
+      time: '15 Jun 11:20',
+      priority: 'med',
+      attachments: []
+    },
+    {
+      id: 1750000003,
+      text: 'The downtime chart does not refresh when the shift filter changes until the page is reloaded. To report to the IT team.',
+      category: 'Problema',
+      live: false,
+      module: modAt(1),
+      time: '12 Jun 09:05',
+      priority: 'high',
+      status: 'open',
+      attachments: []
+    }
+  ];
+  persist(demo);
+}
+
+// ── Init ─────────────────────────────────────────────────────────────
+applyLang(LANG);
+renderChrome('notes');
+fixSidebarActive();
+seedDemoNotes();
+buildSelects();
+buildFilterDropdowns();
+buildChips();
+render();
+// deep-link dalla ricerca globale: ?note=<id> → evidenzia e scorre alla nota
+try {
+  var _nid = new URLSearchParams(location.search).get('note');
+  if (_nid) {
+    var _card = document.querySelector('.nt-card[data-nid="' + _nid + '"]');
+    if (_card) { _card.classList.add('nt-hl'); _card.scrollIntoView({ block: 'center' }); }
+  }
+} catch (e) {}
+</script>
+
+</body>
+</html>

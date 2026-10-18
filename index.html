@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>(function(){var t=localStorage.getItem('aw_theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})()</script>
+<link rel="stylesheet" href="shared-r14.css?v=20261009a">
+<script src="edition.js?v=202610161633"></script>
+<script src="shared.js?v=20261016f"></script>
+<script src="translations.js?v=20261016e"></script>
+<script src="content.js?v=202610161633"></script>
+<script src="pkx_translations.js?v=20261016f"></script>
+<script src="pkx_video.js?v=20261016f"></script>
+<script src="glossary_data.js?t=63"></script>
+<title data-i18n="title.index">Training Platform · autoware</title>
+<style>
+/* ── HOME — dashboard a 2 colonne (main + sidebar), ispirata a layout reali ── */
+.h-wrap{position:relative;padding:14px 22px;display:grid;grid-template-columns:minmax(0,1fr) 336px;gap:18px;max-width:1600px;margin:0 auto;width:100%;align-items:start}
+/* trattamento di sfondo — glow morbido dietro l'hero, derivato dai token brand (mai un nuovo colore) */
+.h-wrap::before{content:'';position:absolute;top:-18px;left:-22px;right:-22px;height:420px;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(ellipse 780px 380px at 14% 0%, rgba(15,39,87,.06), transparent 62%),
+    radial-gradient(ellipse 620px 320px at 92% 4%, rgba(224,49,138,.05), transparent 58%);}
+[data-theme="dark"] .h-wrap::before{
+  background:
+    radial-gradient(ellipse 780px 380px at 14% 0%, rgba(69,101,173,.10), transparent 62%),
+    radial-gradient(ellipse 620px 320px at 92% 4%, rgba(224,49,138,.07), transparent 58%);}
+.h-main{display:flex;flex-direction:column;gap:18px;min-width:0}
+.h-side{display:flex;flex-direction:column;gap:12px;min-width:0}
+/* ── MY TRAINING — copertine corso (Operator/Superuser). Layout ORIZZONTALE (cover a sinistra + testo a
+   destra): riempie la riga in larghezza senza allungare la card in altezza — la sezione deve stare nel
+   viewport senza costringere a scrollare la pagina. */
+.hd-crs-row{display:flex;gap:14px;flex-wrap:wrap}
+.lib-card{flex:1 1 300px;max-width:380px;display:flex;flex-direction:row;align-items:stretch;border:.5px solid var(--border2);border-left:4px solid var(--aw-navy);border-radius:12px;overflow:hidden;background:var(--bg);box-shadow:var(--e3);cursor:pointer;text-decoration:none;transition:box-shadow .16s,transform .16s}
+.lib-card:hover{box-shadow:var(--e4);transform:translateY(-2px)}
+.lib-card[data-track="tillit-su"]{border-left-color:#E91E8C}
+.lib-cover{position:relative;width:104px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:#F5F6F8;overflow:hidden}
+.lib-card[data-track="tillit-su"] .lib-cover{background:#FDF2F8}
+.lib-role{position:absolute;top:7px;left:7px;display:inline-flex;align-items:center;gap:3px;padding:3px 7px 3px 5px;border-radius:20px;font-size:8.5px;font-weight:700;letter-spacing:.01em;background:var(--aw-navy);color:#fff;line-height:1}
+.lib-role svg{width:10px;height:10px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.lib-role[data-role="tillit-su"]{background:#E91E8C}
+.lib-cover-logo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.lib-body{display:flex;flex-direction:column;justify-content:center;padding:12px 15px;flex:1;min-width:0}
+.lib-name{font-size:13px;font-weight:600;color:var(--text);line-height:1.3;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lib-meta{font-size:10.5px;color:var(--text2);margin-bottom:9px;line-height:1.3}
+.lib-bar{height:4px;border-radius:2px;background:var(--bg2);overflow:hidden}
+.lib-bar-fill{height:100%;border-radius:2px;background:#E91E8C;transition:width .4s}
+.lib-prog-lbl{font-size:10.5px;font-weight:500;color:#E91E8C;margin-top:6px;font-family:var(--font-mono)}
+@media(max-width:520px){.lib-card{flex-basis:100%}}
+/* ── CONTINUE CARD — il capitolo in corso, sezione "Resume". Composta da 3 riquadri distinti (intestazione /
+   progresso+stepper / azioni) separati da divisori netti + un pannello con ombra propria per lo stepper (il
+   cuore informativo): niente più righe di testo buttate lì senza gerarchia. ── */
+.hd-cur-card{padding:0;border-radius:14px;background:linear-gradient(135deg,rgba(224,49,138,.07),rgba(224,49,138,.02));border:1px solid rgba(224,49,138,.22);box-shadow:var(--e2);overflow:hidden}
+.hd-cur-head{padding:14px 18px 12px;border-bottom:1px solid rgba(224,49,138,.16)}
+/* riga intestazione a 3 blocchi: badge+testo a sinistra, CTA "Inizia/Riprendi" al centro, thumbnail a destra
+   (justify-content:space-between li distribuisce lungo tutta la riga). Il CTA vive qui — non più in un footer
+   separato — cosi la card resta corta quando non ci sono capitoli da espandere (nessuna sezione extra). */
+.hd-cur-top{display:flex;align-items:center;gap:20px}
+/* flex:1 = il blocco testo/CTA cresce a riempire la riga, cosi la thumbnail resta ancorata subito dopo
+   (con un solo gap fisso) invece di lasciare una banda vuota generata dal precedente space-between */
+.hd-cur-top-l{display:flex;align-items:center;gap:16px;min-width:0;flex:1}
+.hd-cur-badge{width:44px;height:44px;border-radius:12px;background:var(--aw-pink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;flex-shrink:0;font-family:var(--font-mono);box-shadow:0 6px 14px rgba(224,49,138,.35)}
+.hd-cur-info{min-width:0}
+.hd-cur-eyebrow{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--aw-pink);margin-bottom:4px}
+.hd-cur-title{font-size:17px;font-weight:800;color:var(--text);letter-spacing:-.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hd-cur-title b{color:var(--aw-pink);font-weight:800;font-size:12px;letter-spacing:.04em;margin-right:8px;font-family:var(--font-mono)}
+/* meta (capitoli/durata) come chip distinti affiancati — distribuiti in orizzontale invece di un'unica
+   riga di testo con un punto come separatore, ora che la riga ha più spazio a disposizione */
+.hd-cur-meta{margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hd-cur-meta .mchip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--text2);background:var(--bg2);padding:5px 11px;border-radius:20px;white-space:nowrap}
+.hd-cur-meta svg{width:12px;height:12px;opacity:.75}
+/* pannello progresso+stepper — riquadro a sé (sfondo diverso dal resto della card + ombra interna, non un
+   margine fluttuante ingombrante): è il cuore informativo della card, deve leggersi come tale a colpo d'occhio,
+   restando comunque compatto */
+/* tono pink-tinted coerente con il gradiente della card (non il --bg2 neutro usato per i "pozzetti" altrove):
+   il pannello legge come una sezione incassata della STESSA superficie, non un blocco scollegato sotto */
+.hd-cur-panel{padding:12px 18px;background:rgba(224,49,138,.045);box-shadow:inset 0 1px 4px rgba(15,39,87,.06);border-bottom:1px solid rgba(224,49,138,.14)}
+/* riga dato quantitativo: "N% · X di 6 sezioni" — il progresso del capitolo in corso vive QUI (non più nella Welcome) */
+.hd-cur-prog{font-size:12.5px;font-weight:700;color:var(--aw-pink)}
+/* stepper 6 tappe — stato REALE per-sezione del capitolo in corso: nodi più grandi + una vera barra di
+   connessione fatta/da-fare, non solo un separatore tipografico */
+.hd-cur-steps{display:flex;align-items:flex-start;gap:0;margin-top:10px}
+.hd-cur-step{display:inline-flex;flex-direction:column;align-items:center;gap:6px;font-size:10.5px;color:var(--text3);white-space:nowrap;text-align:center}
+.hd-cur-step .n{width:26px;height:26px;border-radius:50%;background:var(--bg2);color:var(--text3);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--font-mono);border:2px solid var(--bg2);transition:background .2s,border-color .2s}
+.hd-cur-step .n svg{width:12px;height:12px}
+.hd-cur-step.done{color:var(--text2)}
+.hd-cur-step.done .n{background:var(--teal);color:#fff;border-color:var(--teal)}
+.hd-cur-step.cur{color:var(--text);font-weight:700}
+.hd-cur-step.cur .n{background:var(--bg);color:var(--aw-pink);border-color:var(--aw-pink);box-shadow:0 0 0 3px rgba(224,49,138,.15)}
+/* margin-top:12px = metà del nodo (26px) meno metà della linea (2px): allinea la connessione al centro dei cerchi,
+   non al centro dell'intero step (che include anche l'etichetta sotto) */
+.hd-cur-step-sep{flex:1;height:2px;min-width:10px;background:var(--bg2);margin:12px -1px 0;border-radius:1px;align-self:flex-start}
+.hd-cur-step-sep.done{background:var(--teal)}
+/* segmento che entra nello step corrente: dissolve da teal (fatto) a fucsia (in corso) invece del
+   passaggio netto teal->grigio, cosi il percorso "fatto" si lega visivamente allo step attivo */
+.hd-cur-step-sep.tocur{background:linear-gradient(to right, var(--teal), var(--aw-pink))}
+/* usata solo quando ci sono capitoli espandibili (foot con la sola lista sotto la riga di intestazione) */
+.hd-cur-foot{padding:12px 18px 14px}
+.hd-cur-actions{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.hd-cur-cta{background:var(--aw-pink);color:#fff;border:none;border-radius:9px;padding:9px 16px;font-size:12.5px;font-weight:700;font-family:var(--font);display:inline-flex;align-items:center;gap:7px;cursor:pointer;text-decoration:none;box-shadow:0 6px 14px rgba(224,49,138,.3);transition:background .15s,transform .15s}
+.hd-cur-cta:hover{background:#c9106d;transform:translateY(-1px)}
+.hd-cur-cta svg{width:14px;height:14px}
+/* pillola con etichetta (non solo icona): la funzione "espandi/comprimi capitoli" deve leggersi da sola, non competere in ambiguità col CTA Riprendi */
+.hd-cur-chaptoggle{height:32px;border-radius:9px;border:.5px solid rgba(224,49,138,.25);background:var(--bg);display:inline-flex;align-items:center;gap:6px;color:var(--aw-pink);cursor:pointer;padding:0 12px;flex-shrink:0;font-size:12px;font-weight:600;font-family:var(--font);transition:background .12s,transform .2s}
+.hd-cur-chaptoggle:hover{background:rgba(224,49,138,.08)}
+.hd-cur-chaptoggle svg{width:14px;height:14px;transition:transform .2s;flex-shrink:0}
+.hd-cur-card.open .hd-cur-chaptoggle svg{transform:rotate(180deg)}
+.hd-cur-subs{display:none;margin-top:12px;padding-top:12px;border-top:.5px solid rgba(224,49,138,.16)}
+.hd-cur-card.open .hd-cur-subs{display:block}
+
+/* card base — ombre marcate per dare profondità al contenuto */
+.hd-card{background:var(--bg);border:.5px solid var(--border);border-radius:16px;box-shadow:var(--e2)}
+.hd-sec-hd{display:flex;align-items:center;gap:14px;margin-bottom:0}
+/* il TESTO è protagonista; l'icona resta un accento discreto */
+.hd-sec-t{font-size:25px;font-weight:800;color:var(--text);letter-spacing:-.6px;line-height:1.05;display:inline-flex;align-items:center;gap:10px}
+.hd-sec-icwrap{width:28px;height:28px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--aw-pink)}
+.hd-sec-ic{width:23px;height:23px;color:var(--aw-pink);flex-shrink:0;opacity:.9}
+.hd-viewall{font-size:12px;color:var(--text3);text-decoration:none;font-weight:500;margin-left:auto;flex-shrink:0}
+.hd-viewall:hover{color:var(--aw-pink)}
+
+/* ── CAPITOLI (dentro la card Continue learning) ── */
+.hd-msub{display:flex;align-items:center;gap:11px;padding:7px 10px;border-radius:8px;position:relative;text-decoration:none;transition:background .12s}
+a.hd-msub:hover{background:var(--bg)}
+.hd-msub-node{width:22px;height:22px;border-radius:7px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;background:var(--bg3);color:var(--text3);border:.5px solid var(--border)}
+.hd-msub-node svg{width:11px;height:11px}
+.hd-msub.done .hd-msub-node{background:var(--teal-l);color:var(--teal-d);border-color:transparent}
+.hd-msub.cur .hd-msub-node{background:var(--aw-pink);color:#fff;border-color:transparent}
+.hd-msub-id{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.03em;min-width:30px;flex-shrink:0;font-family:var(--font-mono)}
+.hd-msub-name{font-size:12.5px;color:var(--text);font-weight:500;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+a.hd-msub:hover .hd-msub-name{color:var(--aw-pink)}
+.hd-msub-go{width:14px;height:14px;color:var(--text3);flex-shrink:0;opacity:0;transition:opacity .12s}
+a.hd-msub:hover .hd-msub-go{opacity:1}
+
+/* ── WELCOME (compatto) ── */
+.hd-welcome{position:relative;background:var(--aw-hero-grad);border-radius:18px;box-shadow:var(--e4);overflow:hidden;display:flex;align-items:center;padding:34px 26px;min-height:132px}
+/* frecce di brand Autoware (Picture1.png, pink=azione/azzurro=dati, da analisi autoware.it) come
+   texture decorativa laterale. Il testo riempie quasi tutta la card sotto ~1250px di viewport (il
+   testo non si accorcia, è la card a restringersi con la sidebar) → sotto quella soglia non c'è
+   spazio laterale libero e la grafica resta spenta; sopra, mask-image la dissolve verso il testo. */
+.hd-welcome-arrows{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+@media(min-width:1250px){
+  .hd-welcome-arrows{
+    -webkit-mask-image:linear-gradient(to left,#000 45%,transparent 82%);
+    mask-image:linear-gradient(to left,#000 45%,transparent 82%)}
+  .hd-welcome-arrows::before{content:'';position:absolute;top:-14%;right:-6%;width:60%;height:86%;
+    background:radial-gradient(circle,rgba(255,255,255,.14),transparent 70%)}
+  .hd-welcome-arrows::after{content:'';position:absolute;inset:0;
+    background-image:url('Picture1.png');background-repeat:no-repeat;
+    background-size:32% auto;background-position:right -7px top -123px;
+    filter:drop-shadow(0 6px 14px rgba(0,0,0,.35)) brightness(1.12) saturate(1.05);opacity:.85}
+}
+.hd-welcome-l{flex:1;min-width:0;z-index:1}
+.hd-eyebrow{font-size:10px;letter-spacing:.1em;color:rgba(255,255,255,.45);text-transform:uppercase;font-weight:600;margin-bottom:8px}
+.hd-welcome-h{font-size:22px;font-weight:600;color:#fff;letter-spacing:-.3px;line-height:1.25;min-width:0}
+/* volto allineato ALLA RIGA del saluto (non all'intero blocco eyebrow+saluto): avatar e "Good afternoon…" si
+   leggono come un'unica voce invece di sembrare due elementi scollegati */
+.hd-welcome-top{display:flex;align-items:center;gap:12px;margin-bottom:2px}
+.hd-welcome-avatar{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.28);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+/* tagline di piattaforma/brand — sostituisce il vecchio riferimento al modulo specifico (spostato nella card Resume) */
+.hd-welcome-sub{font-size:12.5px;color:rgba(255,255,255,.62);margin:6px 0 12px;max-width:440px}
+/* pillola streak / ultimo accesso — solo se c'è un segnale reale (aw_activity_log), mai un numero finto */
+.hd-welcome-streak{position:absolute;z-index:1;top:18px;right:22px;display:none;align-items:center;gap:6px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);border-radius:20px;padding:5px 12px 5px 9px;font-size:11.5px;font-weight:600;color:rgba(255,255,255,.82);white-space:nowrap}
+.hd-welcome-streak svg{width:13px;height:13px;color:var(--aw-pink);flex-shrink:0}
+@media(max-width:640px){.hd-welcome{flex-wrap:wrap}.hd-welcome-streak{position:static;order:3;margin-top:10px}}
+/* thumbnail del capitolo in corso: riusa (scalata) l'illustrazione .iv-dev gia mostrata nell'Intro del modulo.
+   Decorativa, non cliccabile: l'unica azione della card resta il CTA Riprendi qui sotto.
+   Box dimensionato sul contenuto PIU alto (login, 418px naturali) cosi nessuna variante viene tagliata; le
+   varianti piu basse (cockpit/station view) lasciano solo un margine navy in piu sotto, mai un ritaglio. */
+.hd-cur-thumb{position:relative;width:180px;height:150px;border-radius:11px;overflow:hidden;flex-shrink:0;box-shadow:var(--e2);background:var(--aw-navy)}
+.hd-cur-thumb-scale{width:520px;transform-origin:top left}
+.hd-cur-thumb-scale .iv-dev{border-radius:0}
+/* ── STATION VIEW (subset .sv-*) — non e nel CSS condiviso (vive solo inline in OP-03.html): copia minima
+   dei soli selettori usati dalla thumbnail qui sopra, altrimenti il preview del modulo 03 e privo di stile. ── */
+.sv{background:#f4f5f7;border:1px solid #d5d9e0;border-radius:10px;overflow:hidden;font-family:-apple-system,'Inter',sans-serif;text-align:left;box-shadow:0 1px 3px rgba(15,39,87,.08)}
+.sv-top{background:#fff;border-bottom:1px solid #eceef2;padding:7px 10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:38px}
+.sv-date{display:flex;align-items:center;gap:6px;padding:4px 9px;border:1px solid #e5e7eb;border-radius:6px;background:#fff;white-space:nowrap}
+.sv-date svg{width:13px;height:13px;color:#9ca3af;flex-shrink:0}
+.sv-date-lbl{font-size:7px;color:#2f6bd8;line-height:1.1;font-weight:600}
+.sv-date-val{font-size:10px;color:#374151;font-weight:700;line-height:1.2}
+.sv-arrows{display:flex;gap:3px}
+.sv-arr{width:22px;height:22px;border:1px solid #e5e7eb;border-radius:5px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;color:#6b7280}
+.sv-pin{width:26px;height:26px;border-radius:50%;background:#eef0f3;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sv-pin svg{width:14px;height:14px;color:#6b7280}
+.sv-seg{position:relative;display:inline-flex}
+.sv-seg-btn{padding:5px 13px;border-radius:6px;font-size:12px;font-weight:700;color:#fff;white-space:nowrap;display:flex;flex-direction:column;align-items:center;line-height:1.25}
+.sv-seg-btn .sub{font-size:8px;opacity:.9;font-weight:500}
+.sv-seg-btn.green{background:#22c55e}
+.sv-seg-badge{position:absolute;right:-6px;bottom:-6px;min-width:16px;height:16px;padding:0 3px;border-radius:9px;background:#eab308;color:rgba(0,0,0,.78);font-size:8px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff}
+.sv-stage{background:#f59e0b;color:#fff;font-size:9px;font-weight:800;letter-spacing:.06em;padding:4px 9px;border-radius:5px}
+.sv-body{display:grid;gap:10px;padding:10px;background:#f4f5f7}
+.sv-col{overflow:hidden}
+.sv-po{display:flex;flex-direction:column;gap:9px;min-width:0}
+.sv-work{display:flex;flex-direction:column;min-width:0}
+.sv-card{background:#fff;border:1px solid #edeff2;border-radius:9px;box-shadow:0 1px 2px rgba(15,39,87,.05)}
+.sv-oc{padding:10px 12px}
+.sv-oc-hd{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px}
+.sv-oc-title{font-size:12.5px;font-weight:700;color:#111827}
+.sv-oc-code{font-size:9px;color:#6b7280;line-height:1.45;margin-bottom:8px;word-break:break-word}
+.sv-mrow{display:flex;align-items:center;gap:6px;font-size:10px;color:#374151;margin-bottom:5px}
+.sv-mrow svg{width:13px;height:13px;color:#9ca3af;flex-shrink:0}
+.sv-mrow .run{margin-left:auto;display:flex;align-items:center;gap:4px;color:#16a34a;font-weight:700}
+.sv-mrow .run svg{width:14px;height:14px;color:#16a34a}
+.sv-prog-bar{height:8px;background:#eef0f3;border-radius:5px;position:relative;margin:7px 0 5px}
+.sv-prog-fill{height:100%;background:#16a34a;border-radius:5px}
+.sv-tabs{display:flex;align-items:center;border-bottom:1px solid #eceef2;background:#fff;padding:0 2px;border-radius:9px 9px 0 0}
+.sv-tab{padding:9px 12px;font-size:12px;color:#9ca3af;border-bottom:2px solid transparent;font-weight:500}
+.sv-tab.active{color:#2563eb;border-color:#2563eb;font-weight:700}
+.sv-list{overflow-y:auto;flex:1;background:#f4f5f7;padding:2px 0 6px}
+.sv-pri-banner{background:#ef4444;color:#fff;font-size:11px;font-weight:800;letter-spacing:.05em;text-align:center;padding:8px;text-transform:uppercase;margin:8px 8px 4px;border-radius:6px}
+.sv-ac{background:#fff;border:1px solid #edeff2;border-radius:9px;margin:8px;padding:11px 12px}
+.sv-ac-title{font-size:12.5px;font-weight:700;color:#111827;margin-bottom:3px}
+
+/* ── ASSIGNED TRAINING CARDS ── */
+.hd-trainings{display:flex;flex-direction:column;gap:10px}
+.hd-tcard{background:var(--bg);border:.5px solid var(--border);border-radius:11px;box-shadow:var(--e2);padding:11px 14px;display:flex;flex-direction:row;align-items:center;gap:12px;text-decoration:none;transition:box-shadow .15s,transform .15s;border-left:3px solid var(--aw-pink)}
+.hd-tcard:hover{box-shadow:var(--e3);transform:translateY(-1px)}
+.hd-tcard-top{display:none}
+.hd-tcard-meta{display:none}
+.hd-tcard-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+.hd-tcard-pill{font-size:9.5px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.hd-tcard-pill.cur{background:var(--amber-l);color:var(--amber-d)}
+.hd-tcard-pill.done{background:var(--teal-l);color:var(--teal-d)}
+.hd-tcard-pill.lock{background:var(--bg3);color:var(--text3)}
+.hd-tcard-foot{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.hd-tcard-track{width:72px;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;flex-shrink:0}
+.hd-tcard-fill{height:100%;border-radius:3px;background:var(--aw-pink)}
+.hd-tcard-pct{font-size:11px;color:var(--text2);font-weight:600;white-space:nowrap}
+.hd-tcard-go{width:22px;height:22px;border-radius:6px;background:var(--bg2);border:.5px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text3);flex-shrink:0;transition:background .15s,color .15s}
+.hd-tcard-go svg{width:12px;height:12px}
+.hd-tcard:hover .hd-tcard-go{background:var(--aw-pink);color:#fff;border-color:var(--aw-pink)}
+
+/* ── PROGRESS TABLE ── */
+.hd-table{padding:6px 4px 4px}
+.hd-tr{display:grid;grid-template-columns:30px minmax(0,1fr) 88px 150px 96px;align-items:center;gap:8px;padding:11px 16px;border-radius:9px;text-decoration:none}
+.hd-tr.head{padding-top:8px;padding-bottom:8px}
+.hd-th{font-size:10.5px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em}
+.hd-row{border-top:.5px solid var(--border)}
+.hd-row.clk{cursor:pointer}
+.hd-row.clk:hover{background:var(--bg2)}
+.hd-row.next-up{box-shadow:inset 3px 0 0 var(--aw-pink)}
+.hd-td{font-size:13px;color:var(--text);min-width:0}
+.hd-num{font-size:12px;color:var(--text3);font-weight:600}
+.hd-modname{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hd-modname small{display:block;font-size:11px;color:var(--text3);font-weight:400}
+.hd-sec{font-size:12px;color:var(--text2)}
+.hd-prog{display:flex;align-items:center;gap:8px}
+.hd-prog-track{flex:1;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.hd-prog-fill{height:100%;border-radius:3px}
+.hd-prog-pct{font-size:11px;color:var(--text2);font-weight:600;width:34px;text-align:right}
+
+/* ── CARD SHARED ── */
+.hd-pad{padding:13px 16px}
+.hd-card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.hd-card-t{font-size:14px;font-weight:600;color:var(--text)}
+
+/* ── AGENDA (impegni di training) — next-up hero + timeline ── */
+.hd-ag-card{box-shadow:var(--e2);border-color:var(--border2);background:var(--bg2)}
+.hd-ag-card .hd-card-hd{margin-bottom:9px}
+
+/* HERO = prossimo impegno, in evidenza */
+.hd-ag-hero{position:relative;display:flex;gap:12px;align-items:center;padding:11px 13px;border-radius:13px;background:var(--bg);border:.5px solid var(--border2);box-shadow:var(--e1);text-decoration:none;overflow:hidden;transition:box-shadow .14s,transform .14s}
+a.hd-ag-hero:hover{box-shadow:var(--e2);transform:translateY(-1px)}
+.hd-ag-hero::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--aw-blue)}
+.hd-ag-hero.tp-deadline::before{background:var(--amber-d)}
+.hd-ag-hero.tp-deadline.urgent::before{background:var(--red-d)}
+.hd-ag-hero-ic{width:42px;height:42px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.hd-ag-hero-ic svg{width:19px;height:19px}
+.hd-ag-hero-ic.tp-session{background:rgba(24,95,165,.12);color:var(--aw-blue)}
+.hd-ag-hero-ic.tp-deadline{background:var(--amber-l);color:var(--amber-d)}
+.hd-ag-hero-ic.tp-deadline.urgent{background:var(--red-l);color:var(--red-d)}
+.hd-ag-hero-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.hd-ag-eyebrow{display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:var(--aw-pink)}
+.hd-ag-eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--aw-pink);box-shadow:0 0 0 3px rgba(224,49,138,.18);animation:hd-ag-pulse 1.8s ease-in-out infinite}
+@keyframes hd-ag-pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.hd-ag-hero-t{font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.15px}
+.hd-ag-hero-sub{font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hd-ag-cd{flex-shrink:0;display:flex;align-items:center;justify-content:center;min-width:52px;padding:8px 9px;border-radius:11px;font-size:12.5px;font-weight:800;line-height:1.15;text-align:center;letter-spacing:.01em}
+
+/* TIMELINE = impegni successivi */
+.hd-ag-tl{position:relative;margin-top:8px;padding-left:4px}
+.hd-ag-tl::before{content:'';position:absolute;left:15px;top:14px;bottom:16px;width:2px;background:var(--border)}
+.hd-ag-tlitem{position:relative;display:flex;align-items:flex-start;gap:12px;padding:6px 4px;border-radius:9px;text-decoration:none;transition:background .12s}
+a.hd-ag-tlitem:hover{background:var(--bg)}
+.hd-ag-dot{position:relative;z-index:1;width:24px;height:24px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 3px var(--bg2)}
+.hd-ag-dot svg{width:12px;height:12px}
+.hd-ag-dot.tp-session{background:rgba(24,95,165,.12);color:var(--aw-blue)}
+.hd-ag-dot.tp-deadline{background:var(--amber-l);color:var(--amber-d)}
+.hd-ag-dot.tp-deadline.urgent{background:var(--red-l);color:var(--red-d)}
+.hd-ag-tlbody{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;padding-top:1px}
+.hd-ag-tlrow{display:flex;align-items:center;gap:8px}
+.hd-ag-tlt{font-size:12.5px;font-weight:600;color:var(--text);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .12s}
+a.hd-ag-tlitem:hover .hd-ag-tlt{color:var(--aw-pink)}
+.hd-ag-tlsub{font-size:10.5px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* badge "quando" condiviso + countdown hero */
+.hd-ag-when{font-size:9.5px;font-weight:700;white-space:nowrap;flex-shrink:0;padding:2px 7px;border-radius:6px;letter-spacing:.01em}
+.hd-ag-when.urgent,.hd-ag-cd.urgent{background:var(--red-l);color:var(--red-d)}
+.hd-ag-when.soon,.hd-ag-cd.soon{background:var(--amber-l);color:var(--amber-d)}
+.hd-ag-when.ok,.hd-ag-cd.ok{background:var(--bg3);color:var(--text3)}
+
+/* CTA (es. Remind me) */
+.hd-ag-action{align-self:flex-start;margin-top:7px;font-size:11px;font-weight:600;font-family:var(--font);border:.5px solid var(--border2);background:var(--bg);color:var(--text2);padding:5px 12px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.hd-ag-action svg{width:12px;height:12px}
+.hd-ag-action:hover{border-color:var(--aw-pink);color:var(--aw-pink);background:rgba(224,49,138,.05)}
+.hd-ag-action:disabled{opacity:.65;cursor:default;border-color:var(--border);color:var(--text3);background:var(--bg2)}
+.hd-ag-empty{font-size:12.5px;color:var(--text3);padding:10px 2px;text-align:center}
+
+/* ── SKILLS ── */
+.hd-sk-card{box-shadow:var(--e2);border-color:var(--border2);background:var(--bg2);position:relative;overflow:hidden}
+.hd-sk-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--aw-pink)}
+.hd-sk-head{display:flex;align-items:center;gap:11px;margin-bottom:11px}
+.hd-sk-badge{width:38px;height:38px;border-radius:11px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:rgba(224,49,138,.1);color:var(--aw-pink)}
+.hd-sk-badge svg{width:20px;height:20px}
+.hd-sk-headtxt{min-width:0}
+.hd-sk-t{font-size:15px;font-weight:700;color:var(--text);letter-spacing:-.2px;line-height:1.2}
+.hd-sk-role{display:inline-block;margin-top:4px;font-size:10.5px;font-weight:600;color:var(--text2);background:var(--bg);border:.5px solid var(--border);padding:2px 9px;border-radius:20px}
+.hd-sk-body{display:flex;align-items:center;gap:16px;margin-bottom:11px}
+.hd-sk-donut{flex-shrink:0;line-height:0}
+#hd-donut{transition:stroke-dasharray .9s cubic-bezier(.16,1,.3,1)}
+@media(prefers-reduced-motion:reduce){#hd-donut{transition:none}}
+/* stato dedicato a 0 competenze: traccia tratteggiata (non piena) cosi si legge come "percorso non ancora
+   iniziato", non come un anello spento/rotto; il punto di partenza fucsia resta l'unico accento visibile */
+.hd-sk-donut.zero #hd-donut-track{stroke-dasharray:2.2 3.4}
+#hd-donut-start{display:none}
+.hd-sk-donut.zero #hd-donut-start{display:block}
+.hd-sk-meta{display:flex;flex-direction:column;gap:13px;min-width:0}
+.hd-sk-metric{display:flex;flex-direction:column;line-height:1}
+.hd-sk-metric b{font-size:21px;font-weight:800;color:var(--aw-pink);letter-spacing:-.5px}
+.hd-sk-metric.mods b{font-size:18px;color:var(--text);font-weight:700}
+.hd-sk-metric span{font-size:11px;color:var(--text3);margin-top:5px;font-weight:500}
+.hd-sk-legend{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:9px}
+.hd-sk-chips{display:flex;gap:6px;flex-wrap:wrap}
+.hd-sk-chip{font-size:10.5px;font-weight:600;padding:4px 10px;border-radius:20px;display:inline-flex;align-items:center;gap:5px}
+.hd-sk-chip.on{background:var(--teal-l);color:var(--teal-d)}
+.hd-sk-chip.on svg{width:10px;height:10px}
+.hd-sk-chip.off{border:1px dashed var(--border2);color:var(--text3)}
+/* stato vuoto onesto (0 competenze acquisite): un messaggio, non una riga bianca né dati finti */
+.hd-sk-empty{font-size:11.5px;color:var(--text3);font-style:italic}
+/* separazione acquisite/da sbloccare */
+.hd-sk-group{margin-bottom:9px}
+.hd-sk-group:last-child{margin-bottom:0}
+.hd-sk-glabel{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:7px;display:flex;align-items:center;gap:6px}
+.hd-sk-glabel .n{background:var(--bg);color:var(--text3);border-radius:20px;padding:1px 7px;font-size:9.5px;font-weight:700}
+
+/* ── GLOSSARY TERM OF THE DAY (colonna destra) ── */
+.hd-term-card{box-shadow:var(--e2);border-color:var(--border2);background:var(--bg2);text-decoration:none;display:block;transition:box-shadow .15s,transform .15s}
+.hd-term-card:hover{box-shadow:var(--e3);transform:translateY(-1px)}
+.hd-term-eyebrow{display:flex;align-items:center;gap:7px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:7px}
+.hd-term-eyebrow svg{width:13px;height:13px;color:var(--aw-blue)}
+.hd-term-name{font-size:17px;font-weight:800;color:var(--text);letter-spacing:-.3px;line-height:1.2}
+.hd-term-tr{font-size:11.5px;color:var(--text3);margin-top:2px}
+.hd-term-desc{font-size:12.5px;color:var(--text2);line-height:1.5;margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hd-term-go{display:flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;color:var(--aw-pink);margin-top:8px}
+.hd-term-go svg{width:12px;height:12px;transition:transform .15s}
+.hd-term-card:hover .hd-term-go svg{transform:translateX(2px)}
+
+.aw-footer{text-align:center;padding:9px 16px 11px;font-size:11px;color:var(--text3);background:transparent}
+
+/* focus accessibile su tutti gli elementi interattivi della home */
+.h-wrap a:focus-visible,.h-wrap button:focus-visible{outline:2px solid var(--aw-pink);outline-offset:2px;border-radius:6px}
+
+/* rail attivo magenta sulla home */
+.aw-rail a.active{color:#E91E8C !important;background:rgba(233,30,140,.15) !important}
+.aw-rail a.active::before{background:#E91E8C !important}
+body.aw-rail-open .aw-rail a.active .aw-rail-label{color:#E91E8C !important}
+
+@media(max-width:980px){
+  .h-wrap{grid-template-columns:1fr}
+  /* .h-side è disegnata per 336px: impilata a piena larghezza (600-900px)
+     i suoi contenuti (chip, righe agenda) si spargono lasciando vuoti →
+     resta contenuta e centrata invece di stirarsi */
+  .h-side{max-width:420px;margin:0 auto;width:100%}
+}
+@media(max-width:620px){.hd-modcards{grid-template-columns:1fr}.hd-tr{grid-template-columns:24px minmax(0,1fr) 120px}.hd-col-sec,.hd-col-prog{display:none}}
+</style>
+<link rel="stylesheet" href="tema-2026.css?v=44">
+</head>
+<body>
+
+<div class="h-wrap">
+
+  <!-- ══ MAIN COLUMN ══ -->
+  <div class="h-main">
+
+    <!-- WELCOME — puro benvenuto: saluto + stato generale, niente più CTA/mockup (spostati nella sezione Resume) -->
+    <div class="hd-welcome">
+      <div class="hd-welcome-arrows" aria-hidden="true"></div>
+      <div class="hd-welcome-streak" id="hd-wstreak"></div>
+      <div class="hd-welcome-l">
+        <div class="hd-eyebrow" data-i18n="home.eyebrow">Operator path</div>
+        <!-- avatar allineato direttamente alla riga del saluto (non all'intero blocco eyebrow+saluto): si legge come un'unica voce -->
+        <div class="hd-welcome-top">
+          <div class="hd-welcome-avatar" id="hd-wavatar">OP</div>
+          <div class="hd-welcome-h" id="hd-greeting">Welcome back!</div>
+        </div>
+        <div class="hd-welcome-sub" id="hd-wsub"></div>
+      </div>
+    </div>
+
+    <!-- RESUME — tutto ciò che riguarda la ripresa del capitolo in corso (mockup incluso). Il titolo non è
+         un data-i18n statico: cambia testo (Riprendi/Inizia) secondo lo stato reale, impostato via JS in renderHome() -->
+    <div class="hd-sec-hd" id="hd-resume-hd" style="display:none">
+      <span class="hd-sec-t"><span class="hd-sec-icwrap"><svg class="hd-sec-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="10 8 16 12 10 16 10 8"/><circle cx="12" cy="12" r="9"/></svg></span><span id="hd-resume-title-txt">Resume</span></span>
+    </div>
+    <div id="hd-resume-block"></div>
+
+    <!-- MY TRAINING — contenitore con titolo + card corso (grafica del prototipo "New Design") -->
+    <section class="pt-lib" aria-labelledby="pt-lib-t">
+      <div class="pt-lib-hd">
+        <span class="pt-ic"><svg viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/><path d="M3 17.5l9 5 9-5"/></svg></span>
+        <div class="pt-grow"><h2 id="pt-lib-t" data-i18n="home.modules.title">My training</h2><div class="pt-lib-sub" id="pt-lib-sub"></div></div>
+        <div class="pt-pills" id="pt-lib-pills"></div>
+        <a class="pt-link" href="modules.html" data-i18n="home.viewall">View all</a>
+      </div>
+      <div id="hd-courses-row" class="pt-cards"></div>
+    </section>
+
+  </div>
+
+  <!-- ══ SIDEBAR ══ -->
+  <!-- Colonna destra (prototipo): Today · Deadlines · Your progress · Term of the day. Stessi dati di prima
+       (sessioni/scadenze di renderAgenda, progresso e competenze di renderHome, termine di renderTermOfDay). -->
+  <aside class="h-side pt-rail">
+
+    <section class="pt-sec" id="pt-today">
+      <div class="pt-sec-hd"><span class="pt-ic"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16"/><path d="M9 3v4"/><path d="M15 3v4"/></svg></span><span class="pt-sec-t" data-i18n="home.today">Today</span><span class="pt-rule"></span></div>
+      <div class="pt-sec-bd" id="pt-today-bd"></div>
+    </section>
+
+    <section class="pt-sec" id="pt-dead">
+      <div class="pt-sec-hd"><span class="pt-ic"><svg viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></svg></span><span class="pt-sec-t" data-i18n="rail.deadlines">Deadlines</span><span class="pt-rule"></span></div>
+      <div class="pt-sec-bd" id="pt-dead-bd"></div>
+    </section>
+
+    <section class="pt-sec" id="pt-prog">
+      <div class="pt-sec-hd"><span class="pt-ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg></span><span class="pt-sec-t" data-i18n="mods.rail.progress">Your progress</span><span class="pt-rule"></span></div>
+      <div class="pt-sec-bd" id="pt-prog-bd"></div>
+    </section>
+
+    <!-- Termine del giorno ↔ nota urgente: la freccia alterna i due pannelli (la freccia compare solo se c'è una nota) -->
+    <div class="pt-term" id="hd-term-card">
+      <div class="pt-art pt-term-art" aria-hidden="true"></div>
+      <div class="pt-sec-hd">
+        <span class="pt-ic" id="pt-term-ic"></span><span class="pt-sec-t" id="pt-term-title"></span><span class="pt-grow"></span>
+        <button class="pt-arrow" id="pt-term-next" type="button" hidden><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      </div>
+      <a class="pt-term-bd" id="pt-term-term" href="glossary.html">
+        <span class="pt-term-name" id="hd-term-name"></span>
+        <span class="pt-term-tr" id="hd-term-tr"></span>
+        <span class="pt-term-desc" id="hd-term-desc"></span>
+        <span class="pt-link" data-i18n="home.term.view">View in glossary</span>
+      </a>
+      <a class="pt-term-bd" id="pt-term-note" href="notes.html" hidden>
+        <span class="pt-term-name" id="pt-note-cat"></span>
+        <span class="pt-term-desc" id="pt-note-text"></span>
+        <span class="pt-term-tr" id="pt-note-meta"></span>
+        <span class="pt-link" id="pt-note-go"></span>
+      </a>
+    </div>
+
+  </aside>
+</div>
+
+
+<div class="aw-footer" data-i18n="footer">© {year} autoware · Beyond Operations Management · Training Platform</div>
+
+<script>
+// ── Dati prototipo ──────────────────────────────────────────────────────
+var progress;
+try { progress = JSON.parse(localStorage.getItem('aw_progress') || '{}'); if (typeof progress !== 'object' || Array.isArray(progress)) throw 0; }
+catch (e) { progress = {}; }
+
+var TOTAL_PATH = window.AW_EDITION_TRAINING ? (window.AW_MODULES || []).length : ((window.AW_MODULES || []).length || 7);
+var SECTIONS_PER_MODULE = 6;
+var MINUTES_PER_MODULE = 10;
+// progresso REALE per-modulo dalle sezioni completate (localStorage['aw_sect'])
+var SECT_PROG = (function(){ try{ return JSON.parse(localStorage.getItem('aw_sect')||'{}'); }catch(e){ return {}; } })();
+// unica fonte di verità per il progresso di un modulo: le stesse 6 sezioni del flusso didattico
+// (Intro→Completion) contano sia per la percentuale sia per i check dello stepper — mai due
+// denominatori diversi (prima la % ignorava Intro/Completion mentre lo stepper li contava, dando
+// numeri contraddittori come "0% · 1 di 6 sezioni fatte")
+// 14/10: le sezioni vere del capitolo (awSectKeys, shared.js); nel laboratorio restano le 6 dei moduli OP.
+function moduleProgress(id){
+  var K = awSectKeys(id);
+  if(progress[id]===true) return { idx: K.length, pct: 100 };
+  var done = (SECT_PROG[id] && SECT_PROG[id].done) || [];
+  var idx = 0;
+  for (var i = 0; i < K.length; i++) { if (done.indexOf(K[i]) === -1) break; idx = i + 1; }
+  return { idx: idx, pct: idx > 0 ? Math.min(99, Math.round(idx / K.length * 100)) : 0 };
+}
+function stepKeysH(id){ return awSectKeys(id).map(function (k) { return 'tab.' + (k === 'anchor' ? 'completion' : k); }); }
+
+// Ogni modulo si compone di 6 SEZIONI (flusso didattico: Intro/Video/Concepts/Practice/Quiz/Completion)
+// e di N CAPITOLI di contenuto (sotto-capitoli). Capitoli e durata vengono letti direttamente da
+// window.AW_MODULES (shared.js) — stessa fonte usata da modules.html — invece di due mappe locali
+// duplicate che potevano (e sono finite per) divergere (es. OP-06 mostrava 2 capitoli qui e 4 in
+// modules.html, e le durate stimate dei moduli 04-07 non coincidevano affatto).
+var HOME_MODS = (window.AW_MODULES || []).map(function (m) {
+  return { id: m.id, code: (window.awChapNo ? awChapNo(m) : m.num), label: (window.awChapLabel ? awChapLabel(m) : m.num), title: m.title, href: m.href, chaps: m.subs || [m.title], mins: m.mins || MINUTES_PER_MODULE };
+});
+
+var SKILL_MAP = { '01': ['Login', 'Language'], '02': ['Cockpit', 'Station View'], '03': ['Production Orders'] };
+var ALL_SKILLS = ['Login', 'Language', 'Cockpit', 'Station View', 'Production Orders', 'Downtime', 'Reporting'];
+// Edizione (shared.js awApplyEdition): una competenza per lezione del training, non l'elenco OP fisso.
+if (window.AW_EDITION_TRAINING) {
+  SKILL_MAP = {}; ALL_SKILLS = [];
+  HOME_MODS.forEach(function (m) { SKILL_MAP[m.id] = [m.title]; ALL_SKILLS.push(m.title); });
+}
+// Cockpit/Station View are TilliT UI terms and stay untranslated; the rest resolve via i18n.
+var SKILL_LABEL_KEY = { 'Login': 'skill.login', 'Language': 'skill.language', 'Production Orders': 'skill.prodorders', 'Downtime': 'skill.downtime', 'Reporting': 'skill.reporting' };
+function skillLabel(s) { var k = SKILL_LABEL_KEY[s]; return k ? t(k, s) : s; }
+
+// celle andon per la mini-anteprima
+var PREV_CELLS = ['#0F6E56', '#0F6E56', '#BA7517', '#185FA5', '#0F6E56', '#A32D2D', '#0F6E56', '#0F6E56'];
+// formatore live per la sessione Q&A mock (orario)
+var SESSION_TIME = '14:00';
+var SESSION_HOST = 'E. Bianchi';
+// icona "training" (tocco) riusata in header sezione e module card
+var capSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c0 1 2.7 3 6 3s6-2 6-3v-5"/></svg>';
+// etichette dei 6 step (Introduction/Video/Concepts/Practice/Quiz/Completion), riusate dallo stepper reale nella card Continue learning
+var STEP_KEYS_H = ['tab.intro','tab.video','tab.concepts','tab.practice','tab.quiz','tab.completion'];
+function stepNameH(k){ return String(t(k,k)).replace(/^\s*\d+\.\s*/,''); }
+
+function t(k, fb) { var l = window.LANG || 'en'; var d = (T && T[l]) || (T && T.en) || {}; return d[k] !== undefined ? d[k] : (fb || k); }
+// titolo modulo tradotto (chiave mod.<id>.title, fallback al titolo EN)
+function tmod(m) { return t('mod.' + m.id + '.title', m.title); }
+// nome corso/i assegnati (TilliT Operator/Superuser Training), stessa dicitura del manager
+function courseLabel(trainings) {
+  var parts = [];
+  if (trainings.indexOf('op') >= 0) parts.push(t('mgr.course.op', 'TilliT Operator Training'));
+  if (trainings.indexOf('su') >= 0) parts.push(t('mgr.course.su', 'TilliT Superuser Training'));
+  return parts.join(' + ') || t('mgr.course.op', 'TilliT Operator Training');
+}
+function langCode() { return window.awLangCode(); }
+function firstOpenId() { for (var i = 0; i < HOME_MODS.length; i++) { var m = HOME_MODS[i]; if (!progress[m.id] && m.href) return m.id; } return null; }
+function svgArrow(w) { w = w || 2.4; return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="' + w + '" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>'; }
+// frecce di brand del prototipo "New Design" (card Continue + Term of the day)
+var PT_ARROWS = (function () {
+  var A = [[40,40,-24,'#E2477F'],[110,26,12,'#E9EDF7'],[180,56,-8,'#5B86E5'],[250,30,-30,'#E9EDF7'],[320,64,18,'#E2477F'],[80,108,20,'#E9EDF7'],
+           [160,126,-16,'#E2477F'],[230,116,26,'#5B86E5'],[300,140,-10,'#E9EDF7'],[130,190,8,'#5B86E5'],[210,196,-28,'#E2477F'],[350,184,14,'#E9EDF7']];
+  return '<svg viewBox="0 0 400 240"><g fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">' + A.map(function (a) {
+    return '<path d="M0 26 L13 0 L26 26 M8 26 L13 15 L18 26" stroke="' + a[3] + '" transform="translate(' + a[0] + ' ' + a[1] + ') rotate(' + a[2] + ')"' + (a[3] === '#E9EDF7' ? ' opacity=".85"' : '') + '/>';
+  }).join('') + '</g></svg>';
+})();
+function ptDate(d, o) { return d.toLocaleDateString(langCode(), o); }
+
+function renderHome() {
+  var doneIds = HOME_MODS.filter(function (m) { return progress[m.id]; });
+  var doneCount = Object.keys(progress).filter(function (k) { return progress[k] === true; }).length;
+  var curId = firstOpenId();
+  var curMod = HOME_MODS.filter(function (m) { return m.id === curId; })[0] || HOME_MODS[0];
+  var allDone = doneCount >= TOTAL_PATH;
+
+  // ── WELCOME — puro benvenuto/brand: nessun riferimento al modulo/capitolo specifico (quello vive
+  // nella card Resume) e nessun conteggio di dettaglio (quello vive nella card Competenze) ──
+
+  // saluto contestuale all'ora del giorno (fallback al saluto generico se le chiavi mancano)
+  var hr = new Date().getHours();
+  var greetKey = hr < 12 ? 'home.welcome.morning' : hr < 18 ? 'home.welcome.afternoon' : 'home.welcome.evening';
+  document.getElementById('hd-greeting').textContent = t(greetKey, t('home.welcome')) + ', ' + (window.AW_USER ? window.AW_USER.name : 'Learner') + '!';
+  // nessuna percentuale qui: la Welcome resta puro saluto/brand, ogni progresso vive nella colonna
+  // destra (Competenze) e nelle card Resume/corso, per non ripetere lo stesso "0%" a un passo di distanza
+
+  var checkSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+  var clockSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>';
+  var bookSmallSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>';
+  var caretSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+  var ICON_USER = '<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+  var ICON_ADMIN = '<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="11" r="2.2"/><path d="M12 8.8v-.9"/><path d="M12 14.1v.9"/></svg>';
+  var flameSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 17a2.5 2.5 0 0 0 2.5-2.5c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7.5 7.5 0 1 1-15 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>';
+
+  // avatar accanto al saluto — iniziali reali (window.AW_USER, stesse della topbar), zero dati nuovi
+  var wAvatarEl = document.getElementById('hd-wavatar');
+  if (wAvatarEl) wAvatarEl.textContent = (window.AW_USER && window.AW_USER.initials) || 'OP';
+
+  // tagline di piattaforma — puro benvenuto/brand, non più legata a un modulo/capitolo specifico (quel dato vive ora solo nella card Resume)
+  var wSubEl = document.getElementById('hd-wsub');
+  if (wSubEl) wSubEl.textContent = allDone ? t('home.welcomesub.done') : t('home.welcomesub.start');
+
+  // streak / ultimo accesso — solo se c'è un segnale reale in aw_activity_log (shared.js), mai un numero finto
+  var wStreakEl = document.getElementById('hd-wstreak');
+  if (wStreakEl) {
+    var streak = (window.awGetStreak && window.awGetStreak()) || 0;
+    var lastISO = window.awLastActiveISO && window.awLastActiveISO();
+    var todayISO = new Date().toISOString().slice(0, 10);
+    if (streak >= 2) {
+      wStreakEl.innerHTML = flameSVG + '<span>' + t('home.wel.streak', '{n}-day streak').replace('{n}', streak) + '</span>';
+      wStreakEl.style.display = 'flex';
+    } else if (lastISO && lastISO !== todayISO) {
+      var gapDays = Math.round((new Date(todayISO) - new Date(lastISO)) / 86400000);
+      var whenTxt = gapDays === 1 ? t('dash.sl.yesterday', 'Yesterday') : t('ibx.daysago', '{n}d ago').replace('{n}', gapDays);
+      wStreakEl.innerHTML = clockSVG + '<span>' + t('home.wel.lastactive', 'Last active: {when}').replace('{when}', whenTxt) + '</span>';
+      wStreakEl.style.display = 'flex';
+    } else {
+      wStreakEl.style.display = 'none';
+    }
+  }
+
+  function chapMeta(m) {
+    var chaps = m.chaps || [], nChap = chaps.length;
+    var chapWord = nChap === 1 ? t('home.m.chap1') : t('home.m.chapN');
+    return '<span class="mchip">' + bookSmallSVG + nChap + ' ' + chapWord + '</span>'
+      + '<span class="mchip">' + clockSVG + '~' + m.mins + ' ' + t('home.m.min') + '</span>';
+  }
+
+  // thumbnail del capitolo — copertina REALE: riusa (scalata) la stessa illustrazione .iv-dev/.ivl-*/.ivc-*/.sv
+  // già mostrata nell'Intro del modulo (login/cockpit/station view), invece di un mock separato meno fedele.
+  // Decorativa, non cliccabile: l'unica azione della card è il CTA "Riprendi/Inizia" qui sotto (niente doppia
+  // freccia che compete con lo stesso link).
+  function renderModThumb(m) {
+    var url = 'app.tillit.cloud / ' + (m.id === '01' ? 'login' : m.id === '03' ? 'station-view' : 'cockpit');
+    var screen;
+    if (m.id === '01') {
+      screen = '<div class="ivl-globe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>'
+        + '<div class="ivl-card"><div class="ivl-logo">Til<b>l</b>iT</div><div class="ivl-tt">Sign in to continue</div>'
+        + '<div class="ivl-field">Username</div><div class="ivl-field">Password</div><div class="ivl-or">or</div>'
+        + '<div class="ivl-corp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Corporate Login</div></div>';
+    } else if (m.id === '03') {
+      screen = '<div class="sv"><div class="sv-top" style="gap:9px">'
+        + '<div class="sv-date"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><div><div class="sv-date-lbl">Today</div><div class="sv-date-val">10/07/2026</div></div></div>'
+        + '<div class="sv-arrows"><div class="sv-arr">‹</div><div class="sv-arr">›</div></div>'
+        + '<div class="sv-pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>'
+        + '<div class="sv-seg"><div class="sv-seg-btn green"><span>Filling L1</span><span class="sub">a few seconds</span></div><div class="sv-seg-badge">4</div></div>'
+        + '<div class="sv-stage" style="margin-left:auto">STAGE</div></div>'
+        + '<div class="sv-body" style="min-height:196px;grid-template-columns:1fr;gap:9px">'
+        + '<div class="sv-col sv-po" style="border-right:none"><div class="sv-card sv-oc">'
+        + '<div class="sv-oc-hd"><span class="sv-oc-title"># 000001 - Filling</span></div>'
+        + '<div class="sv-oc-code">S1_PACK1_LN1_FILLING</div>'
+        + '<div class="sv-mrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></svg>48.0% OEE <span class="run"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#16a34a"/><path d="M7.5 12.5l2.6 2.6L16.5 9" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>RUNNING</span></div>'
+        + '<div class="sv-prog-bar"><div class="sv-prog-fill" style="width:90%"></div></div>'
+        + '</div></div>'
+        + '<div class="sv-col sv-work" style="border-right:none"><div class="sv-card" style="display:flex;flex-direction:column;overflow:hidden">'
+        + '<div class="sv-tabs"><div class="sv-tab active">Activities</div><div class="sv-tab">Orders</div><div class="sv-tab">Events</div></div>'
+        + '<div class="sv-list"><div class="sv-pri-banner">High Priority</div>'
+        + '<div class="sv-ac"><div class="sv-ac-title">0050 Tot oxygen_net cont</div></div>'
+        + '</div></div></div></div></div>';
+    } else {
+      screen = '<div class="ivc-grid">'
+        + '<div class="ivc-card"><div class="ivc-hd run">RUNNING</div><div class="ivc-bd"><div class="ivc-line">Line 1 \xB7 Filling</div><div class="ivc-meta">OEE 92% \xB7 11,400 u/h</div><div class="ivc-bar"><i style="width:92%;background:#16a34a"></i></div></div></div>'
+        + '<div class="ivc-card"><div class="ivc-hd stop">STOPPED</div><div class="ivc-bd"><div class="ivc-line">Line 2 \xB7 Packing</div><div class="ivc-meta">Stopped 4 min</div><div class="ivc-bar"><i style="width:28%;background:#dc2626"></i></div></div></div>'
+        + '<div class="ivc-card"><div class="ivc-hd starv">STARVED</div><div class="ivc-bd"><div class="ivc-line">Line 3 \xB7 Labeling</div><div class="ivc-meta">Waiting upstream</div><div class="ivc-bar"><i style="width:54%;background:#eab308"></i></div></div></div>'
+        + '<div class="ivc-card"><div class="ivc-hd block">BLOCKED</div><div class="ivc-bd"><div class="ivc-line">Line 4 \xB7 Palletizing</div><div class="ivc-meta">Buffer full</div><div class="ivc-bar"><i style="width:46%;background:#f97316"></i></div></div></div>'
+        + '</div>';
+    }
+    return '<div class="hd-cur-thumb" aria-hidden="true"><div class="hd-cur-thumb-scale" style="transform:scale(.34615)"><div class="iv-dev">'
+      + '<div class="iv-dev-bar"><div class="iv-dev-dots"><i></i><i></i><i></i></div><span class="iv-dev-url">' + url + '</span></div>'
+      + '<div class="iv-dev-screen">' + screen + '</div></div></div></div>';
+  }
+
+  // stepper a 6 tappe — stato REALE (fatto/in corso/da fare) del capitolo in corso, letto da moduleProgress()
+  // (unica fonte di verità, condivisa con la percentuale e il conteggio testuale del pannello). isDone è sempre
+  // sequenziale (i<curIdx): evita che una sezione successiva (es. Completion, "vista" di default nei moduli)
+  // appaia spuntata prima che le sezioni che la precedono (es. Quiz) lo siano davvero.
+  function renderSteps(modId) {
+    var curIdx = moduleProgress(modId).idx, STEP_KEYS_H = stepKeysH(modId);
+    return '<div class="hd-cur-steps">' + STEP_KEYS_H.map(function (k, i) {
+      var isDone = i < curIdx;
+      var cls = isDone ? ' done' : (i === curIdx ? ' cur' : '');
+      var n = isDone ? checkSVG : (i + 1);
+      var sepCls = isDone ? ' done' : '';
+      if (isDone && (i + 1) === curIdx) sepCls += ' tocur';
+      return '<span class="hd-cur-step' + cls + '"><span class="n">' + n + '</span>' + stepNameH(k) + '</span>'
+        + (i < STEP_KEYS_H.length - 1 ? '<span class="hd-cur-step-sep' + sepCls + '"></span>' : '');
+    }).join('') + '</div>';
+  }
+
+  // card "Continue" del prototipo: occhiello · training, codice + titolo, durata, CTA + scadenza, 6 segmenti.
+  // Stessi dati della card precedente (moduleProgress, chaps/mins, scadenze dell'agenda).
+  function renderCurCard(m, i, prog) {
+    var mp = prog.pct, curIdx = prog.idx, nChap = (m.chaps || []).length, STEP_KEYS_H = stepKeysH(m.id);
+    var due = (evts || []).filter(function (e) { return e.type === 'deadline' && e.mod === m.id; })[0];
+    return '<section class="pt-cont" data-mod="' + m.id + '"><div class="pt-cont-art" aria-hidden="true"></div>'
+      + '<div class="pt-cont-in">'
+      + '<div class="pt-crumb"><b>' + t(mp > 0 ? 'home.grp.continue' : 'home.grp.upnext', mp > 0 ? 'Continue learning' : 'Up next') + '</b><span>\xB7</span><span>' + t('mgr.course.op', 'TilliT Operator Training') + '</span></div>'
+      + '<h2 class="pt-cont-t"><span class="pt-code">' + m.code + '</span>' + tmod(m) + '</h2>'
+      // edizione: la voce È un capitolo → niente "1 chapter"
+      + '<p class="pt-cont-p">' + (window.AW_CONTENT ? '' : nChap + ' ' + (nChap === 1 ? t('home.m.chap1') : t('home.m.chapN')) + ' \xB7 ') + '~' + m.mins + ' ' + t('home.m.min') + ' \xB7 '
+      + t('home.cur.pct', '{pct}% of this chapter').replace('{pct}', mp) + '</p>'
+      + '<div class="pt-cont-act"><a class="pt-cta" href="' + (m.href || '#') + '">' + t(mp > 0 ? 'home.resume.cta' : 'home.start.cta') + ' →</a>'
+      + (due ? '<span class="pt-due">' + t('mgr.item.due', 'due').replace(/^./, function (c) { return c.toUpperCase(); }) + ' ' + ptDate(due.date, { weekday: 'short', day: 'numeric', month: 'short' }) + '</span>' : '')
+      + '</div></div>'
+      + '<ol class="pt-steps">' + STEP_KEYS_H.map(function (k, j) {
+          return '<li class="' + (j < curIdx ? 'done' : (j === curIdx ? 'cur' : '')) + '"><i></i><span>' + (j + 1) + ' \xB7 ' + stepNameH(k) + '</span></li>';
+        }).join('') + '</ol></section>';
+  }
+  // ── RESUME — la card "Continue learning" (nascosta se il percorso è tutto completato). Il titolo
+  // sezione parla la stessa lingua del CTA/eyebrow della card (Inizia vs Riprendi), derivato dallo
+  // stesso stato reale invece di restare fisso su "Resume" a prescindere ──
+  // Nessuna lezione pubblicata (es. anteprima di un training appena iniziato): niente card "Riprendi".
+  var evts = agendaEvents(curMod);   // sessioni + scadenze: la card Continue mostra la scadenza del modulo
+  if (!curMod) {
+    document.getElementById('hd-resume-hd').style.display = '';
+    document.getElementById('hd-resume-block').innerHTML = '<div class="hd-card hd-pad" style="color:var(--text2)">No lessons published yet.</div>';
+  } else {
+  var curProg = moduleProgress(curMod.id);
+  document.getElementById('hd-resume-hd').style.display = allDone ? 'none' : '';
+  var resumeTitleEl = document.getElementById('hd-resume-title-txt');
+  if (resumeTitleEl) resumeTitleEl.textContent = curProg.pct > 0 ? t('home.resume.title', 'Resume') : t('home.start.title', 'Get started');
+  document.getElementById('hd-resume-block').innerHTML = allDone ? '' : renderCurCard(curMod, HOME_MODS.indexOf(curMod), curProg);
+  }
+
+  // ── MY TRAINING — le due copertine corso (Operator sempre reale; Superuser da aw_users se presente) ──
+  var myUser = (window.awLoadUsers ? awLoadUsers() : []).filter(function (u) { return u.name === (window.AW_USER ? AW_USER.name : 'Learner'); })[0];
+  var suTotal = window.AW_SU_TOTAL || 5;
+  var suDone = (myUser && myUser.suDone) || 0;
+  // progresso frazionario reale del percorso Operator (somma di moduleProgress per modulo, non solo i moduli
+  // interamente completati): un corso "in corso" non deve mai mostrare 0% solo perché nessun modulo è ancora finito del tutto
+  var opFrac = HOME_MODS.reduce(function (s, m) { return s + moduleProgress(m.id).pct / 100; }, 0);
+  var COURSES = [
+    { track: 'tillit', name: t('mgr.course.op', 'TilliT Operator Training'), cover: 'TilliT Operator.png', roleKey: 'lib.track.op', roleFb: 'Operator', roleIcon: ICON_USER, total: TOTAL_PATH, done: doneCount, frac: opFrac },
+    { track: 'tillit-su', name: t('mgr.course.su', 'TilliT Superuser Training'), cover: 'TilliT Superuser.png', roleKey: 'lib.track.su', roleFb: 'Superuser', roleIcon: ICON_ADMIN, total: suTotal, done: suDone, frac: suDone }
+  ];
+  // Edizione (shared.js awApplyEdition): solo il training del file, con la sua copertina.
+  if (window.AW_EDITION_TRAINING) {
+    COURSES.length = 1;
+    COURSES[0].cover = AW_EDITION_TRAINING.cover || COURSES[0].cover;
+    COURSES[0].roleKey = ''; COURSES[0].roleFb = AW_EDITION_TRAINING.roleLabel || 'Learner';
+  }
+  // card corso del prototipo: fascia colorata con stato + riquadro con la NOSTRA copertina, titolo, n. moduli,
+  // un segmento per modulo (fatto / in corso / da fare), riga finale con avanzamento + bottone
+  function renderCourseCard(c) {
+    var pct = c.total ? Math.round(c.frac / c.total * 100) : 0;
+    var st = pct >= 100 ? ['done', t('sidebar.completed', 'Completed')] : pct > 0 ? ['cur', t('lib.filter.progress', 'In progress')] : ['todo', t('dash.sl.notstarted', 'Not started')];
+    return '<a class="pt-card" data-track="' + c.track + '" href="modules.html">'
+      // la NOSTRA copertina nella fascia: intera e nitida, sopra la stessa immagine ingrandita e sfocata come fondo
+      + '<div class="pt-band" style="--cv:url(\'' + c.cover + '\')"><img class="pt-band-img" src="' + c.cover + '" alt="">'
+      + '<span class="pt-chip ' + st[0] + '"><i></i>' + st[1] + '</span></div>'
+      + '<div class="pt-card-bd"><div><h3>' + c.name + '</h3><div class="pt-meta">' + c.total + ' ' + t('lib.modules', 'modules') + '</div></div>'
+      + '<div class="pt-segs">' + Array.apply(null, Array(c.total || 0)).map(function (_, k) {
+          return '<i class="' + (k < c.done ? 'done' : (k < c.frac ? 'cur' : '')) + '"></i>'; }).join('') + '</div>'
+      + '<div class="pt-foot"><span class="pt-grow">' + (pct > 0 ? c.done + '/' + c.total + ' ' + t('home.skills.modules', 'modules completed') : st[1]) + '</span>'
+      + '<span class="pt-btn' + (pct > 0 ? ' go' : '') + '">' + (pct > 0 ? t('home.resume.cta', 'Resume') : t('home.card.start', 'Start')) + '</span></div>'
+      + '</div></a>';
+  }
+  document.getElementById('pt-lib-sub').textContent = COURSES.length + ' ' + (COURSES.length === 1 ? t('home.lib.one', 'training') : t('home.lib.many', 'trainings'));
+  // pillole di riepilogo nell'intestazione: in corso / da iniziare / completati (solo quelle con almeno 1)
+  var pcts = COURSES.map(function (c) { return c.total ? Math.round(c.frac / c.total * 100) : 0; });
+  document.getElementById('pt-lib-pills').innerHTML = [
+      ['cur', t('lib.filter.progress', 'In progress'), pcts.filter(function (p) { return p > 0 && p < 100; }).length],
+      ['todo', t('dash.sl.notstarted', 'Not started'), pcts.filter(function (p) { return p === 0; }).length],
+      ['done', t('sidebar.completed', 'Completed'), pcts.filter(function (p) { return p >= 100; }).length]
+    ].filter(function (p) { return p[2] > 0; }).map(function (p) { return '<span class="pt-pill ' + p[0] + '"><i></i>' + p[2] + ' ' + p[1] + '</span>'; }).join('');
+  document.getElementById('hd-courses-row').innerHTML = COURSES.map(renderCourseCard).join('')
+    // 1 solo training: riquadro "ne arriveranno altri" (prototipo, caso 1)
+    + (COURSES.length === 1 ? '<div class="pt-more"><span>+</span><b>' + t('home.lib.more', 'More training will appear here') + '</b><small>' + t('home.lib.moresub', 'When your supervisor assigns a new course') + '</small></div>' : '');
+
+  // ── AGENDA (impegni di training) ──
+  renderAgenda(curMod, evts);
+
+  // ── GLOSSARY TERM OF THE DAY ──
+  renderTermOfDay();
+
+  // ── SKILLS (donut = mix competenze/moduli) — nessun fallback finto: con 0 moduli completati sono 0
+  // competenze acquisite, punto, coerente col resto della pagina (Welcome/Riprendi/libreria a 0%) ──
+  var skills = [];
+  doneIds.forEach(function (m) { (SKILL_MAP[m.id] || []).forEach(function (s) { if (skills.indexOf(s) === -1) skills.push(s); }); });
+  var skillsTot = ALL_SKILLS.length;
+  var skillsAcq = skills.length;
+  var skPct = skillsTot ? Math.round(skillsAcq / skillsTot * 100) : 0;
+  // anello animato al caricamento: parte da 0 e transita al valore reale (rispetta prefers-reduced-motion via CSS)
+  // ── YOUR PROGRESS (prototipo): anello = avanzamento del percorso, moduli + competenze, poi la prossima
+  // competenza (cerchio tratteggiato) e le ultime acquisite (spunta verde). Stessi dati di prima. ──
+  var pathPct = TOTAL_PATH ? Math.round(opFrac / TOTAL_PATH * 100) : 0;
+  var locked = ALL_SKILLS.filter(function (s) { return skills.indexOf(s) === -1; });
+  var C = 2 * Math.PI * 36;
+  var progHTML = '<div class="pt-prog-top"><div class="pt-ring"><svg viewBox="0 0 88 88" aria-hidden="true"><circle cx="44" cy="44" r="36" class="trk"/>'
+    + '<circle cx="44" cy="44" r="36" class="val" stroke-dasharray="' + (C * pathPct / 100).toFixed(2) + ' 300" transform="rotate(-90 44 44)"/></svg><span>' + pathPct + '%</span></div>'
+    + '<div><b>' + doneCount + '/' + TOTAL_PATH + ' ' + t('home.skills.modules', 'modules completed') + '</b><div class="pt-sub">' + skillsAcq + '/' + skillsTot + ' ' + t('home.skills.acquired', 'competencies') + '</div></div></div>';
+  if (locked.length) progHTML += '<div class="pt-skill"><span class="pt-dot next"></span><div><b>' + skillLabel(locked[0]) + '</b><div class="pt-sub">' + t('mods.rail.upnext', 'Up next') + '</div></div></div>';
+  skills.slice(-2).reverse().forEach(function (s) {
+    progHTML += '<div class="pt-skill"><span class="pt-dot ok"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></span><div><b>' + skillLabel(s) + '</b><div class="pt-sub">' + t('sidebar.completed', 'Completed') + '</div></div></div>';
+  });
+  document.getElementById('pt-prog-bd').innerHTML = progHTML;
+}
+
+// Agenda training: impegni reali dell'operatore (mock; in produzione = backend/manager).
+// agendaEvents = solo il calcolo (usato anche dalla card Continue per la scadenza); renderAgenda = il disegno.
+function agendaEvents(curMod) {
+  function nd(n) { var d = new Date(); d.setDate(d.getDate() + n); d.setHours(0, 0, 0, 0); return d; }
+
+  // Impegni assegnati dal manager (dashboard.html → localStorage). Filtra su
+  // "tutto il team" o sull'utente corrente. Se gli store sono vuoti, usa il
+  // seed mock qui sotto così la home non parte vuota per la demo.
+  function parseISO(iso) { var p = (iso || '').split('-'); return new Date(+p[0], (+p[1] || 1) - 1, (+p[2] || 1)); }
+  var me = (window.AW_USER && AW_USER.name) || 'Learner';
+  var myTrainings = ['op'];
+  try { var _u = (window.awLoadUsers ? awLoadUsers() : []).filter(function (x) { return x.name === me; })[0]; if (_u) myTrainings = window.awUserTrainings(_u); } catch (e) {}
+  function forMe(target) { return window.awAssignMatch(target, me, myTrainings); }
+  var mSessions = [], mAssigns = [];
+  try { mSessions = (window.awLoadSessions ? awLoadSessions() : []).filter(function (s) { return forMe(s.invitees); }); } catch (e) {}
+  // Only assignments with a due date surface on the (date-driven) agenda.
+  try { mAssigns = (window.awLoadAssignments ? awLoadAssignments() : []).filter(function (a) { return a.dueDate && forMe(a.target); }); } catch (e) {}
+
+  var events;
+  if (mSessions.length || mAssigns.length) {
+    events = [];
+    mSessions.forEach(function (s) {
+      events.push({ type: 'session', date: parseISO(s.date),
+        label: s.title || t('home.ev.session'), time: awFmtTime(s.time), host: awWho(s.host) || '',
+        detail: awFmtTime(s.time) + (s.host ? ' \xB7 ' + awWho(s.host) : ''),
+        href: s.teamsUrl || '#', action: s.teamsUrl ? null : 'remind' });
+    });
+    mAssigns.forEach(function (a) {
+      var isCourse = a.level === 'course' || a.kind === 'path';
+      if (isCourse) {
+        events.push({ type: 'deadline', date: parseISO(a.dueDate),
+          label: t('home.ev.duepath'), detail: courseLabel(myTrainings), href: 'modules.html' });
+      } else {
+        var mods = a.moduleIds || (a.moduleId ? [a.moduleId] : []);
+        mods.forEach(function (mid) {
+          if ((/^SU/.test(mid) ? myTrainings.indexOf('su') : myTrainings.indexOf('op')) < 0) return;
+          var m = HOME_MODS.filter(function (x) { return x.id === mid; })[0] || curMod;
+          if (!m) return;
+          events.push({ type: 'deadline', date: parseISO(a.dueDate), mod: m.id,
+            label: t('home.ev.duemod').replace('{code}', m.label || m.code),
+            detail: tmod(m), href: m.href || 'modules.html' });
+        });
+      }
+    });
+  } else if (window.AW_CONTENT) {
+    events = [];   // 14/10: nell'edizione niente esempi inventati — assegnazione e sessione vere da awApplyEdition
+  } else {
+    events = [
+      { type: 'session',  date: nd(2),  label: t('home.ev.session'), time: SESSION_TIME, host: SESSION_HOST,
+        detail: SESSION_TIME + ' \xB7 ' + SESSION_HOST, href: '#', action: 'remind' },
+      { type: 'deadline', date: nd(12), label: t('home.ev.duepath'),
+        detail: courseLabel(myTrainings), href: 'modules.html' }
+    ];
+    if (curMod) events.splice(1, 0, { type: 'deadline', date: nd(5), mod: curMod.id, label: t('home.ev.duemod').replace('{code}', curMod.label || curMod.code),
+        detail: tmod(curMod), href: curMod.href || 'modules.html' });
+  }
+  events.sort(function (a, b) { return a.date - b.date; });
+  return events;
+}
+
+// Colonna destra (prototipo): TODAY = la prossima sessione live, DEADLINES = le scadenze (max 3) con il
+// riquadro data. Una sezione senza impegni non viene mostrata.
+function renderAgenda(curMod, events) {
+  events = events || agendaEvents(curMod);
+  var now = new Date(); now.setHours(0, 0, 0, 0);
+  var sess = events.filter(function (e) { return e.type === 'session'; })[0];
+  var dls = events.filter(function (e) { return e.type === 'deadline'; }).slice(0, 3);
+  var up = function (s) { return String(s).toUpperCase(); };
+
+  document.getElementById('pt-today').style.display = sess ? '' : 'none';
+  if (sess) {
+    var btn = sess.action === 'remind'
+      ? '<button class="pt-btn pt-btn-wide" onclick="this.disabled=true;this.textContent=\'' + t('home.ag.reminded') + '\'">' + t('home.sess.remind') + '</button>'
+      : (sess.href && sess.href !== '#' ? '<a class="pt-btn pt-btn-wide" href="' + sess.href + '">' + t('home.badge.live', 'Live') + '</a>' : '');
+    document.getElementById('pt-today-bd').innerHTML = '<div class="pt-ev"><span class="pt-ev-k">' + up(t('home.badge.live', 'Live')) + ' \xB7 '
+      + up(ptDate(sess.date, { weekday: 'short', day: 'numeric', month: 'short' })) + (sess.time ? ' \xB7 ' + sess.time : '') + '</span>'
+      + '<span class="pt-ev-t">' + sess.label + '</span>' + (sess.host ? '<span class="pt-sub">' + sess.host + '</span>' : '') + '</div>' + btn;
+  }
+
+  document.getElementById('pt-dead').style.display = dls.length ? '' : 'none';
+  document.getElementById('pt-dead-bd').innerHTML = dls.map(function (e) {
+    var soon = Math.round((e.date - now) / 86400000) <= 7;
+    var inner = '<div class="pt-day"><span>' + up(ptDate(e.date, { weekday: 'short' })) + '</span><b class="' + (soon ? 'soon' : '') + '">' + e.date.getDate() + '</b></div>'
+      + '<div class="pt-dl"><b>' + e.label + '</b><div class="pt-sub">' + (e.detail || '') + '</div></div>';
+    return e.href && e.href !== '#' ? '<a class="pt-dlrow" href="' + e.href + '">' + inner + '</a>' : '<div class="pt-dlrow">' + inner + '</div>';
+  }).join('');
+}
+
+// termine glossario del giorno — rotazione deterministica sul giorno dell'anno, riusa GLOSSARY/GLOSSARY_NAMES
+// + nota urgente (My Notes): la più importante ancora aperta (priorità alta, altrimenti la più recente);
+// la freccia nell'intestazione alterna i due pannelli. Senza note resta solo il termine.
+var PT_IC_TERM = '<svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/></svg>';
+var PT_IC_NOTE = '<svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7"/><path d="M9 16h5"/></svg>';
+function renderTermOfDay() {
+  var card = document.getElementById('hd-term-card');
+  if (!card) return;
+  var art = card.querySelector('.pt-art'); if (art) art.innerHTML = PT_ARROWS;
+  var notes = []; try { notes = (window.awLoadNotes ? awLoadNotes() : []).filter(function (n) { return n && n.text && n.status !== 'resolved' && n.status !== 'closed'; }); } catch (e) {}
+  var note = notes.filter(function (n) { return n.priority === 'high'; })[0] || notes[0] || null;
+  var hasTerm = typeof GLOSSARY !== 'undefined' && GLOSSARY.length;
+  if (!hasTerm && !note) { card.style.display = 'none'; return; }
+  var paneT = document.getElementById('pt-term-term'), paneN = document.getElementById('pt-term-note'), btn = document.getElementById('pt-term-next');
+  function show(which) {
+    var isNote = which === 'note';
+    paneT.hidden = isNote; paneN.hidden = !isNote;
+    document.getElementById('pt-term-ic').innerHTML = isNote ? PT_IC_NOTE : PT_IC_TERM;
+    document.getElementById('pt-term-title').textContent = isNote
+      ? (note.priority === 'high' ? t('home.note.urgent', 'Urgent note') : t('home.note.latest', 'Latest note'))
+      : t('home.term.eyebrow', 'Term of the day');
+    card.classList.toggle('is-note', isNote);
+    btn.setAttribute('aria-label', isNote ? t('home.term.eyebrow', 'Term of the day') : t('home.note.urgent', 'Urgent note'));
+  }
+  if (note) {
+    var catKey = ({ Appunto: 'note', Domanda: 'question', Problema: 'issue' })[note.category] || 'note';   // categoria interna IT → chiave i18n
+    document.getElementById('pt-note-cat').textContent = t('note.cat.' + catKey, note.category || '');
+    document.getElementById('pt-note-text').textContent = note.text;
+    document.getElementById('pt-note-meta').textContent = [note.module, note.time].filter(Boolean).join(' \xB7 ');
+    document.getElementById('pt-note-go').textContent = t('home.note.open', 'Open My Notes');
+  }
+  btn.hidden = !(note && hasTerm);
+  btn.onclick = function () { show(paneN.hidden ? 'note' : 'term'); };
+  show(hasTerm ? 'term' : 'note');
+  if (!hasTerm) return;
+  var now = new Date();
+  var start = new Date(now.getFullYear(), 0, 0);
+  var doy = Math.floor((now - start) / 86400000);
+  var entry = GLOSSARY[doy % GLOSSARY.length];
+  var lang = window.LANG || 'en';
+  var tr = (typeof GLOSSARY_NAMES !== 'undefined' && GLOSSARY_NAMES[entry.term] && lang !== 'en') ? GLOSSARY_NAMES[entry.term][lang] : null;
+  document.getElementById('hd-term-name').textContent = entry.term;
+  var trEl = document.getElementById('hd-term-tr');
+  if (tr && tr !== entry.term) { trEl.textContent = tr; trEl.style.display = ''; } else { trEl.style.display = 'none'; }
+  document.getElementById('hd-term-desc').textContent = entry[lang] || entry.en;
+  paneT.href = 'glossary.html?q=' + encodeURIComponent(entry.term);
+}
+
+// cambio lingua → ricompone tutte le stringhe (placeholder, date localizzate)
+window._onLangChange = function (lang) { renderHome(); };
+
+// ── Init ────────────────────────────────────────────────────────────────
+var LANG = localStorage.getItem('aw_lang') || 'en';
+window.LANG = LANG;
+renderChrome('home');
+renderHome();
+applyLang(LANG);
+</script>
+</body>
+</html>

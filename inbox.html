@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>(function(){var t=localStorage.getItem('aw_theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})()</script>
+<link rel="stylesheet" href="shared-r14.css?v=20261009a">
+<script src="edition.js?v=202610161633"></script>
+<script src="shared.js?v=20261016f"></script>
+<script src="translations.js?v=20261016e"></script>
+<script src="content.js?v=202610161633"></script>
+<script src="pkx_translations.js?v=20261016f"></script>
+<script src="glossary_data.js?t=63"></script>
+<title data-i18n="title.inbox">Inbox · Training Platform</title>
+<link rel="stylesheet" href="tema-2026.css?v=44">
+</head>
+<body>
+
+<!-- legacy shell markup (hidden, replaced by renderChrome) -->
+<div class="aw-topbar" id="mod-topbar" style="display:none"></div>
+<!-- 15/10 (5B): Inbox nella grammatica di Glossary / My Notes — titolo + riga rosa, filtri a pastiglia,
+     lista in una sezione con l'icona, colonna destra .pt-rail. Notifiche e annunci in una lista sola. Stili in tema-2026.css §Inbox. -->
+<div class="h-wrap">
+  <div class="h-main">
+
+    <div class="pt-pagehd pt-pagehd-row">
+      <div class="pt-grow">
+        <h1 class="pt-h1" data-i18n="ibx.title">Inbox</h1>
+        <p class="pt-lead" id="ibx-lead"></p>
+      </div>
+      <button class="ibx-markall" onclick="markAllRead()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <span data-i18n="ibx.markall">Mark all as read</span>
+      </button>
+    </div>
+
+    <div class="ibx-pills" id="ibx-pills"></div>
+
+    <section class="pt-lib">
+      <div class="pt-lib-hd">
+        <span class="pt-ic"><svg viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></span>
+        <div class="pt-grow"><h2 id="ibx-h2"></h2><div class="pt-lib-sub" id="ibx-shown"></div></div>
+      </div>
+      <div class="ibx-body" id="ibx-body"></div>
+    </section>
+
+  </div>
+  <aside class="h-side pt-rail" id="pt-side"></aside>
+</div>
+
+<script>
+var LANG = localStorage.getItem('aw_lang') || 'en';
+var cur = 'all';          // filtro attivo
+var activeItem = null;    // 'bell|id' o 'mail|id' quando è aperto il dettaglio
+
+function tl(key, fb) {
+  var dict = (window.T && window.T[LANG]) || (window.T && window.T.en) || {};
+  return dict[key] !== undefined ? dict[key] : (fb !== undefined ? fb : key);
+}
+function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+var IC = {
+  deadlines: '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
+  video: '<svg viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3"/></svg>',
+  mail: '<svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>',
+  layers: '<svg viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg>',
+  back: '<svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>',
+  arrow: '<svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>',
+  check: '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>'
+};
+
+// ── Dati: notifiche (campanella) + annunci (busta) in una lista sola ──
+function allItems() {
+  var b = (window.awBuildNotifications ? awBuildNotifications() : []).map(function (x) { x.box = 'bell'; return x; });
+  var m = (window.awBuildAnnouncements ? awBuildAnnouncements() : []).map(function (x) { x.box = 'mail'; return x; });
+  return b.concat(m);
+}
+function isUnread(it) { return (window.awNotifReadIds ? awNotifReadIds(it.box) : []).indexOf(it.id) === -1; }
+function dayDiff(it) {
+  var t = new Date(); t.setHours(0, 0, 0, 0);
+  if (it.date) { var d = new Date(it.date); d.setHours(0, 0, 0, 0); return Math.round((d - t) / 864e5); }
+  return typeof it.daysAgo === 'number' ? -it.daysAgo : 0;
+}
+// data nel formato della lingua (giorno + mese; nel dettaglio anche l'anno)
+function fmtDay(it, full) {
+  var d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + dayDiff(it));
+  var o = full ? { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' } : { day: 'numeric', month: 'short' };
+  try { return d.toLocaleDateString(awLangCode(), o); } catch (e) { return d.toDateString(); }
+}
+function tagOf(it) {
+  return it.category === 'overdue' ? tl('ibx.overdueby', '{n}d overdue').replace('{n}', -dayDiff(it)) : tl('notif.cat.' + it.category, it.category);
+}
+// chi manda: per le sessioni l'host è già nella riga (data · ora · host) → non si ripete
+function whoOf(it) {
+  if ((it.category === 'overdue' || it.category === 'assignment') && it.assignedBy) return tl('ibx.assignedby', 'Assigned by {who}').replace('{who}', it.assignedBy);
+  if (it.box === 'mail') return tl('ibx.sender.dev', 'Autoware Team');
+  return '';
+}
+
+var FILTERS = [
+  { k: 'all',        t: 'notif.cat.all',        f: function () { return true; } },
+  { k: 'overdue',    t: 'notif.cat.overdue',    f: function (x) { return x.category === 'overdue'; } },
+  { k: 'assignment', t: 'notif.cat.assignment', f: function (x) { return x.category === 'assignment'; } },
+  { k: 'session',    t: 'notif.cat.session',    f: function (x) { return x.category === 'session'; } },
+  { k: 'mail',       t: 'notif.mail.title',     f: function (x) { return x.box === 'mail'; } }
+];
+var DOT = { overdue: '#D23B3B', assignment: '#E3A21A', session: '#2F5BD3', mail: '#2E9E5B' };
+function filterOf(k) { return FILTERS.filter(function (f) { return f.k === k; })[0] || FILTERS[0]; }
+
+window.setFilter = function (k) { cur = k; activeItem = null; render(); };
+window.markAllRead = function () {
+  if (window.awMarkAllNotifRead) { awMarkAllNotifRead('bell'); awMarkAllNotifRead('mail'); }
+  render();
+};
+window.openDetail = function (box, id) {
+  if (window.awMarkNotifRead) awMarkNotifRead(box, id);
+  activeItem = box + '|' + id;
+  render();
+  window.scrollTo(0, 0);
+};
+window.closeDetail = function () { activeItem = null; render(); };
+
+function rowHtml(it) {
+  var u = isUnread(it), who = whoOf(it);
+  return '<button type="button" class="ibx-row c-' + it.category + (u ? ' unread' : '') + '" onclick="openDetail(\'' + it.box + '\',\'' + it.id + '\')">'
+    + '<span class="ibx-dot' + (u ? '' : ' off') + '"></span>'
+    + '<span class="ibx-ic">' + (IC[it.icon] || IC.mail) + '</span>'
+    + '<span class="ibx-tx"><span class="ibx-t">' + esc(it.title) + '</span>'
+    + '<span class="ibx-s">' + esc((who ? who + ' \xB7 ' : '') + it.sub) + '</span></span>'
+    + '<span class="ibx-tag">' + esc(tagOf(it)) + '</span>'
+    + '<span class="ibx-date">' + esc(fmtDay(it)) + '</span>'
+    + '</button>';
+}
+
+function detailHtml(it) {
+  var who = whoOf(it), cta = '';
+  if (it.box === 'bell' && it.href && it.href !== '#')
+    cta = '<a class="ibx-cta" href="' + it.href + '">' + esc(tl(it.ctaKey || 'search.open')) + IC.arrow + '</a>';
+  return '<div class="ibx-detail c-' + it.category + '">'
+    + '<button type="button" class="ibx-back" onclick="closeDetail()">' + IC.back + esc(tl('ibx.back', 'Back')) + '</button>'
+    + '<div class="ibx-detail-hd"><span class="ibx-ic">' + (IC[it.icon] || IC.mail) + '</span>'
+    + '<div class="pt-grow"><div class="ibx-detail-t">' + esc(it.title) + '</div>'
+    + '<div class="ibx-detail-meta"><span class="ibx-tag">' + esc(tagOf(it)) + '</span><span>' + esc(fmtDay(it, true)) + '</span>'
+    + (who ? '<span>' + esc(who) + '</span>' : '') + '</div></div></div>'
+    + '<p class="ibx-detail-body">' + esc(it.sub) + '</p>' + cta
+    + '</div>';
+}
+
+function render() {
+  var all = allItems(), unread = all.filter(isUnread);
+  document.getElementById('ibx-lead').textContent = unread.length
+    ? tl('ibx.hd.unread', '{n} unread across your inbox').replace('{n}', unread.length) : tl('ibx.allread', "You're all caught up");
+
+  document.getElementById('ibx-pills').innerHTML = FILTERS.map(function (f) {
+    return '<button type="button" class="ibx-pill' + (cur === f.k ? ' on' : '') + '" onclick="setFilter(\'' + f.k + '\')">'
+      + esc(tl(f.t)) + ' <b>\xB7 ' + all.filter(f.f).length + '</b></button>';
+  }).join('');
+
+  var F = filterOf(cur), list = all.filter(F.f);
+  document.getElementById('ibx-h2').textContent = cur === 'all' ? tl('ibx.sub', 'Notifications and announcements') : tl(F.t);
+  document.getElementById('ibx-shown').textContent = tl('ibx.unreadof', '{n} of {total} unread')
+    .replace('{n}', list.filter(isUnread).length).replace('{total}', list.length);
+
+  var body = document.getElementById('ibx-body'), h = '';
+  var open = activeItem && all.filter(function (x) { return x.box + '|' + x.id === activeItem; })[0];
+  if (activeItem && !open) activeItem = null;
+  if (open) {
+    h = detailHtml(open);
+  } else if (!list.length) {
+    h = '<div class="ibx-empty">' + IC.mail + '<b>' + esc(tl('ibx.empty', 'Nothing here')) + '</b><span>' + esc(tl('ibx.empty.sub', 'Try a different category')) + '</span></div>';
+  } else {
+    if (!unread.length) h += '<div class="ibx-allread">' + IC.check + '<span><b>' + esc(tl('ibx.allread')) + '</b> \xB7 ' + esc(tl('ibx.allread.sub', '')) + '</span></div>';
+    var B = { upcoming: [], today: [], week: [], earlier: [] };
+    list.forEach(function (x) { var d = dayDiff(x); B[d > 0 ? 'upcoming' : d === 0 ? 'today' : d >= -6 ? 'week' : 'earlier'].push(x); });
+    ['upcoming', 'today', 'week', 'earlier'].forEach(function (k) {
+      if (!B[k].length) return;
+      B[k].sort(function (a, b) { return k === 'upcoming' ? dayDiff(a) - dayDiff(b) : dayDiff(b) - dayDiff(a); });
+      h += '<div class="ibx-grp">' + esc(k === 'today' ? tl('home.ag.today', 'Today') : tl('ibx.grp.' + k, k)) + '</div>'
+        + '<div class="ibx-list">' + B[k].map(rowHtml).join('') + '</div>';
+    });
+  }
+  body.innerHTML = h;
+  renderSide(all);
+}
+
+// ── Colonna destra: non lette per tipo · prossima sessione live ──
+function renderSide(all) {
+  var side = document.getElementById('pt-side'); if (!side) return;
+  var html = '<section class="pt-sec"><div class="pt-sec-hd"><span class="pt-ic">' + IC.layers + '</span><span class="pt-sec-t">'
+    + esc(tl('ibx.side.unread', 'Unread by type')) + '</span><span class="pt-rule"></span></div><div class="pt-sec-bd">'
+    + FILTERS.slice(1).map(function (f) {
+        var n = all.filter(f.f).filter(isUnread).length;
+        return '<a class="pt-count" href="#" onclick="setFilter(\'' + f.k + '\');return false;"><i style="background:' + DOT[f.k] + '"></i>'
+          + '<span class="pt-grow">' + esc(tl(f.t)) + '</span><b>' + n + '</b></a>';
+      }).join('')
+    + '</div></section>';
+  var ses = null; try { ses = (window.awLoadSessions ? awLoadSessions() : [])[0] || null; } catch (e) {}
+  if (ses && ses.date)
+    html += '<div class="pt-term"><div class="pt-sec-hd"><span class="pt-ic">' + IC.video + '</span><span class="pt-sec-t">'
+      + esc(tl('notes.side.live', 'Next live Q&A')) + '</span></div><div class="pt-term-bd">'
+      + '<span class="pt-term-name">' + esc(awFmtISO(ses.date, { weekday: 'short', day: 'numeric', month: 'short' })) + ' \xB7 ' + esc(awFmtTime(ses.time || '14:00')) + '</span>'
+      + '<span class="pt-term-desc">' + (ses.host ? esc(awWho(ses.host)) + ' \xB7 ' : '') + esc(tl('notes.side.livesub', 'bring your open questions')) + '</span></div></div>';
+  side.innerHTML = html;
+}
+
+window._onLangChange = function (lang) { LANG = lang; render(); };
+
+// ── Init ── (?tab=mail&item=… dalle tendine della top bar)
+applyLang(LANG);
+renderChrome(null);
+(function () {
+  try {
+    var p = new URLSearchParams(location.search), tab = p.get('tab'), item = p.get('item');
+    if (tab === 'mail') cur = 'mail';
+    if (item) {
+      activeItem = (tab === 'mail' ? 'mail' : 'bell') + '|' + item;
+      if (window.awMarkNotifRead) awMarkNotifRead(tab === 'mail' ? 'mail' : 'bell', item);
+    }
+  } catch (e) {}
+})();
+render();
+</script>
+
+</body>
+</html>

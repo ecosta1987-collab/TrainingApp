@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>(function(){var t=localStorage.getItem('aw_theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})()</script>
+<link rel="stylesheet" href="shared-r14.css?v=20261009a">
+<script src="edition.js?v=202610161633"></script>
+<script src="shared.js?v=20261016f"></script>
+<script src="translations.js?v=20261016e"></script>
+<script src="content.js?v=202610161633"></script>
+<script src="pkx_translations.js?v=20261016f"></script>
+<script src="pkx_video.js?v=20261016f"></script>
+<script src="glossary_data.js?t=63"></script>
+<title data-i18n="title.modules">Modules · Training Platform</title>
+<style>
+/* ── Sidebar toggle (identical to glossary/notes/dashboard) ── */
+.layout{transition:grid-template-columns .26s cubic-bezier(.4,0,.2,1)}
+.sidebar{transition:opacity .2s ease}
+body.sb-collapsed .layout{grid-template-columns:0 1fr}
+body.sb-collapsed .sidebar{min-width:0;width:0;padding-left:0;padding-right:0;opacity:0;overflow:hidden;pointer-events:none;border-right:none}
+.sb-toggle{width:30px;height:30px;border-radius:var(--rsm);border:1px solid rgba(255,255,255,.18);background:transparent;color:rgba(255,255,255,.62);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s,color .15s}
+.sb-toggle:hover{background:rgba(255,255,255,.09);color:#fff}
+.sb-toggle:active{transform:translateY(1px)}
+.sb-toggle svg{width:16px;height:16px;transition:transform .26s cubic-bezier(.4,0,.2,1)}
+body.sb-collapsed .sb-toggle svg{transform:rotate(180deg)}
+
+/* ── Wrapper ── */
+.mc-wrap{max-width:1600px}
+.mc-back::before{content:'\2190\00a0'}  /* ← arrow, survives applyLang text swap */
+.mc-cols{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:30px;align-items:start}
+.mc-left{min-width:0}
+@media(max-width:1024px){.mc-cols{grid-template-columns:1fr}.mc-rail{display:none}}
+
+/* ════════════════════ TRAINING LIBRARY (framed, tinted panel) ════════════════════ */
+.lib-panel{
+  position:relative;
+  background:var(--aw-navy);            /* navy Autoware pieno → le card bianche risaltano */
+  border:.5px solid var(--aw-navy);
+  border-radius:14px;
+  box-shadow:var(--e3);
+  padding:15px 16px 14px;
+  margin-bottom:18px;
+  overflow:hidden;
+}
+.lib-panel::before{                     /* filetto fucsia accento in cima */
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;background:#E91E8C;
+}
+.lib-head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:11px}
+.lib-h-l{display:flex;align-items:center;gap:10px;min-width:0}
+.lib-h-ico{width:30px;height:30px;border-radius:8px;flex-shrink:0;background:#E91E8C;display:flex;align-items:center;justify-content:center}
+.lib-h-ico svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.lib-h-title{font-size:18px;font-weight:var(--fw-b);color:#fff;letter-spacing:-.2px;line-height:1.15}
+.lib-h-sub{font-size:var(--fs-xs);color:rgba(255,255,255,.66);margin-top:1px}
+.lib-h-count{font-size:var(--fs-xs);font-weight:var(--fw-sb);color:rgba(255,255,255,.7);white-space:nowrap;font-variant-numeric:tabular-nums;font-family:var(--font-mono)}
+
+/* filters (rendered only when more than one training exists) */
+.lib-filters{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+.lib-fil{padding:5px 12px;border-radius:20px;font-size:var(--fs-xs);font-weight:var(--fw-med);border:.5px solid rgba(255,255,255,.24);background:rgba(255,255,255,.08);color:rgba(255,255,255,.82);cursor:pointer;transition:background .12s,color .12s,border-color .12s;user-select:none;white-space:nowrap}
+.lib-fil:hover{border-color:rgba(255,255,255,.5);color:#fff}
+.lib-fil.active{background:#E91E8C;color:#fff;border-color:#E91E8C;font-weight:var(--fw-sb)}
+.lib-fil-n{opacity:.6;margin-left:5px;font-variant-numeric:tabular-nums;font-family:var(--font-mono)}
+
+/* card list — flex row, fixed 180px cards */
+.lib-grid{display:flex;flex-wrap:wrap;gap:12px}
+
+.lib-card{width:184px;flex-shrink:0;display:flex;flex-direction:column;border:.5px solid var(--border);border-radius:12px;overflow:hidden;background:var(--bg);box-shadow:var(--e1);opacity:.68;cursor:pointer;transition:box-shadow .16s,transform .16s,opacity .16s}
+.lib-card:hover{box-shadow:var(--e3);transform:translateY(-3px);opacity:1}
+/* SELEZIONATO: pieno, sollevato, anello fucsia luminoso */
+.lib-card.active{opacity:1;transform:translateY(-3px);border-color:#E91E8C;box-shadow:0 0 0 3px rgba(233,30,140,.9),0 0 18px 2px rgba(233,30,140,.35),var(--e3)}
+.lib-card.active .lib-cover{background:#fff}
+.lib-card.soon{opacity:.4;cursor:default}
+.lib-card.soon:hover{transform:none;box-shadow:var(--e1);opacity:.4}
+/* striscia colorata per traccia in cima alla card */
+.lib-card::before{content:'';display:block;height:4px;background:var(--aw-navy);flex-shrink:0}
+.lib-card[data-track="tillit-su"]::before{background:#E91E8C}
+.lib-card.soon::before{background:var(--border2)}
+
+/* header */
+.lib-cover{position:relative;height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:#F5F6F8;overflow:hidden}
+.lib-card[data-track="tillit-su"] .lib-cover{background:#FDF2F8}
+/* role badge (Operator / Superuser) — distinguishes the two TilliT tracks */
+.lib-role{position:absolute;top:7px;right:7px;display:inline-flex;align-items:center;gap:4px;padding:3px 8px 3px 6px;border-radius:20px;font-size:9px;font-weight:var(--fw-sb);letter-spacing:.02em;background:var(--aw-navy);color:#fff;line-height:1}
+.lib-role svg{width:11px;height:11px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.lib-role[data-role="tillit-su"]{background:#E91E8C}
+.lib-cover-logo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.lib-card.soon .lib-cover{background:#E5E7EB}
+.lib-cover-plus{color:#9CA3AF;font-size:28px;line-height:1}
+
+/* body */
+.lib-body{display:flex;flex-direction:column;padding:12px;flex:1}
+.lib-name{font-size:12px;font-weight:500;color:var(--text);line-height:1.3;margin-bottom:2px}
+.lib-meta{font-size:10px;color:var(--text2);margin-bottom:8px;line-height:1.3}
+.lib-card.soon .lib-name,.lib-card.soon .lib-meta{color:#9CA3AF}
+.lib-bar{height:3px;border-radius:2px;background:#F3F4F6;overflow:hidden}
+.lib-bar-fill{height:100%;border-radius:2px;background:#E91E8C;transition:width .4s}
+.lib-prog-lbl{font-size:10px;font-weight:500;color:#E91E8C;margin-top:5px;font-family:var(--font-mono)}
+
+@media(max-width:480px){.lib-card{width:calc(50% - 6px)}}
+
+/* ── Modules subsection title (smaller than the page H1 we use elsewhere) ── */
+.mods-lead{display:flex;align-items:center;gap:11px;margin-bottom:13px}
+.mods-lead-t{font-size:17px;font-weight:var(--fw-b);color:var(--text);letter-spacing:-.2px;white-space:nowrap}
+.mods-lead-ctx{font-size:var(--fs-xs);color:var(--text3);white-space:nowrap}
+.mods-lead-line{flex:1;height:0;border-top:.5px solid var(--border)}
+
+/* ════════ Module grid (compact cards) ════════ */
+.mc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;align-items:start}
+.mc{position:relative;background:var(--bg);border:.5px solid var(--border);border-radius:var(--r);padding:10px;display:flex;flex-direction:column;gap:8px;overflow:hidden;box-shadow:var(--e1);text-decoration:none;color:inherit;transition:background .1s,box-shadow .1s,transform .1s}
+.mc--current{border:1.5px solid #0F2757}                /* ATP design token: navy */
+.mc--current::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:#E91E8C}  /* ATP design token: magenta accent strip */
+.mc--locked{opacity:.45;cursor:default}
+.mc--done:hover,.mc--current:hover{background:var(--bg2);box-shadow:var(--e2);transform:translateY(-1px)}
+.mc-top{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.mc-circle{width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.mc--done    .mc-circle{background:#16A34A;color:#fff}   /* ATP design token: success green */
+.mc--current .mc-circle{background:#fff;border:2px solid #0F2757;color:#0F2757}
+.mc--locked  .mc-circle{background:#fff;border:1.5px solid #D1D5DB;color:#9CA3AF}
+.mc-circle svg{width:11px;height:11px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.mc--locked .mc-circle svg{stroke:#9CA3AF}
+.mc-pill{font-size:9px;font-weight:500;padding:2px 8px;border-radius:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%}
+.mc--done    .mc-pill{background:#DCFCE7;color:#16A34A}
+.mc--current .mc-pill{background:#0F2757;color:#fff}
+.mc--locked  .mc-pill{background:#F3F4F6;color:#9CA3AF}
+.mc-code{font-size:9px;color:#9CA3AF;font-weight:500;letter-spacing:.04em}
+.mc-title{font-size:11px;font-weight:500;color:var(--text);line-height:1.3}
+.mc--locked .mc-title{color:var(--text3)}
+.mc-meta{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text2)}
+.mc-meta svg{width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.mc-bar{height:2px;border-radius:2px;background:#E5E7EB;overflow:hidden}   /* ATP design token: track grey */
+.mc-bar-fill{height:100%;border-radius:2px;width:0}
+.mc--done    .mc-bar-fill{background:#16A34A;width:100%}
+.mc--current .mc-bar-fill{background:#E91E8C}
+
+/* ════════ Module list (vertical, chapters expandable) ════════ */
+#mc-grid{display:block}
+/* format strip — the 6-step path shown ONCE (it's the format of every chapter) */
+.ml-format{display:flex;align-items:center;flex-wrap:wrap;gap:7px 12px;padding:9px 14px;margin-bottom:13px;background:var(--bg2);border:.5px solid var(--border);border-radius:10px}
+.ml-format-lead{display:inline-flex;align-items:center;gap:7px;font-size:var(--fs-xs);font-weight:var(--fw-sb);color:var(--text2)}
+.ml-format-lead svg{width:14px;height:14px;stroke:var(--aw-pink);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.ml-fsteps{display:flex;align-items:center;flex-wrap:wrap;gap:5px}
+.ml-fstep{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);white-space:nowrap}
+.ml-fstep .n{width:16px;height:16px;border-radius:50%;background:var(--bg3);color:var(--text3);font-size:9px;font-weight:var(--fw-b);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--font-mono)}
+.ml-fsep{color:var(--text3);opacity:.45;font-size:11px}
+
+/* elenco = tabella unica con righe separate da linee (griglia) → più "forma" del bianco piatto */
+.ml-list{display:flex;flex-direction:column;background:var(--bg);border:.5px solid var(--border);border-radius:12px;box-shadow:var(--e1);overflow:hidden}
+.ml-item{border-bottom:.5px solid var(--border)}
+.ml-item:last-child{border-bottom:none}
+.ml-item.current{background:rgba(15,39,87,.05)}
+.ml-item.current .ml-row{border-left:3px solid #0F2757}
+.ml-row{display:grid;grid-template-columns:28px minmax(0,1fr) auto 28px;align-items:center;gap:12px;padding:11px 13px;text-decoration:none;color:inherit}
+a.ml-row:hover{background:var(--bg2)}
+.ml-item.current a.ml-row:hover,.ml-item.inprogress a.ml-row:hover{background:rgba(15,39,87,.05)}
+.ml-item.locked .ml-row{opacity:.62}
+/* Una riga "locked" che è comunque un link (modulo a un solo capitolo senza pagina propria,
+   es. SU-05) deve leggersi come cliccabile: si schiarisce in hover. */
+.ml-item.locked a.ml-row:hover{opacity:.9;background:rgba(15,39,87,.04)}
+.ml-badge{width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:var(--font-mono)}
+.ml-item.done .ml-badge{background:#16A34A;color:#fff}
+.ml-item.current .ml-badge{background:#fff;border:2px solid #0F2757;color:#0F2757}
+.ml-item.locked .ml-badge{background:#fff;border:1.5px solid #D1D5DB;color:#9CA3AF}
+.ml-badge svg{width:12px;height:12px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.ml-item.locked .ml-badge svg{stroke:#9CA3AF}
+.ml-info{min-width:0}
+.ml-title{font-size:var(--fs-sm);font-weight:var(--fw-sb);color:var(--text);line-height:1.3;display:flex;gap:8px;align-items:baseline}
+.ml-title b{font-size:10px;color:#9CA3AF;font-weight:var(--fw-sb);letter-spacing:.04em;flex-shrink:0;font-family:var(--font-mono)}
+.ml-item.locked .ml-title{color:var(--text3)}
+.ml-meta{display:flex;align-items:center;gap:11px;font-size:var(--fs-xs);color:var(--text2);margin-top:3px}
+.ml-meta span{display:inline-flex;align-items:center;gap:4px}
+.ml-meta svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.ml-prog{display:flex;align-items:center;gap:8px;margin-top:7px;max-width:280px}
+.ml-prog-bar{flex:1;height:4px;border-radius:3px;background:var(--bg3);overflow:hidden}
+.ml-prog-fill{height:100%;border-radius:3px;background:#E91E8C;transition:width .4s}
+.ml-prog-lbl{font-size:10px;font-weight:var(--fw-sb);color:#E91E8C;font-variant-numeric:tabular-nums;flex-shrink:0;font-family:var(--font-mono)}
+.ml-st{font-size:9px;font-weight:500;padding:3px 9px;border-radius:20px;white-space:nowrap;justify-self:end}
+.ml-item.done .ml-st{background:#DCFCE7;color:#16A34A}
+.ml-item.current .ml-st{background:#0F2757;color:#fff}
+.ml-item.inprogress{background:rgba(224,49,138,.07)}
+.ml-item.inprogress .ml-row{border-left:3px solid #E91E8C}
+.ml-item.inprogress .ml-st{background:#FCE7F3;color:#E91E8C}
+.ml-item.inprogress .ml-badge{background:#fff;border:2px solid #E91E8C;color:#E91E8C}
+.ml-item.locked .ml-st{background:#F3F4F6;color:#9CA3AF}
+/* scadenza passata, non completato — stesso rosso+icona di dashboard/inbox, mai solo colore */
+.ml-item.overdue .ml-row{border-left:3px solid var(--red)}
+.ml-item.overdue .ml-badge{background:var(--red-l);border:none;color:var(--red-d)}
+.ml-item.overdue .ml-badge svg{stroke:var(--red-d)}
+.ml-item.overdue .ml-st{background:var(--red-l);color:var(--red-d)}
+.ml-item.overdue.locked .ml-row{opacity:1}
+.ml-item.overdue.locked .ml-title{color:var(--text)}
+.ml-caret{width:26px;height:26px;border-radius:7px;border:.5px solid var(--border2);background:transparent;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0}
+.ml-caret:hover{background:var(--bg);color:var(--text)}
+.ml-caret svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
+.ml-item.open .ml-caret svg{transform:rotate(180deg)}
+.ml-caret-sp{width:26px;height:26px}
+.ml-chaps{display:none;padding:6px 13px 12px 52px;background:var(--bg2);border-top:.5px solid var(--border)}
+.ml-item.open .ml-chaps{display:block}
+.ml-chap{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:var(--fs-sm)}
+.ml-chap-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);flex-shrink:0;opacity:.5}
+.ml-chap-id{font-size:10px;font-weight:var(--fw-sb);color:var(--text3);font-variant-numeric:tabular-nums;flex-shrink:0;font-family:var(--font-mono)}
+.ml-chap-name{color:var(--text2)}
+/* Capitolo che apre la pagina-lezione vera (lesson-shell). Resta una riga di lista, non un
+   bottone: cambia il cursore e si accende in hover, il badge dice se è finito o bozza. */
+.ml-chap-live{text-decoration:none;color:inherit;border-radius:7px;margin:0 -8px;padding:6px 8px;transition:background .12s}
+.ml-chap-live:hover{background:var(--bg)}
+.ml-chap-live:hover .ml-chap-name{color:var(--text)}
+.ml-chap-live:hover .ml-chap-dot{background:var(--aw-pink);opacity:1}
+.ml-chap-st{margin-left:auto;flex-shrink:0;font-size:9px;font-weight:var(--fw-sb);letter-spacing:.05em;text-transform:uppercase;padding:2px 7px;border-radius:20px;background:var(--bg3);color:var(--text3)}
+.ml-chap-st.ready{background:var(--teal-l);color:var(--teal-d)}
+@media(max-width:560px){.ml-row{grid-template-columns:26px minmax(0,1fr) 28px}.ml-st{display:none}.ml-chaps{padding-left:40px}.ml-chap-st{display:none}}
+
+/* ════════ Right rail (UNCHANGED) ════════ */
+.mc-rail{position:sticky;top:64px;display:flex;flex-direction:column;gap:11px}
+.mc-rail-card{background:var(--bg);border:.5px solid var(--border);border-radius:var(--r);padding:13px 14px;box-shadow:var(--e1)}
+.mc-rail-h{font-size:var(--fs-2xs);font-weight:var(--fw-b);letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:9px}
+.mc-pr-fig{display:flex;align-items:baseline;gap:6px;margin-bottom:2px}
+.mc-pr-n{font-size:26px;font-weight:var(--fw-b);color:var(--text);line-height:1;font-variant-numeric:tabular-nums}
+.mc-pr-tot{font-size:14px;font-weight:var(--fw-sb);color:var(--text3)}
+.mc-pr-lbl{font-size:var(--fs-xs);color:var(--text2);margin-bottom:9px}
+.mc-pr-track{height:7px;border-radius:4px;background:var(--bg3);overflow:hidden}
+.mc-pr-fill{height:100%;border-radius:4px;background:#16A34A;transition:width .4s}
+.mc-pr-rem{margin-top:8px;font-size:var(--fs-xs);color:var(--text2);display:flex;align-items:center;gap:6px}
+.mc-pr-rem svg{width:12px;height:12px;stroke:var(--text3);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.mc-next-code{font-size:11px;color:#9CA3AF;font-weight:500;letter-spacing:.04em}
+.mc-next-title{font-size:var(--fs-body);font-weight:var(--fw-sb);color:var(--text);margin:2px 0 10px;line-height:1.3}
+.mc-next-btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;box-sizing:border-box;padding:8px 14px;border-radius:var(--rsm);background:#0F2757;color:#fff;font-size:var(--fs-sm);font-weight:var(--fw-sb);text-decoration:none;transition:background .12s}
+.mc-next-btn:hover{background:#163565}
+.mc-next-btn svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mc-leg{display:flex;align-items:center;gap:10px;padding:3px 0}
+.mc-leg-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0}
+.mc-leg-dot.done{background:#16A34A}
+.mc-leg-dot.current{background:#fff;border:2px solid #0F2757;box-sizing:border-box}
+.mc-leg-dot.locked{background:#fff;border:1.5px solid #D1D5DB;box-sizing:border-box}
+.mc-leg-t{font-size:var(--fs-sm);color:var(--text2)}
+
+.aw-footer{text-align:center;padding:14px 16px 18px;font-size:11px;color:var(--text3);background:transparent}
+</style>
+<link rel="stylesheet" href="tema-2026.css?v=44">
+</head>
+<body>
+
+<!-- Grafica del prototipo "New Design": due viste nella stessa pagina —
+     #            = Training (le card dei training: screens/02-training.html)
+     #<training>  = dettaglio del training (moduli e lezioni: screens/03-course.html)
+     Stessi dati e stessi link alle lezioni di prima; colonna destra = .pt-rail come nella Home. -->
+<div class="h-wrap">
+  <div class="h-main" id="pt-main"></div>
+  <aside class="h-side pt-rail" id="pt-side"></aside>
+</div>
+
+<div class="aw-footer" data-i18n="footer">© {year} autoware · Beyond Operations Management · Training Platform</div>
+
+<script>
+function t(k, fb){
+  var lang = window.LANG || 'en';
+  var dict = (window.T && window.T[lang]) || (window.T && window.T.en) || {};
+  return dict[k] !== undefined ? dict[k] : (fb !== undefined ? fb : k);
+}
+
+// Inline Feather icons
+var ICON_CHECK  = '<svg viewBox="0 0 24 24"><polyline points="20 6 9 18 4 13"/></svg>';
+var ICON_LOCK   = '<svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+var ICON_CLOCK  = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+var ICON_PLAY   = '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+var ICON_LAYERS = '<svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>';
+// Role glyphs for the two training tracks
+var ICON_USER  = '<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+var ICON_ADMIN = '<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="11" r="2.2"/><path d="M12 8.8v-.9"/><path d="M12 14.1v.9"/></svg>';
+
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── Capitoli reali dal content editor (Blocco 0, 2026-09-09) ────────────────────────────
+// Le liste `subs` di questa pagina sono presentazionali e ormai ferme a una tassonomia più
+// vecchia: OP-06 vi risulta a 4 capitoli quando ne esistono 2, SU-04B a 6 quando sono 7 e
+// SU-05 (History) non c'è affatto. Quando lo stato del content editor è leggibile (stesso
+// origin, `awEditorState` in shared.js) è LUI la fonte: il catalogo elenca quello che è
+// davvero autorato e ogni capitolo linka la pagina-lezione vera (`lesson-shell.html`)
+// invece di essere una riga inerte. Senza stato dell'editor in questo browser si ricade
+// sulle liste statiche, esattamente come prima.
+var LESSON_IX = (typeof awEditorState === 'function' && typeof awLessonIndex === 'function')
+  ? awLessonIndex(awEditorState()) : {};
+// 2026-09-25 (PIANO_PUBBLICAZIONE): un capitolo è un link solo se è in una versione
+// PUBBLICATA del suo sotto-training (IndexedDB, awPubAll in shared.js), non più se è
+// `ready` nell'editor — `ready` vuol dire "l'autore ha finito", non "chi impara lo vede".
+// La struttura (quali moduli/capitoli esistono) resta quella dell'editor; solo lo stato
+// passa da "ready" a "pubblicato". Finché le versioni non sono lette, nessun capitolo è
+// un link (niente lampo di capitoli non pubblicati cliccabili).
+var PUB_SET = null;
+function applyPublishedStatus(){
+  Object.keys(LESSON_IX).forEach(function(k){
+    (LESSON_IX[k].lessons || []).forEach(function(l){
+      l.status = (PUB_SET && PUB_SET[String(l.id).toUpperCase()]) ? 'ready' : 'draft';
+    });
+  });
+}
+applyPublishedStatus();
+
+function lessonsOf(m){
+  var e = LESSON_IX[String(m.num || m.id).toUpperCase()];
+  return (e && e.lessons && e.lessons.length) ? e.lessons : null;
+}
+// I moduli autorati che la lista statica di questo track non conosce, accodati.
+function modulesOf(tr){
+  var mods = (tr.modules || []).slice();
+  if (window.AW_EDITION_TRAINING) return mods;   // edizione: il catalogo è già completo
+  var track = (tr.key === 'tillit-su') ? 'SU' : 'OP';
+  var known = {}; mods.forEach(function(m){ known[String(m.num || m.id).toUpperCase()] = 1; });
+  Object.keys(LESSON_IX).forEach(function(id){
+    if(known[id] || LESSON_IX[id].trackId !== track) return;
+    mods.push({ id:id, num:id, title:LESSON_IX[id].title, href:null,
+                subs:LESSON_IX[id].lessons.map(function(l){ return l.title; }) });
+  });
+  return mods;
+}
+
+// A module has N CHAPTERS (content units). Modules without explicit subs = 1 chapter.
+// The 6-step path (Intro/Video/Concepts/Practice/Quiz/Completion) is the FORMAT of
+// every chapter — shown once as a strip, never counted per module.
+function chapCountOf(m){ var L=lessonsOf(m); if(L) return L.length; return (m.subs && m.subs.length) ? m.subs.length : 1; }
+function chapListOf(m){ return (m.subs && m.subs.length) ? m.subs : [m.title]; }
+// Durata: letta da m.mins (window.AW_MODULES, shared.js) — stessa fonte usata da index.html, invece
+// di una copia locale che copriva solo 3 moduli e faceva divergere le stime dei rimanenti dalla home.
+// Il fallback (6min/capitolo) resta solo per moduli senza stima (es. SU, ancora placeholder).
+function minutesOf(m){ return m.mins || (chapCountOf(m) * 6); }
+function fmtDur(min){ if(min>=60){var h=Math.floor(min/60),mm=min%60;return '~'+h+'h'+(mm?(' '+mm+'m'):'');} return '~'+min+'m'; }
+
+// the fixed learning path, rendered once above the module list
+var STEP_KEYS = ['tab.intro','tab.video','tab.concepts','tab.practice','tab.quiz','tab.completion'];
+function stepName(k){ return String(t(k,k)).replace(/^\s*\d+\.\s*/,''); }
+function formatStripHTML(){
+  var lead = '<span class="ml-format-lead">'+ICON_LAYERS+t('lib.format.lead','Each chapter follows:')+'</span>';
+  var steps = '<span class="ml-fsteps">'+STEP_KEYS.map(function(k,i){
+    return '<span class="ml-fstep"><span class="n">'+(i+1)+'</span>'+stepName(k)+'</span>'
+      + (i<STEP_KEYS.length-1 ? '<span class="ml-fsep">›</span>' : '');
+  }).join('')+'</span>';
+  return '<div class="ml-format">'+lead+steps+'</div>';
+}
+
+// ── Superuser training (SU track). Placeholder for the demo: modules/sections
+//    are shown as icons only (all locked, no href) — the course is not built yet.
+//    Taxonomy mirrors the content editor (SU-01 … SU-04B). ──
+var SU_MODULES = [
+  { id:'SU-01',  num:'SU-01',  title:'Insights',                        href:null, subs:['Activity Report','Production Report','Dashboards'] },
+  { id:'SU-02',  num:'SU-02',  title:'User Management',                 href:null, subs:['Access Management','Roles','Channels & Subscriptions'] },
+  { id:'SU-03',  num:'SU-03',  title:'Asset Hierarchy, Materials & Events', href:null, subs:['Assets','Shift Templates & Calendars','Materials','Events & Configuration'] },
+  { id:'SU-04A', num:'SU-04A', title:'Activity Templates — Part A',      href:null, subs:['Create Template — Basic Info','Create Template — Where & When','Item Types','Data Types'] },
+  { id:'SU-04B', num:'SU-04B', title:'Activity Templates — Part B',      href:null, subs:['Item Properties & Note','Evaluate & JavaScript','Option','Barcode & GS1','Articles','Translation'] }
+];
+
+// ── Training catalogue (presentational). Two TilliT tracks: Operator (built, its
+//    modules ARE the existing AW_MODULES) and Superuser (placeholder icons only). ──
+var TRAININGS = [
+  { key:'tillit',    name:'TilliT', courseKey:'mgr.course.op', courseFb:'TilliT Operator Training',   logo:'TilliT Operator.png',   subKey:'lib.track.op', sub:'Operator', roleIcon:ICON_USER,  cat:'MES', modules:(window.AW_MODULES||[]), available:true },
+  { key:'tillit-su', name:'TilliT', courseKey:'mgr.course.su', courseFb:'TilliT Superuser Training', logo:'TilliT Superuser.png', subKey:'lib.track.su', sub:'Superuser', roleIcon:ICON_ADMIN, cat:'MES', modules:SU_MODULES,              available:true }
+];
+// Edizione (shared.js awApplyEdition): solo il training del file, niente Superuser.
+if (window.AW_EDITION_TRAINING) {
+  TRAININGS.length = 1;
+  TRAININGS[0].logo = AW_EDITION_TRAINING.cover || TRAININGS[0].logo;
+  TRAININGS[0].subKey = ''; TRAININGS[0].sub = AW_EDITION_TRAINING.roleLabel || 'Learner';
+}
+var selectedKey = 'tillit';
+var libFilter   = 'all';
+var FILTERS = ['all','progress','available'];
+
+function getProgress(){ var p={}; try{ p=JSON.parse(localStorage.getItem('aw_progress')||'{}'); }catch(e){} return p; }
+// per-section progress (resume): { "01": {done:[...], last} } → % of the 6-step path.
+// Stessa definizione di moduleProgress() in index.html: le 6 sezioni (Intro→Completion) contano
+// tutte per la percentuale — prima questo file escludeva Intro/Completion dal calcolo, dando numeri
+// diversi dalla home per lo stesso modulo (es. "0%" qui quando la home già mostrava progresso).
+// 14/10: le sezioni vere del capitolo (awSectKeys, shared.js); nel laboratorio restano le 6 dei moduli OP.
+function getSectProg(){ var p={}; try{ p=JSON.parse(localStorage.getItem('aw_sect')||'{}'); }catch(e){} return p; }
+function modPct(m, prog){
+  if(prog[m.id]===true) return 100;
+  var K=awSectKeys(m.id), done=(getSectProg()[m.id] && getSectProg()[m.id].done) || [];
+  var idx=0;
+  for (var i=0;i<K.length;i++){ if(done.indexOf(K[i])===-1) break; idx=i+1; }
+  return idx>0 ? Math.min(99, Math.round(idx/K.length*100)) : 0;
+}
+function trainingStats(tr, prog){
+  // "done" = moduli interamente conclusi (per il testo "N/tot"); "pct" = media frazionaria del
+  // progresso per-modulo (via modPct), stessa aggregazione della card corso in index.html — un
+  // corso "in corso" non deve leggere 0% solo perché nessun modulo è ancora finito del tutto.
+  var trMods=modulesOf(tr);
+  var total=trMods.length, done=0, mins=0, doneFrac=0;
+  trMods.forEach(function(m){ if(prog[m.id]===true) done++; doneFrac+=modPct(m,prog)/100; mins+=minutesOf(m); });
+  return { total:total, done:done, mins:mins, pct: total?Math.round(doneFrac/total*100):0 };
+}
+function trStatus(tr, prog){
+  if(!tr.available) return 'soon';
+  var st=trainingStats(tr,prog);
+  return (st.pct>0 && st.pct<100) ? 'progress' : 'available';
+}
+function matchesFilter(tr, prog){
+  if(libFilter==='all') return true;
+  if(libFilter==='available') return tr.available;
+  return trStatus(tr,prog)===libFilter;
+}
+
+// ══ Grafica del prototipo "New Design" — vista Training (#) e dettaglio del training (#<chiave>) ══
+// Solo disegno: i dati vengono dalle stesse funzioni di sopra (modulesOf, lessonsOf, trainingStats,
+// modPct, awAccessStatus, LESSON_IX/PUB_SET). Le regole dei link alle lezioni sono quelle di prima.
+var PT_ARROWS = (function () {
+  var A = [[40,40,-24,'#E2477F'],[110,26,12,'#E9EDF7'],[180,56,-8,'#5B86E5'],[250,30,-30,'#E9EDF7'],[320,64,18,'#E2477F'],[80,108,20,'#E9EDF7'],
+           [160,126,-16,'#E2477F'],[230,116,26,'#5B86E5'],[300,140,-10,'#E9EDF7'],[130,190,8,'#5B86E5'],[210,196,-28,'#E2477F'],[350,184,14,'#E9EDF7']];
+  return '<svg viewBox="0 0 400 240"><g fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">' + A.map(function (a) {
+    return '<path d="M0 26 L13 0 L26 26 M8 26 L13 15 L18 26" stroke="' + a[3] + '" transform="translate(' + a[0] + ' ' + a[1] + ') rotate(' + a[2] + ')"' + (a[3] === '#E9EDF7' ? ' opacity=".85"' : '') + '/>';
+  }).join('') + '</g></svg>';
+})();
+var PT_IC = {
+  flag:  '<svg viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></svg>',
+  path:  '<svg viewBox="0 0 24 24"><circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h6a3 3 0 0 0 0-6h-4a3 3 0 0 1 0-6h6"/></svg>',
+  video: '<svg viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3"/></svg>',
+  award: '<svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="M8.5 14 7 22l5-3 5 3-1.5-8"/></svg>',
+  layers:'<svg viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg>',
+  note:  '<svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7"/><path d="M9 16h5"/></svg>',
+  book:  '<svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/></svg>',
+  check: '<svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>',
+  lock:  '<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
+  chev:  '<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>',
+  clock: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'
+};
+function ptDate(d, o) { return d.toLocaleDateString(window.awLangCode(), o); }
+function ptUp(s) { return String(s).toUpperCase(); }
+function trName(tr) { return tr.courseKey ? t(tr.courseKey, tr.courseFb) : tr.name; }
+function trByKey(k) { return TRAININGS.filter(function (x) { return x.key === k; })[0]; }
+function ptAccess(tr) { return (typeof awAccessStatus === 'function') ? awAccessStatus(tr.key === 'tillit-su' ? 'SU' : 'OP') : { status: 'open' }; }
+// sezioni fatte del modulo (0..6), stessa regola di modPct
+function ptStepIdx(m) {
+  var K = awSectKeys(m.id), done = (getSectProg()[m.id] && getSectProg()[m.id].done) || [], idx = 0;
+  for (var i = 0; i < K.length; i++) { if (done.indexOf(K[i]) === -1) break; idx = i + 1; }
+  return idx;
+}
+// link d'ingresso del modulo: la sua pagina, oppure (un solo capitolo) la lezione pubblicata — come prima
+function ptModHref(m, blocked) {
+  if (blocked) return null;
+  if (m.href) return m.href;
+  var L = lessonsOf(m);
+  return (L && L.length === 1 && L[0].status === 'ready') ? 'lesson-shell.html?lesson=' + encodeURIComponent(L[0].id) : null;
+}
+function ptCurrent(tr, prog) {
+  var cur = null, blocked = ptAccess(tr).status !== 'open';
+  modulesOf(tr).forEach(function (m) { if (!cur && prog[m.id] !== true && ptModHref(m, blocked)) cur = m; });
+  return cur;
+}
+function ptSegs(tr, prog, cls) {
+  return '<div class="pt-segs' + (cls ? ' ' + cls : '') + '">' + modulesOf(tr).map(function (m) {
+    return '<i class="' + (prog[m.id] === true ? 'done' : (modPct(m, prog) > 0 ? 'cur' : '')) + '"></i>';
+  }).join('') + '</div>';
+}
+function ptSec(icon, title, body, link) {
+  return '<section class="pt-sec"><div class="pt-sec-hd"><span class="pt-ic">' + icon + '</span><span class="pt-sec-t">' + title + '</span><span class="pt-rule"></span>'
+    + (link || '') + '</div><div class="pt-sec-bd">' + body + '</div></section>';
+}
+function ptTinted(icon, title, body) {
+  return '<div class="pt-term"><div class="pt-art pt-term-art" aria-hidden="true">' + PT_ARROWS + '</div>'
+    + '<div class="pt-sec-hd"><span class="pt-ic">' + icon + '</span><span class="pt-sec-t">' + title + '</span></div><div class="pt-term-bd">' + body + '</div></div>';
+}
+
+// Impegni (sessioni + scadenze): stessa logica e stesso esempio di riserva della Home (index.html)
+function ptEvents(prog) {
+  function nd(n) { var d = new Date(); d.setDate(d.getDate() + n); d.setHours(0, 0, 0, 0); return d; }
+  function parseISO(iso) { var p = (iso || '').split('-'); return new Date(+p[0], (+p[1] || 1) - 1, (+p[2] || 1)); }
+  var me = (window.AW_USER && AW_USER.name) || 'Learner', myTr = ['op'];
+  try { var u = (window.awLoadUsers ? awLoadUsers() : []).filter(function (x) { return x.name === me; })[0]; if (u) myTr = window.awUserTrainings(u); } catch (e) {}
+  function forMe(target) { return window.awAssignMatch ? window.awAssignMatch(target, me, myTr) : true; }
+  var ses = [], asg = [];
+  try { ses = (window.awLoadSessions ? awLoadSessions() : []).filter(function (s) { return forMe(s.invitees); }); } catch (e) {}
+  try { asg = (window.awLoadAssignments ? awLoadAssignments() : []).filter(function (a) { return a.dueDate && forMe(a.target); }); } catch (e) {}
+  var tr0 = TRAININGS[0], all = modulesOf(tr0).concat(SU_MODULES), cur = ptCurrent(tr0, prog), ev = [];
+  if (ses.length || asg.length) {
+    ses.forEach(function (s) { ev.push({ type: 'session', date: parseISO(s.date), label: s.title || t('home.ev.session'), time: awFmtTime(s.time), host: awWho(s.host) || '' }); });
+    asg.forEach(function (a) {
+      if (a.level === 'course' || a.kind === 'path') { ev.push({ type: 'deadline', date: parseISO(a.dueDate), label: t('home.ev.duepath'), detail: trName(tr0) }); return; }
+      (a.moduleIds || (a.moduleId ? [a.moduleId] : [])).forEach(function (mid) {
+        var m = all.filter(function (x) { return x.id === mid; })[0];
+        if (m) ev.push({ type: 'deadline', date: parseISO(a.dueDate), mod: m.id, label: t('home.ev.duemod').replace('{code}', (window.awChapLabel ? awChapLabel(m) : m.num)), detail: window.awModTitle(m) });
+      });
+    });
+  } else if (!window.AW_CONTENT) {   // 14/10: esempi inventati solo nel laboratorio; l'edizione ha dati veri (awApplyEdition)
+    ev = [{ type: 'session', date: nd(2), label: t('home.ev.session'), time: '14:00', host: 'E. Bianchi' },
+          { type: 'deadline', date: nd(12), label: t('home.ev.duepath'), detail: trName(tr0) }];
+    if (cur) ev.push({ type: 'deadline', date: nd(5), mod: cur.id, label: t('home.ev.duemod').replace('{code}', (window.awChapLabel ? awChapLabel(cur) : cur.num)), detail: window.awModTitle(cur) });
+  }
+  return ev.sort(function (a, b) { return a.date - b.date; });
+}
+function ptDeadlineRows(list) {
+  var now = new Date(); now.setHours(0, 0, 0, 0);
+  return list.map(function (e) {
+    var soon = Math.round((e.date - now) / 86400000) <= 7;
+    return '<div class="pt-dlrow"><div class="pt-day"><span>' + ptUp(ptDate(e.date, { weekday: 'short' })) + '</span><b class="' + (soon ? 'soon' : '') + '">' + e.date.getDate() + '</b></div>'
+      + '<div class="pt-dl"><b>' + e.label + '</b><div class="pt-sub">' + (e.detail || '') + '</div></div></div>';
+  }).join('');
+}
+function ptRing(pct) {
+  var C = 2 * Math.PI * 36;
+  return '<div class="pt-ring"><svg viewBox="0 0 88 88" aria-hidden="true"><circle cx="44" cy="44" r="36" class="trk"/><circle cx="44" cy="44" r="36" class="val" stroke-dasharray="'
+    + (C * pct / 100).toFixed(2) + ' 300" transform="rotate(-90 44 44)"/></svg><span>' + pct + '%</span></div>';
+}
+
+// banda "Continue" compatta (prototipo: Training e dettaglio), con la nostra immagine delle frecce Autoware
+function ptContinue(tr, prog) {
+  var m = ptCurrent(tr, prog); if (!m) return '';
+  var idx = ptStepIdx(m), started = idx > 0;
+  return '<section class="pt-cont pt-cont-row"><div class="pt-cont-art" aria-hidden="true"></div>'
+    + '<img class="pt-cont-tile" src="' + tr.logo + '" alt="">'
+    + '<div class="pt-cont-in"><div class="pt-crumb"><b>' + t(started ? 'home.grp.continue' : 'home.grp.upnext', started ? 'Continue learning' : 'Up next') + '</b><span>\xB7</span><span>' + trName(tr) + '</span></div>'
+    + '<h2 class="pt-cont-t"><span class="pt-code">' + (window.awChapNo ? awChapNo(m) : m.num) + '</span>' + window.awModTitle(m) + '</h2>'
+    + '<span class="pt-cont-p">' + t('lib.step', 'Step') + ' ' + Math.min(idx + 1, 6) + ' ' + t('spath.of', 'of') + ' 6 \xB7 ' + fmtDur(minutesOf(m)) + '</span></div>'
+    + '<a class="pt-cta" href="' + ptModHref(m) + '">' + t(started ? 'home.resume.cta' : 'home.start.cta') + ' →</a></section>';
+}
+
+// card training: identica alla Home (copertina nitida sulla sua copia sfocata, segmenti per modulo)
+function ptCard(tr, prog) {
+  var st = trainingStats(tr, prog), pct = st.pct;
+  var s = pct >= 100 ? ['done', t('sidebar.completed', 'Completed')] : pct > 0 ? ['cur', t('lib.filter.progress', 'In progress')] : ['todo', t('dash.sl.notstarted', 'Not started')];
+  return '<a class="pt-card" data-track="' + tr.key + '" href="#' + tr.key + '">'
+    + '<div class="pt-band" style="--cv:url(\'' + tr.logo + '\')"><img class="pt-band-img" src="' + tr.logo + '" alt=""><span class="pt-chip ' + s[0] + '"><i></i>' + s[1] + '</span></div>'
+    + '<div class="pt-card-bd"><div><h3>' + trName(tr) + '</h3><div class="pt-meta">' + st.total + ' ' + t('lib.modules', 'modules') + ' \xB7 ' + fmtDur(st.mins) + '</div></div>'
+    + ptSegs(tr, prog)
+    + '<div class="pt-foot"><span class="pt-grow">' + (pct > 0 ? st.done + '/' + st.total + ' ' + t('home.skills.modules', 'modules completed') : s[1]) + '</span>'
+    + '<span class="pt-btn' + (pct > 0 ? ' go' : '') + '">' + (pct > 0 ? t('home.resume.cta', 'Resume') : t('home.card.start', 'Start')) + '</span></div></div></a>';
+}
+function ptGroup(title, n, sub, cards) {
+  return '<section class="pt-grp"><div class="pt-grp-hd"><h3>' + title + ' <span>\xB7 ' + n + '</span></h3>' + (sub ? '<span class="pt-sub">' + sub + '</span>' : '') + '</div>'
+    + '<div class="pt-cards">' + cards + '</div></section>';
+}
+
+// ── Vista Training: card dei training raggruppate (in corso / da iniziare → completati) ──
+function ptRenderList(prog) {
+  var stats = {}; TRAININGS.forEach(function (tr) { stats[tr.key] = trainingStats(tr, prog); });
+  var open = TRAININGS.filter(function (tr) { return stats[tr.key].pct < 100; });
+  var done = TRAININGS.filter(function (tr) { return stats[tr.key].pct >= 100; });
+  open.sort(function (a, b) { return (stats[b.key].pct > 0) - (stats[a.key].pct > 0); });
+  var curTr = open.filter(function (tr) { return stats[tr.key].pct > 0 && ptCurrent(tr, prog); })[0] || open.filter(function (tr) { return ptCurrent(tr, prog); })[0];
+  var n = TRAININGS.length;
+  var more = n === 1 ? '<div class="pt-more"><span>+</span><b>' + t('home.lib.more', 'More training will appear here') + '</b><small>' + t('home.lib.moresub', 'When your supervisor assigns a new course') + '</small></div>' : '';
+  var nCur = open.filter(function (tr) { return stats[tr.key].pct > 0; }).length;
+  var pills = [['cur', t('lib.filter.progress', 'In progress'), nCur], ['todo', t('dash.sl.notstarted', 'Not started'), open.length - nCur], ['done', t('sidebar.completed', 'Completed'), done.length]]
+    .filter(function (p) { return p[2] > 0; }).map(function (p) { return '<span class="pt-pill ' + p[0] + '"><i></i>' + p[2] + ' ' + p[1] + '</span>'; }).join('');
+  // intestazione di pagina + banda Continue + un unico contenitore "My training" con i gruppi dentro (come nella Home)
+  var h = '<div class="pt-pagehd"><h1 class="pt-h1">' + t('rail.training', 'Training') + '</h1><p class="pt-lead">' + n + ' ' + (n === 1 ? t('home.lib.one', 'training') : t('home.lib.many', 'trainings')) + ' ' + t('lib.onpath', 'on your path') + '.</p></div>'
+    + (curTr ? ptContinue(curTr, prog) : '')
+    + '<section class="pt-lib"><div class="pt-lib-hd"><span class="pt-ic">' + PT_IC.layers + '</span><div class="pt-grow"><h2>' + t('home.modules.title', 'My training') + '</h2>'
+    + '<div class="pt-lib-sub">' + n + ' ' + (n === 1 ? t('home.lib.one', 'training') : t('home.lib.many', 'trainings')) + '</div></div><div class="pt-pills">' + pills + '</div></div>'
+    + (open.length ? ptGroup(t('lib.grp.assigned', 'Assigned to you'), open.length, t('lib.grp.assignedsub', 'In progress first'), open.map(function (tr) { return ptCard(tr, prog); }).join('') + more) : '')
+    + (done.length ? ptGroup(t('sidebar.completed', 'Completed'), done.length, '', done.map(function (tr) { return ptCard(tr, prog); }).join('')) : '')
+    + '</section>';
+  document.getElementById('pt-main').innerHTML = h;
+
+  var ev = ptEvents(prog), dls = ev.filter(function (e) { return e.type === 'deadline'; }).slice(0, 3), ses = ev.filter(function (e) { return e.type === 'session'; })[0];
+  var cnt = [['cur', t('lib.filter.progress', 'In progress'), open.filter(function (tr) { return stats[tr.key].pct > 0; }).length],
+             ['todo', t('dash.sl.notstarted', 'Not started'), open.filter(function (tr) { return stats[tr.key].pct === 0; }).length],
+             ['done', t('sidebar.completed', 'Completed'), done.length]];
+  document.getElementById('pt-side').innerHTML =
+      (dls.length ? ptSec(PT_IC.flag, t('rail.deadlines', 'Deadlines'), ptDeadlineRows(dls)) : '')
+    + ptSec(PT_IC.path, t('lib.yourpath', 'Your path'), cnt.map(function (c) { return '<div class="pt-count"><i class="' + c[0] + '"></i><span class="pt-grow">' + c[1] + '</span><b>' + c[2] + '</b></div>'; }).join(''))
+    + (ses ? ptTinted(PT_IC.video, t('lib.nextlive', 'Next live session'),
+        '<span class="pt-term-name">' + ses.label + ' \xB7 ' + ptDate(ses.date, { weekday: 'short', day: 'numeric', month: 'short' }) + '</span>'
+        + '<span class="pt-term-desc">' + [ses.time, ses.host].filter(Boolean).join(' \xB7 ') + '</span>'
+        + '<button class="pt-btn pt-btn-wide" type="button" onclick="this.disabled=true;this.textContent=\'' + t('home.ag.reminded') + '\'">' + t('home.sess.remind', 'Remind me') + '</button>') : '');
+}
+
+// ── Vista dettaglio: moduli espandibili con le loro lezioni ──
+function ptRenderDetail(tr, prog) {
+  var ACC = ptAccess(tr), blocked = ACC.status !== 'open';
+  var mods = modulesOf(tr), st = trainingStats(tr, prog), cur = ptCurrent(tr, prog);
+  var nLes = mods.reduce(function (s, m) { return s + chapCountOf(m); }, 0);
+  var ev = ptEvents(prog);
+  var accBanner = !blocked ? '' : '<div class="pt-note-bar" role="status">'
+    + (ACC.status === 'ended'
+        ? '<b>This training is no longer available</b> — access ended on ' + esc(awFmtDay(ACC.until)) + '. Your progress is kept. To continue, ask your manager.'
+        : '<b>This training is not available yet</b> — it opens on ' + esc(awFmtDay(ACC.from)) + '.')
+    + (ACC.status === 'ended' && ACC.tools && ACC.tools.glossary ? ' The Glossary stays available.' : '') + '</div>';
+
+  var rows = mods.map(function (m) {
+    var done = prog[m.id] === true, pct = modPct(m, prog), isCur = !!(cur && cur.id === m.id), inProg = !done && pct > 0;
+    var overdue = !done && window.awModuleOverdue && window.awModuleOverdue(m.id);
+    var href = ptModHref(m, blocked), nL = chapCountOf(m), L = lessonsOf(m), idx = ptStepIdx(m);
+    var due = ev.filter(function (e) { return e.type === 'deadline' && e.mod === m.id; })[0];
+    var ic = done ? '<span class="pt-ci ok">' + PT_IC.check + '</span>'
+      : (isCur || inProg) ? '<span class="pt-ci cur"></span>'
+      : href ? '<span class="pt-ci todo"></span>' : '<span class="pt-ci lock">' + PT_IC.lock + '</span>';
+    var lesW = nL + ' ' + (nL === 1 ? t('lib.chapter', 'chapter') : t('lib.chapters', 'chapters'));
+    var right = done ? '<span class="pt-chm">' + lesW + '</span><span class="pt-ok">' + t('lib.done', 'Done') + '</span>'
+      : (isCur || inProg) ? '<span class="pt-chm">' + lesW + '</span>'
+        + (overdue ? '<span class="pt-due-chip late">' + t('mgr.state.overdue', 'Overdue') + '</span>'
+          : due ? '<span class="pt-due-chip">' + t('mgr.item.due', 'due').replace(/^./, function (c) { return c.toUpperCase(); }) + ' ' + ptDate(due.date, { weekday: 'short', day: 'numeric', month: 'short' }) + '</span>' : '')
+      : '<span class="pt-chm">' + lesW + ' \xB7 ' + fmtDur(minutesOf(m)) + '</span>';
+    // modulo con una pagina propria (OP-01/02/03): ogni lezione apre quella pagina, come faceva la riga del modulo;
+    // altrimenti la lezione si apre nel guscio solo se pubblicata (regola di prima)
+    var items = (L ? L.map(function (l, j) {
+          var ready = l.status === 'ready' && !blocked;
+          if (m.href && !blocked) return { id: l.id, name: esc(l.title), href: m.href, draft: false };
+          return { id: l.id, name: esc(l.title), href: ready ? 'lesson-shell.html?lesson=' + encodeURIComponent(l.id) : null, draft: !ready };
+        }) : chapListOf(m).map(function (c, j) {
+          // 16/10 notte: un capitolo con una parte sola si mostra col suo numero (1), non 1.1
+          var nC = chapListOf(m).length, n0 = window.awChapNo ? awChapNo(m) : m.num;
+          return { id: nC > 1 ? n0 + '.' + (j + 1) : n0, name: t('sub.' + m.id + '.' + j, c), href: blocked ? null : m.href, draft: false };
+        })).map(function (it, j) {
+          if (window.awChapNo && L) it.id = awChapNo(it.id);   // id interno della lezione (PKX-00.1) → numero del capitolo
+          var cls = done ? 'ok' : ((isCur || inProg) && j === 0 ? 'cur' : '');
+          var st2 = done ? '<span class="pt-ok">' + t('lib.done', 'Done') + '</span>'
+            : cls === 'cur' ? '<span class="pt-chm">' + t('lib.step', 'Step') + ' ' + Math.min(idx + 1, 6) + ' ' + t('spath.of', 'of') + ' 6</span>'
+            : it.draft ? '<span class="pt-chm">' + t('lib.draft', 'Draft') + '</span>' : '';
+          var inner = '<span class="pt-li ' + cls + '">' + (cls === 'ok' ? PT_IC.check : '') + '</span><span class="pt-code">' + esc(it.id) + '</span><span class="pt-grow">' + it.name + '</span>' + st2;
+          return it.href ? '<li><a class="pt-les ' + cls + '" href="' + it.href + '">' + inner + '</a></li>' : '<li><div class="pt-les ' + cls + (it.draft ? ' draft' : '') + '">' + inner + '</div></li>';
+        }).join('');
+    return '<div class="pt-ch' + (isCur ? ' open cur' : '') + (href || done || isCur || inProg ? '' : ' locked') + '">'
+      + '<button class="pt-chrow" type="button" onclick="ptToggle(this)">' + ic + '<span class="pt-code">' + (window.awChapNo ? awChapNo(m) : m.num) + '</span><span class="pt-cht">' + window.awModTitle(m) + '</span>'
+      + right + '<span class="pt-chev">' + PT_IC.chev + '</span></button><ol class="pt-les-list">' + items + '</ol></div>';
+  }).join('');
+
+  document.getElementById('pt-main').innerHTML =
+      '<nav class="pt-bc"><a href="#">' + t('rail.training', 'Training') + '</a><span>›</span><b>' + trName(tr) + '</b></nav>'
+    // intestazione in due blocchi: copertina + titolo + pillole (moduli · capitoli · durata) | riquadro avanzamento
+    + '<div class="pt-dhead pt-pagehd"><img class="pt-dtile" src="' + tr.logo + '" alt=""><div class="pt-grow"><h1 class="pt-h1">' + trName(tr) + '</h1>'
+    + '<div class="pt-pills pt-dstats"><span class="pt-pill">' + PT_IC.layers + mods.length + ' ' + t('lib.modules', 'modules') + '</span>'
+    + '<span class="pt-pill">' + PT_IC.book + nLes + ' ' + t('lib.chapters', 'chapters') + '</span>'
+    + '<span class="pt-pill">' + PT_IC.clock + fmtDur(st.mins) + '</span></div></div>'
+    + '<div class="pt-dprog"><div class="pt-dprog-t"><b>' + st.pct + '%</b><span>' + st.done + '/' + st.total + ' ' + t('home.skills.modules', 'modules completed') + '</span></div>'
+    + ptSegs(tr, prog) + '</div></div>'
+    + accBanner + ptContinue(tr, prog)
+    + '<section class="pt-lib pt-lib-mods"><div class="pt-lib-hd"><span class="pt-ic">' + PT_IC.layers + '</span><div class="pt-grow"><h2>' + t('lib.mods.h', 'Modules') + '</h2><div class="pt-lib-sub">' + t('lib.eachlesson', 'Each chapter') + ': '
+    // 14/10: nell'edizione solo le sezioni che hanno TUTTI i capitoli (il Video ce l'ha solo il cap. 2)
+    + STEP_KEYS.filter(function (k) { var s = k.replace('tab.', ''); return !window.AW_CONTENT || mods.every(function (m) { return (m.sects || awSectKeys(m.id)).indexOf(s) >= 0; }); })
+        .map(function (k) { return stepName(k).toLowerCase(); }).join(' \xB7 ') + '</div></div></div><div class="pt-chlist">' + rows + '</div></section>';
+
+  // colonna destra: You'll earn · This training · Your notes · Words in this training
+  var next = cur || mods.filter(function (m) { return prog[m.id] !== true; })[0];
+  var earn = next
+    ? '<div class="pt-skill"><span class="pt-dot next"></span><div><b>' + window.awModTitle(next) + '</b><div class="pt-sub">' + t('lib.earn.sub', 'Competency \xB7 at the end of') + ' ' + (window.awChapLabel ? awChapLabel(next) : next.num) + '</div></div></div>'
+    : '<div class="pt-skill"><span class="pt-dot ok">' + PT_IC.check + '</span><div><b>' + t('sidebar.completed', 'Completed') + '</b></div></div>';
+  var remMin = mods.reduce(function (s, m) { return s + (prog[m.id] === true ? 0 : minutesOf(m)); }, 0);
+  var trDl = ev.filter(function (e) { return e.type === 'deadline' && mods.some(function (m) { return m.id === e.mod; }); }).slice(0, 1);
+  var thisTr = '<div class="pt-prog-top">' + ptRing(st.pct) + '<div><b>' + st.done + '/' + st.total + ' ' + t('home.skills.modules', 'modules completed') + '</b><div class="pt-sub">' + fmtDur(remMin) + ' ' + t('mods.rail.remaining', 'remaining') + '</div></div></div>' + (trDl.length ? '<div class="pt-sep">' + ptDeadlineRows(trDl) + '</div>' : '');
+  var notes = []; try { notes = (window.awLoadNotes ? awLoadNotes() : []).filter(function (n) { return n && n.text; }); } catch (e) {}
+  var codes = mods.map(function (m) { return String(m.num); });
+  var note = notes.filter(function (n) { return codes.some(function (c) { return String(n.module || '').indexOf(c) === 0; }); })[0] || notes[0];
+  var notesBody = (note ? '<a class="pt-notecard" href="notes.html"><span class="pt-ev-k">' + ptUp(t('note.cat.' + (({ Appunto: 'note', Domanda: 'question', Problema: 'issue' })[note.category] || 'note'), note.category || '')) + (note.module ? ' \xB7 ' + esc(window.awChapNo ? awChapNo(String(note.module).split(' ')[0]) : String(note.module).split(' ')[0]) : '') + '</span><span>' + esc(note.text) + '</span></a>' : '')
+    + '<a class="pt-btn pt-btn-wide" href="notes.html">+ ' + t('lib.addnote', 'Add a note') + '</a>';
+  var words = (typeof GLOSSARY !== 'undefined' ? GLOSSARY : []);
+  var titles = mods.map(function (m) { return String(window.awModTitle(m)).toLowerCase(); }).join(' ');
+  var picked = words.filter(function (g) { return titles.indexOf(String(g.term).toLowerCase()) >= 0; });
+  words.forEach(function (g) { if (picked.length < 6 && picked.indexOf(g) < 0) picked.push(g); });
+  var chips = '<div class="pt-chips">' + picked.slice(0, 6).map(function (g) { return '<a href="glossary.html?q=' + encodeURIComponent(g.term) + '">' + esc(g.term) + '</a>'; }).join('') + '</div>'
+    + '<a class="pt-link" href="glossary.html">' + t('lib.openglossary', 'Open glossary') + '</a>';
+  document.getElementById('pt-side').innerHTML =
+      ptSec(PT_IC.award, t('lib.earn', "You'll earn"), earn)
+    + ptSec(PT_IC.layers, t('lib.thistraining', 'This training'), thisTr)
+    + ptSec(PT_IC.note, t('lib.yournotes', 'Your notes'), notesBody, '<a class="pt-link pt-sec-link" href="notes.html">' + t('lib.all', 'All') + '</a>')
+    + (picked.length ? ptTinted(PT_IC.book, t('lib.words', 'Words in this training'), chips) : '');
+}
+
+window.ptToggle = function (btn) { btn.parentNode.classList.toggle('open'); };
+
+function buildAll() {
+  var prog = getProgress();
+  var tr = trByKey(decodeURIComponent((location.hash || '').slice(1)));
+  if (tr) ptRenderDetail(tr, prog); else ptRenderList(prog);
+}
+window.addEventListener('hashchange', function () { buildAll(); window.scrollTo(0, 0); });
+
+window._onLangChange = function(){ buildAll(); };
+
+var LANG = localStorage.getItem('aw_lang') || 'en';
+window.LANG = LANG;
+renderChrome('modules');
+applyLang(LANG);
+buildAll();
+if (typeof awPubAll === 'function') {
+  var _pubTenantId = (typeof awLearnerTenantId === 'function') ? awLearnerTenantId() : null;
+  awPubAll().then(function(pubs){ PUB_SET = awPubLessonSet(pubs, _pubTenantId); applyPublishedStatus(); buildAll(); });
+}
+</script>
+</body>
+</html>
+

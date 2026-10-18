@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>(function(){var t=localStorage.getItem('aw_theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})()</script>
+<link rel="stylesheet" href="shared-r14.css?v=20261009a">
+<script src="edition.js?v=202610161633"></script>
+<script src="shared.js?v=20261016f"></script>
+<script src="translations.js?v=20261016e"></script>
+<script src="content.js?v=202610161633"></script>
+<script src="pkx_translations.js?v=20261016f"></script>
+<script src="glossary_data.js?t=63"></script>
+<title data-i18n="title.glossary">Glossary · Training Platform</title>
+<style>
+/* ── Glossary content wrapper ── */
+.gl-wrap{max-width:1500px}
+
+/* ── Search row: input + lang selector + fav button ── */
+.gl-srow{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.gl-search-wrap{flex:1;position:relative}
+.gl-search-wrap svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none;flex-shrink:0}
+.gl-search{width:100%;box-sizing:border-box;padding:10px 14px 10px 42px;border:.5px solid var(--border2);border-radius:50px;background:var(--bg);color:var(--text);font-size:var(--fs-body);font-family:var(--font);outline:none;transition:border-color .15s,box-shadow .15s}
+.gl-search:focus{border-color:var(--aw-blue);box-shadow:0 0 0 3px rgba(69,101,173,.15)}
+.gl-search::placeholder{color:var(--text3)}
+
+/* Language button + dropdown */
+.gl-lang-wrap{position:relative;flex-shrink:0}
+.gl-lang-btn{display:flex;align-items:center;gap:5px;padding:9px 12px;border:.5px solid var(--border2);border-radius:var(--r);background:var(--bg);color:var(--text2);font-size:var(--fs-xs);font-family:var(--font);cursor:pointer;white-space:nowrap;transition:border-color .15s,color .15s}
+.gl-lang-btn:hover{border-color:var(--text3);color:var(--text)}
+.gl-lang-btn svg{color:var(--text3);flex-shrink:0}
+.gl-lang-drop{display:none;position:absolute;right:0;top:calc(100% + 4px);min-width:130px;background:var(--aw-navy);border-radius:var(--r);overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.35);z-index:200}
+.gl-lang-drop.open{display:block}
+.gl-lang-drop a{display:block;padding:9px 14px;color:rgba(255,255,255,.7);font-size:var(--fs-xs);font-weight:var(--fw-med);text-decoration:none;transition:background .12s}
+.gl-lang-drop a:hover,.gl-lang-drop a.cur{background:rgba(255,255,255,.1);color:#fff}
+
+/* Preferiti button */
+.gl-fav-btn{display:flex;align-items:center;gap:6px;padding:9px 12px;border:.5px solid var(--border2);border-radius:var(--r);background:var(--bg);color:var(--text2);font-size:var(--fs-xs);font-family:var(--font);cursor:pointer;white-space:nowrap;flex-shrink:0;transition:border-color .15s,background .15s,color .15s}
+.gl-fav-btn:hover{border-color:var(--text3);color:var(--text)}
+.gl-fav-btn.active{background:var(--aw-pink);border-color:var(--aw-pink);color:#fff}
+.gl-fav-btn svg{flex-shrink:0;fill:none;transition:fill .12s,stroke .12s}
+.gl-fav-btn.active svg{fill:#fff;stroke:#fff}
+.gl-fav-count{background:var(--aw-navy);color:#fff;border-radius:20px;padding:1px 7px;font-size:var(--fs-3xs);font-weight:var(--fw-b);min-width:18px;text-align:center;display:none}
+.gl-fav-count.has{display:inline}
+.gl-fav-btn.active .gl-fav-count{background:rgba(255,255,255,.25)}
+
+/* ── Category filter chips ── */
+.gl-filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.gl-pill{display:inline-flex;align-items:center;padding:5px 12px;border-radius:20px;font-size:var(--fs-xs);font-weight:var(--fw-med);cursor:pointer;border:.5px solid var(--border2);background:var(--bg);color:var(--text2);transition:background .12s,color .12s,border-color .12s;user-select:none;white-space:nowrap}
+.gl-pill:hover{border-color:var(--text3);color:var(--text)}
+.gl-pill.active{background:var(--aw-navy);color:#fff;border-color:var(--aw-navy);font-weight:var(--fw-sb)}
+/* Category-colored filter chips — mirror the per-term category badges (.gl-cat-*).
+   Inactive = tinted like the badge; active = solid fill. Placed after .gl-pill.active
+   so equal-specificity active rules win by source order. */
+.gl-pill-ui        {background:rgba(0,137,123,.08);color:#00796b;border-color:rgba(0,137,123,.30)}
+.gl-pill-ui:hover  {border-color:#00796b;color:#00796b}
+.gl-pill-ui.active {background:#00796b;color:#fff;border-color:#00796b}
+.gl-pill-hierarchy       {background:rgba(233,30,140,.08);color:#c2186b;border-color:rgba(233,30,140,.30)}
+.gl-pill-hierarchy:hover {border-color:#c2186b;color:#c2186b}
+.gl-pill-hierarchy.active{background:#c2186b;color:#fff;border-color:#c2186b}
+.gl-pill-production       {background:rgba(21,101,192,.08);color:#1565c0;border-color:rgba(21,101,192,.30)}
+.gl-pill-production:hover {border-color:#1565c0;color:#1565c0}
+.gl-pill-production.active{background:#1565c0;color:#fff;border-color:#1565c0}
+.gl-pill-metrics       {background:rgba(15,39,87,.08);color:#0f2757;border-color:rgba(15,39,87,.30)}
+.gl-pill-metrics:hover {border-color:#0f2757;color:#0f2757}
+.gl-pill-metrics.active{background:#0f2757;color:#fff;border-color:#0f2757}
+.gl-pill-status       {background:rgba(245,124,0,.08);color:#e65100;border-color:rgba(245,124,0,.30)}
+.gl-pill-status:hover {border-color:#e65100;color:#e65100}
+.gl-pill-status.active{background:#e65100;color:#fff;border-color:#e65100}
+.gl-pill-events       {background:rgba(211,47,47,.08);color:#c62828;border-color:rgba(211,47,47,.30)}
+.gl-pill-events:hover {border-color:#c62828;color:#c62828}
+.gl-pill-events.active{background:#c62828;color:#fff;border-color:#c62828}
+.gl-pill-users       {background:rgba(46,125,50,.08);color:#1b5e20;border-color:rgba(46,125,50,.30)}
+.gl-pill-users:hover {border-color:#1b5e20;color:#1b5e20}
+.gl-pill-users.active{background:#1b5e20;color:#fff;border-color:#1b5e20}
+/* 08/10 categoria Activities (glossario della fiera, GLOSSARIO_FIERA_2026-10-08) */
+.gl-pill-activities       {background:rgba(106,27,154,.08);color:#6a1b9a;border-color:rgba(106,27,154,.30)}
+.gl-pill-activities:hover {border-color:#6a1b9a;color:#6a1b9a}
+.gl-pill-activities.active{background:#6a1b9a;color:#fff;border-color:#6a1b9a}
+[data-theme="dark"] .gl-pill-activities{background:rgba(206,147,216,.08);color:#ce93d8;border-color:rgba(206,147,216,.30)}
+/* Dark mode: navy (metrics) text is unreadable on dark canvas → lift it */
+[data-theme="dark"] .gl-pill-metrics       {background:rgba(180,200,255,.07);color:rgba(180,200,255,.85);border-color:rgba(180,200,255,.30)}
+[data-theme="dark"] .gl-pill-metrics:hover {border-color:rgba(180,200,255,.6);color:rgba(180,200,255,.95)}
+[data-theme="dark"] .gl-pill-metrics.active{background:#4565AD;color:#fff;border-color:#4565AD}
+
+/* ── A–Z jump index ── */
+.gl-az{display:flex;flex-wrap:wrap;gap:1px;margin-bottom:16px;border-bottom:.5px solid var(--border);padding-bottom:14px}
+.gl-az-l{min-width:23px;height:23px;display:inline-flex;align-items:center;justify-content:center;font-size:var(--fs-xs);font-weight:var(--fw-med);color:var(--text2);border-radius:var(--rsm);cursor:pointer;user-select:none;transition:background .12s,color .12s}
+.gl-az-l:hover{background:var(--bg3);color:var(--text)}
+.gl-az-l.off{color:var(--border2);cursor:default;pointer-events:none}
+.gl-az-l.active{background:var(--aw-pink);color:#fff;border-radius:20px}
+
+/* ── Count row ── */
+.gl-meta{margin-bottom:10px;font-size:var(--fs-xs);color:var(--text3)}
+.gl-count{font-weight:var(--fw-sb);color:var(--text2)}
+
+/* ── Favourite star in each row ── */
+.gl-star{flex-shrink:0;width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;border:none;background:none;padding:0;cursor:pointer;border-radius:var(--rsm);transition:background .12s}
+.gl-star:hover{background:var(--bg3)}
+.gl-star svg{width:15px;height:15px;fill:none;stroke:var(--text3);transition:fill .12s,stroke .12s}
+.gl-star.on svg{fill:var(--aw-pink);stroke:var(--aw-pink)}
+
+/* ── Alphabetical accordion list ── */
+.gl-list{border:.5px solid var(--border);border-radius:var(--r);overflow:hidden;background:var(--bg);box-shadow:var(--e2)}
+.gl-letter{padding:5px 18px;background:var(--bg2);font-size:var(--fs-2xs);font-weight:var(--fw-b);color:var(--text3);letter-spacing:.16em;border-top:.5px solid var(--border);border-bottom:.5px solid var(--border)}
+.gl-letter:first-child{border-top:none}
+.gl-row{border-bottom:.5px solid var(--border);transition:box-shadow .18s}
+.gl-row:last-child{border-bottom:none}
+.gl-row.open{box-shadow:var(--e1);position:relative;z-index:1}
+.gl-row-head{display:flex;align-items:center;gap:11px;padding:13px 18px;cursor:pointer;transition:background .12s;user-select:none}
+.gl-row-head:hover{background:var(--bg2)}
+.gl-row.open .gl-row-head{background:var(--bg2)}
+.gl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.gl-term{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.gl-term-main{font-size:var(--fs-h3);font-weight:var(--fw-sb);color:var(--text);letter-spacing:-.1px}
+/* Translated name shown as a subtitle under the English term */
+.gl-term-tr{font-size:var(--fs-xs);font-weight:var(--fw-med);color:var(--text3);letter-spacing:0}
+/* Category pills — color-coded per category */
+.gl-cat{font-size:var(--fs-3xs);font-weight:var(--fw-med);letter-spacing:.04em;padding:2px 8px;border-radius:20px;border:.5px solid transparent;white-space:nowrap}
+.gl-cat-ui        {background:rgba(0,137,123,.08);color:#00796b;border-color:rgba(0,137,123,.2)}
+.gl-cat-hierarchy {background:rgba(233,30,140,.08);color:#c2186b;border-color:rgba(233,30,140,.2)}
+.gl-cat-production{background:rgba(21,101,192,.08);color:#1565c0;border-color:rgba(21,101,192,.2)}
+.gl-cat-metrics   {background:rgba(15,39,87,.08);color:#0f2757;border-color:rgba(15,39,87,.2)}
+.gl-cat-status    {background:rgba(245,124,0,.08);color:#e65100;border-color:rgba(245,124,0,.2)}
+.gl-cat-events    {background:rgba(211,47,47,.08);color:#c62828;border-color:rgba(211,47,47,.2)}
+.gl-cat-users     {background:rgba(46,125,50,.08);color:#1b5e20;border-color:rgba(46,125,50,.2)}
+.gl-cat-activities{background:rgba(106,27,154,.08);color:#6a1b9a;border-color:rgba(106,27,154,.2)}
+[data-theme="dark"] .gl-cat-activities{color:#ce93d8;border-color:rgba(206,147,216,.2);background:rgba(206,147,216,.08)}
+[data-theme="dark"] .gl-cat-metrics{color:rgba(180,200,255,.85);border-color:rgba(180,200,255,.2);background:rgba(180,200,255,.07)}
+
+.gl-chev{flex-shrink:0;color:var(--text3);transition:transform .22s ease}
+.gl-row.open .gl-chev{transform:rotate(180deg)}
+.gl-desc-wrap{max-height:0;overflow:hidden;transition:max-height .28s ease}
+.gl-row.open .gl-desc-wrap{max-height:250px}
+/* Definition with left accent — matches mockup border-left on desc panel */
+.gl-desc{font-size:var(--fs-sm);color:var(--text2);line-height:var(--lh-read);border-left:2px solid var(--aw-pink);margin:0 18px 14px;padding:10px 14px}
+
+/* ── Machine-state dots (semantic Cockpit colours) ── */
+.gl-dot.running   {background:var(--green)}
+.gl-dot.stopped   {background:var(--red)}
+.gl-dot.starvation{background:var(--amber)}
+.gl-dot.blocked   {background:var(--orange)}   /* 08/10: era blu (il blu non è un colore di stato) */
+.gl-dot.faulted   {background:var(--gray)}
+.gl-dot.idle      {background:var(--gray)}
+
+/* ── Total count badge in header ── */
+.gl-total-badge{display:inline-flex;align-items:center;padding:3px 11px;border:.5px solid var(--border2);border-radius:20px;font-size:var(--fs-xs);color:var(--text2);background:var(--bg2)}
+
+/* ── Empty state ── */
+.gl-empty{text-align:center;padding:48px 24px;color:var(--text3);font-size:var(--fs-body)}
+.gl-empty svg{display:block;margin:0 auto 12px;opacity:.35}
+
+@media(max-width:700px){.gl-filters{gap:5px}.gl-term-main{font-size:var(--fs-h4)}.gl-cat{display:none}}
+@media(max-width:480px){.gl-fav-btn .gl-fav-label{display:none}}
+/* 09/10 — il glossario in PDF (glPrint). Stesso stile sobrio del riepilogo del capitolo. */
+#gl-sum{position:absolute;left:-10000px;top:0;width:680px;background:#fff;color:#1b2440;font-family:var(--font);font-size:11.5px;line-height:1.45}
+#gl-sum .gls-h{border-bottom:2px solid #E0318A;padding-bottom:10px;margin-bottom:12px}
+#gl-sum .gls-br{font-size:11px;color:#5a6488;text-transform:uppercase;letter-spacing:.06em}
+#gl-sum h1{font-size:24px;line-height:1.2;margin:4px 0 4px;color:#13294f}
+#gl-sum .gls-sub{font-size:12px;color:#5a6488}
+#gl-sum .gls-l{font-size:15px;font-weight:700;color:#E0318A;border-bottom:1px solid #dfe3ee;margin:12px 0 6px;padding-bottom:2px;break-after:avoid}
+#gl-sum .gls-t{margin:0 0 8px;break-inside:avoid}
+#gl-sum .gls-tt{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+#gl-sum .gls-tt b{font-size:13px;color:#13294f}
+#gl-sum .gls-tt .tr{color:#5a6488;font-style:italic}
+#gl-sum .gls-tt .cat{margin-left:auto;font-size:10px;color:#5a6488;text-transform:uppercase;letter-spacing:.05em}
+#gl-sum p{margin:2px 0 0}
+@media print{
+  @page glsum{size:A4;margin:14mm 14mm 16mm;
+    @bottom-left{content:"Autoware Training Platform";font-family:'IBM Plex Sans',sans-serif;font-size:8.5pt;color:#5a6488}
+    @bottom-right{content:counter(page) " / " counter(pages);font-family:'IBM Plex Sans',sans-serif;font-size:8.5pt;color:#5a6488}}
+  body.gl-sum-print > *:not(#gl-sum){display:none!important}
+  body.gl-sum-print{padding:0!important;margin:0!important;background:#fff!important}
+  body.gl-sum-print #gl-sum{page:glsum;position:static!important;left:auto!important;width:auto!important;display:block!important}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+}
+</style>
+<link rel="stylesheet" href="tema-2026.css?v=44">
+</head>
+<body>
+
+<!-- ══ TOPBAR legacy nascosta (shell v5: rail+topbar da renderChrome) ══ -->
+<div class="aw-topbar" id="mod-topbar" style="display:none"></div>
+<!-- Grafica del prototipo "New Design" (screens/04-glossary.html): stesse funzioni di prima (ricerca, lingua,
+     preferiti, categorie, A–Z, termini espandibili), colonna destra = .pt-rail come nelle altre pagine -->
+<div class="h-wrap">
+  <div class="h-main">
+
+    <!-- ── Intestazione di pagina: titolo + conteggio | lingua + preferiti ── -->
+    <div class="pt-pagehd pt-pagehd-row">
+      <div class="pt-grow">
+        <h1 class="pt-h1" data-i18n="gloss.title">Glossary</h1>
+        <p class="pt-lead"><span id="gl-total-badge"></span> · <span data-i18n="gloss.subtitle">TilliT platform terminology</span></p>
+      </div>
+      <!-- Language selector -->
+      <div class="gl-lang-wrap">
+        <button class="gl-lang-btn" id="gl-lang-btn" type="button" onclick="glToggleLangDrop()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span id="gl-lang-lbl">EN</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="gl-lang-drop" id="gl-lang-drop">
+          <a href="#" onclick="glSwitchLang('en');return false;" data-lcode="en">English</a>
+          <a href="#" onclick="glSwitchLang('it');return false;" data-lcode="it">Italiano</a>
+          <a href="#" onclick="glSwitchLang('da');return false;" data-lcode="da">Dansk</a>
+          <a href="#" onclick="glSwitchLang('zh');return false;" data-lcode="zh">中文</a>
+          <a href="#" onclick="glSwitchLang('nl');return false;" data-lcode="nl">Nederlands</a>
+        </div>
+        <script>// 08/10: voci dalle lingue dell'edizione (fiera: en/it/es/pt-BR/hi); laboratorio: le stesse 5 di sopra.
+        (function () { var b = document.getElementById('gl-lang-drop'); if (!b || !window.awLangList) return;
+          b.innerHTML = awLangList().map(function (l) { return '<a href="#" onclick="glSwitchLang(\'' + l + '\');return false;" data-lcode="' + l + '">' + (AW_LANGS[l] || l) + '</a>'; }).join(''); })();</script>
+      </div>
+      <!-- Preferiti filter button -->
+      <button class="gl-fav-btn" id="gl-fav-btn" type="button" onclick="toggleFavFilter()">
+        <svg width="14" height="14" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span class="gl-fav-label" data-i18n="gloss.fav.title">Favourites</span>
+        <span class="gl-fav-count" id="gl-fav-count"></span>
+      </button>
+      <!-- 09/10: il glossario da portare con sé (stampa → "Salva come PDF"), la lista che si vede ora -->
+      <button class="gl-fav-btn" id="gl-pdf-btn" type="button" onclick="glPrint()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span class="gl-fav-label" id="gl-pdf-lbl">Download PDF</span>
+      </button>
+    </div>
+
+    <!-- ── Ricerca grande + categorie ── -->
+    <div class="gl-search-wrap">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="gl-search" class="gl-search" type="text" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="gl-filters" id="gl-filters"></div>
+
+    <!-- ── Elenco dei termini in un contenitore: intestazione (conteggio + A–Z) e righe ── -->
+    <section class="pt-lib gl-box">
+      <div class="pt-lib-hd">
+        <span class="pt-ic"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/></svg></span>
+        <div class="pt-grow"><h2 data-i18n="gloss.title">Glossary</h2><div class="pt-lib-sub"><span id="gl-count" class="gl-count"></span></div></div>
+        <div class="gl-az" id="gl-az"></div>
+      </div>
+      <div class="gl-list" id="gl-list"></div>
+    </section>
+
+  </div>
+  <aside class="h-side pt-rail" id="pt-side"></aside>
+</div>
+<div class="aw-footer" data-i18n="footer">© {year} autoware · Beyond Operations Management · Training Platform</div>
+
+<script>
+var LANG = localStorage.getItem('aw_lang') || 'en';
+var activeCat = 'all';
+var showFavOnly = false;
+var activeAZ = null;
+var CATS = ['ui','hierarchy','production','activities','metrics','status','events','users'];
+// 08/10: solo le categorie che hanno termini (il glossario della fiera non ha "users", il laboratorio non ha "activities")
+CATS = CATS.filter(function (c) { return GLOSSARY.some(function (g) { return g.cat === c; }); });
+
+// ── Category → colored pill class ───────────────────────────────────
+var CAT_CLASS = {
+  ui:'gl-cat-ui', hierarchy:'gl-cat-hierarchy', production:'gl-cat-production',
+  metrics:'gl-cat-metrics', status:'gl-cat-status', events:'gl-cat-events', users:'gl-cat-users'
+};
+
+// ── Get translation key (fallback EN → key) ──────────────────────────
+function tl(key) {
+  var dict = (window.T && window.T[LANG]) || (window.T && window.T.en) || {};
+  return dict[key] !== undefined ? dict[key] : ((window.T && window.T.en && window.T.en[key]) || key);
+}
+
+// ── HTML-escape ──────────────────────────────────────────────────────
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Translated term name (fallback = English term) ───────────────────
+function glName(g) {
+  var m = window.GLOSSARY_NAMES && GLOSSARY_NAMES[g.term];
+  return (m && m[LANG]) || g.term;
+}
+
+// ── Keep glossary rail link active ──────────────────────────────────
+function fixSidebarActive() {
+  var sb = document.getElementById('sb-modules');
+  if (!sb) return;
+  sb.querySelectorAll('a.sb-item').forEach(function(a) {
+    var href = a.getAttribute('href') || '';
+    if (href.indexOf('glossary.html') !== -1) a.classList.add('active');
+    else a.classList.remove('active');
+  });
+}
+
+// ── Machine-state terms → Cockpit colour dot ─────────────────────────
+var STATE_DOT = { 'Running':'running','Stopped':'stopped','Starvation':'starvation','Starved':'starvation','Blocked':'blocked','Faulted':'faulted','Idle':'idle' };
+
+// ── Favourites (localStorage) ────────────────────────────────────────
+var FAV_KEY = 'aw_gloss_fav';
+var favs = {};
+try { (JSON.parse(localStorage.getItem(FAV_KEY)) || []).forEach(function(t){ favs[t] = true; }); } catch (e) {}
+function saveFavs() { try { localStorage.setItem(FAV_KEY, JSON.stringify(Object.keys(favs))); } catch (e) {} }
+
+window.toggleFav = function(btn) {
+  var t = btn.getAttribute('data-term');
+  if (favs[t]) delete favs[t]; else favs[t] = true;
+  saveFavs(); syncStars(); updateFavBtn(); glRenderSide();
+  if (showFavOnly) renderTerms();
+};
+
+// ── Colonna destra (prototipo): la lezione in corso · termini per categoria · i tuoi preferiti ──
+function glRenderSide() {
+  var side = document.getElementById('pt-side'); if (!side) return;
+  function sec(icon, title, body) {
+    return '<section class="pt-sec"><div class="pt-sec-hd"><span class="pt-ic">' + icon + '</span><span class="pt-sec-t">' + title + '</span><span class="pt-rule"></span></div><div class="pt-sec-bd">' + body + '</div></section>';
+  }
+  var IC_PLAY = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M10 8l6 4-6 4z"/></svg>';
+  var IC_BOOK = '<svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/></svg>';
+  var IC_STAR = '<svg viewBox="0 0 24 24"><path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.2l1.1-6.2L3 9.6l6.2-.9z"/></svg>';
+  // lezione in corso: il primo modulo non finito con una pagina (stessa regola della Home)
+  var prog = {}; try { prog = JSON.parse(localStorage.getItem('aw_progress') || '{}'); } catch (e) {}
+  var cur = (window.AW_MODULES || []).filter(function (m) { return !prog[m.id] && m.href; })[0];
+  var html = '';
+  if (cur) {
+    var title = window.awModTitle ? awModTitle(cur) : cur.title;
+    var words = GLOSSARY.filter(function (g) { return String(title).toLowerCase().indexOf(g.term.toLowerCase()) >= 0; }).slice(0, 3);
+    html += sec(IC_PLAY, tl('gloss.side.lesson') !== 'gloss.side.lesson' ? tl('gloss.side.lesson') : 'In your current lesson',
+      '<div class="gl-lesson"><div class="gl-lesson-t"><span class="pt-code">' + esc(window.awChapNo ? awChapNo(cur) : cur.num) + '</span>' + esc(title) + '</div>'
+      + (words.length ? '<div class="gl-lesson-w">' + words.map(function (g) { return '<a href="glossary.html?q=' + encodeURIComponent(g.term) + '">' + esc(g.term) + '</a>'; }).join('') + '</div>' : '')
+      + '<a class="pt-cta" href="' + cur.href + '">' + (tl('gloss.side.back') !== 'gloss.side.back' ? tl('gloss.side.back') : 'Back to the lesson') + ' →</a></div>');
+  }
+  // termini per categoria: quanti termini ha ogni categoria (barra = quota sul totale)
+  var tot = GLOSSARY.length || 1;
+  html += sec(IC_BOOK, tl('gloss.side.bycat') !== 'gloss.side.bycat' ? tl('gloss.side.bycat') : 'Terms by category', CATS.map(function (c) {
+    var n = GLOSSARY.filter(function (g) { return g.cat === c; }).length;
+    return '<a class="gl-catrow" href="#" onclick="setCat(\'' + c + '\');return false;"><span class="pt-grow">' + esc(tl('gloss.cat.' + c)) + '</span><b>' + n + '</b>'
+      + '<span class="gl-catbar"><i style="width:' + Math.max(4, Math.round(n / tot * 100)) + '%"></i></span></a>';
+  }).join(''));
+  // preferiti: blocco in fondo (stile "term of the day")
+  var fav = GLOSSARY.filter(function (g) { return favs[g.term]; }).slice(0, 4);
+  html += '<div class="pt-term"><div class="pt-sec-hd"><span class="pt-ic">' + IC_STAR + '</span><span class="pt-sec-t">' + esc(tl('gloss.fav.title')) + '</span></div><div class="pt-term-bd">'
+    + (fav.length ? fav.map(function (g) { return '<a class="gl-favrow" href="glossary.html?q=' + encodeURIComponent(g.term) + '"><b>' + esc(g.term) + '</b><span>' + esc(tl('gloss.cat.' + g.cat)) + '</span></a>'; }).join('')
+      : '<span class="pt-term-desc">' + esc(tl('gloss.fav.hint')) + '</span>')
+    + '</div></div>';
+  side.innerHTML = html;
+}
+
+function syncStars() {
+  document.querySelectorAll('.gl-star').forEach(function(b) {
+    b.classList.toggle('on', !!favs[b.getAttribute('data-term')]);
+  });
+}
+
+function updateFavBtn() {
+  var n = Object.keys(favs).length;
+  var countEl = document.getElementById('gl-fav-count');
+  if (countEl) {
+    countEl.textContent = n || '';
+    countEl.classList.toggle('has', n > 0);
+  }
+}
+
+// ── Preferiti filter toggle ──────────────────────────────────────────
+window.toggleFavFilter = function() {
+  showFavOnly = !showFavOnly;
+  var btn = document.getElementById('gl-fav-btn');
+  if (btn) btn.classList.toggle('active', showFavOnly);
+  renderTerms();
+};
+
+// ── Language dropdown (scoped to glossary search row) ────────────────
+var GL_LANG_LABELS = { en:'EN', it:'IT', da:'DA', zh:'ZH', nl:'NL', es:'ES', 'pt-BR':'PT', hi:'HI' };
+
+window.glToggleLangDrop = function() {
+  var d = document.getElementById('gl-lang-drop');
+  if (d) d.classList.toggle('open');
+};
+
+window.glSwitchLang = function(lang) {
+  var d = document.getElementById('gl-lang-drop');
+  if (d) d.classList.remove('open');
+  localStorage.setItem('aw_lang', lang);
+  applyLang(lang);
+};
+
+document.addEventListener('click', function(e) {
+  var wrap = document.querySelector('.gl-lang-wrap');
+  var drop = document.getElementById('gl-lang-drop');
+  if (drop && drop.classList.contains('open') && wrap && !wrap.contains(e.target)) {
+    drop.classList.remove('open');
+  }
+});
+
+function syncLangDrop() {
+  var lbl = document.getElementById('gl-lang-lbl');
+  if (lbl) lbl.textContent = GL_LANG_LABELS[LANG] || LANG.toUpperCase();
+  document.querySelectorAll('.gl-lang-drop a').forEach(function(a) {
+    a.classList.toggle('cur', a.getAttribute('data-lcode') === LANG);
+  });
+}
+
+// ── Category filter chips ────────────────────────────────────────────
+function buildFilters() {
+  var el = document.getElementById('gl-filters');
+  if (!el) return;
+  var html = '<span class="gl-pill' + (activeCat === 'all' ? ' active' : '') + '" onclick="setCat(\'all\')">'
+           + esc(tl('gloss.all')) + '</span>';
+  CATS.forEach(function(cat) {
+    html += '<span class="gl-pill gl-pill-' + cat + (activeCat === cat ? ' active' : '') + '" onclick="setCat(\'' + cat + '\')">'
+          + esc(tl('gloss.cat.' + cat)) + '</span>';
+  });
+  el.innerHTML = html;
+}
+
+// ── A–Z jump index ───────────────────────────────────────────────────
+function renderAZ(present) {
+  var el = document.getElementById('gl-az');
+  if (!el) return;
+  var html = '';
+  for (var i = 65; i <= 90; i++) {
+    var L = String.fromCharCode(i);
+    var isActive = (activeAZ === L && present[L]) ? ' active' : '';
+    if (present[L]) html += '<span class="gl-az-l' + isActive + '" onclick="jumpTo(\'' + L + '\')">' + L + '</span>';
+    else            html += '<span class="gl-az-l off">' + L + '</span>';
+  }
+  el.innerHTML = html;
+}
+
+window.jumpTo = function(letter) {
+  activeAZ = letter;
+  document.querySelectorAll('.gl-az-l').forEach(function(s) {
+    s.classList.toggle('active', s.textContent === letter && !s.classList.contains('off'));
+  });
+  var h = document.getElementById('gl-L-' + letter);
+  if (h) scrollToEl(h);
+};
+
+function scrollToEl(el) {
+  var offset = 70;
+  var pa = document.querySelector('.page-area');
+  if (pa && pa.scrollHeight > pa.clientHeight + 1) {
+    pa.scrollTop = Math.max(0, el.offsetTop - offset);
+  } else {
+    window.scrollTo(0, Math.max(0, window.scrollY + el.getBoundingClientRect().top - offset));
+  }
+}
+
+// ── Render the alphabetical accordion list ───────────────────────────
+// 2026-09-25 — periodo di disponibilità: il glossario resta aperto dopo la scadenza (decisione
+// di Giulia), salvo che TUTTI i training siano scaduti E per nessuno sia rimasto acceso il flag
+// "glossary stays available" (courseAccess.toolsAfterExpiry.glossary, content editor).
+function glossaryClosedByAccess() {
+  if (typeof awAccessStatus !== 'function') return null;
+  var list = ['OP', 'SU'].map(function(c) { return awAccessStatus(c); });
+  var allEnded = list.every(function(a) { return a.status === 'ended'; });
+  var anyKeeps = list.some(function(a) { return a.tools && a.tools.glossary; });
+  return (allEnded && !anyKeeps) ? list : null;
+}
+// I termini che si vedono ora (preferiti, categoria, ricerca), in ordine A–Z: per l'elenco e per il PDF.
+function glFiltered() {
+  var query = (document.getElementById('gl-search').value || '').toLowerCase().trim();
+  var filtered = GLOSSARY.filter(function(g) {
+    if (showFavOnly && !favs[g.term]) return false;
+    if (activeCat !== 'all' && g.cat !== activeCat) return false;
+    if (!query) return true;
+    var desc = (g[LANG] || g.en || '').toLowerCase();
+    var nm = glName(g).toLowerCase();
+    return g.term.toLowerCase().indexOf(query) !== -1 || nm.indexOf(query) !== -1 || desc.indexOf(query) !== -1;
+  });
+  filtered.sort(function(a, b) { return a.term.toLowerCase().localeCompare(b.term.toLowerCase()); });
+  return filtered;
+}
+
+// ── 09/10: il glossario in PDF (come il riepilogo del capitolo in lesson-shell) ──────────────────
+// Si stampa la lista che si vede, nella lingua scelta: termine inglese (primario, come in TilliT), sotto
+// la traduzione, la categoria e la definizione. Il foglio si compone al clic, si stampa da solo, poi si toglie.
+// Testi propri della pagina (niente chiavi nuove in translations.js, niente ?v= da alzare altrove).
+var GL_PDF_T = { en: 'Download PDF', it: 'Scarica PDF', es: 'Descargar PDF', 'pt-BR': 'Baixar PDF', hi: 'PDF डाउनलोड करें',
+                 da: 'Download PDF', nl: 'Download pdf', zh: '下载 PDF' };
+function glPdfLabel() { var l = document.getElementById('gl-pdf-lbl'); if (l) l.textContent = GL_PDF_T[LANG] || GL_PDF_T.en; }
+window.glPrint = function() {
+  var list = glFiltered(); if (!list.length) return;
+  var old = document.getElementById('gl-sum'); if (old) old.parentNode.removeChild(old);
+  var query = (document.getElementById('gl-search').value || '').trim(), filt = [];
+  if (showFavOnly) filt.push(tl('gloss.fav.title'));
+  if (activeCat !== 'all') filt.push(tl('gloss.cat.' + activeCat));
+  if (query) filt.push('“' + query + '”');
+  var loc = window.awLangCode ? window.awLangCode() : 'en-GB';
+  var h = '<header class="gls-h"><div class="gls-br">Autoware Training Platform</div><h1>' + esc(tl('gloss.title')) + '</h1>'
+    + '<div class="gls-sub">' + esc(tl('gloss.subtitle')) + ' · ' + esc(tl('gloss.count').replace('{n}', list.length))
+    + (filt.length ? ' · ' + esc(filt.join(' · ')) : '') + ' · ' + esc(new Date().toLocaleDateString(loc, { day: 'numeric', month: 'long', year: 'numeric' })) + '</div></header>';
+  var last = '';
+  list.forEach(function(g) {
+    var L = g.term.charAt(0).toUpperCase();
+    if (L !== last) { h += '<div class="gls-l">' + esc(L) + '</div>'; last = L; }
+    var nm = glName(g);
+    h += '<div class="gls-t"><div class="gls-tt"><b>' + esc(g.term) + '</b>' + (nm !== g.term ? '<span class="tr">' + esc(nm) + '</span>' : '')
+      + '<span class="cat">' + esc(tl('gloss.cat.' + g.cat)) + '</span></div><p>' + esc(g[LANG] || g.en || '') + '</p></div>';
+  });
+  var box = document.createElement('div'); box.id = 'gl-sum'; box.setAttribute('aria-hidden', 'true'); box.innerHTML = h;
+  document.body.appendChild(box);
+  var title0 = document.title;
+  document.title = tl('gloss.title') + ' – Autoware Training Platform';
+  var done = function() { document.title = title0; document.body.classList.remove('gl-sum-print'); var b = document.getElementById('gl-sum'); if (b) b.parentNode.removeChild(b); window.removeEventListener('afterprint', done); };
+  document.body.classList.add('gl-sum-print');
+  window.addEventListener('afterprint', done);
+  setTimeout(function() { window.print(); }, 200);
+};
+
+function renderTerms() {
+  var closed = glossaryClosedByAccess();
+  if (closed) {
+    var gl = document.getElementById('gl-list');
+    if (gl) gl.innerHTML = '<div style="padding:20px;border-radius:10px;background:var(--amber-l);color:var(--amber-d);font-size:13px;">'
+      + '<b>The Glossary is no longer available</b> — your trainings ended. Your progress and notes are kept. To continue, ask your manager.</div>';
+    return;
+  }
+  var filtered = glFiltered();
+
+  var countEl = document.getElementById('gl-count');
+  if (countEl) countEl.textContent = tl('gloss.count').replace('{n}', filtered.length);
+
+  var list = document.getElementById('gl-list');
+  if (!list) return;
+
+  if (filtered.length === 0) {
+    renderAZ({});
+    list.innerHTML = '<div class="gl-empty">'
+      + '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
+      + esc(tl('gloss.noresults')) + '</div>';
+    return;
+  }
+
+  var html = '';
+  var present = {};
+  var lastLetter = '';
+  var showCat = (activeCat === 'all');
+
+  filtered.forEach(function(g) {
+    var letter = g.term.charAt(0).toUpperCase();
+    if (letter !== lastLetter) {
+      html += '<div class="gl-letter" id="gl-L-' + letter + '">' + esc(letter) + '</div>';
+      lastLetter = letter;
+      present[letter] = true;
+    }
+    var desc = g[LANG] || g.en || '';
+    var safeTerm = esc(g.term);
+    // 09/10: il termine inglese resta primario (è quello che si vede in TilliT), la traduzione è il sottotitolo
+    // (decisione del 06/07, tornata al contrario con la grafica nuova).
+    var dispName = glName(g);
+    var termCell = '<span class="gl-term">'
+      + '<span class="gl-term-main">' + safeTerm + '</span>'
+      + (dispName !== g.term ? '<span class="gl-term-tr">' + esc(dispName) + '</span>' : '')
+      + '</span>';
+    var dot = '';
+    var catCls = CAT_CLASS[g.cat] || '';
+    var cat = showCat
+      ? '<span class="gl-cat ' + catCls + '">' + esc(tl('gloss.cat.' + g.cat)) + '</span>'
+      : '';
+    var starOn = favs[g.term] ? ' on' : '';
+    var star = '<button class="gl-star' + starOn + '" type="button" data-term="' + safeTerm + '" title="' + esc(tl('gloss.fav.hint')) + '" onclick="event.stopPropagation();toggleFav(this)">'
+             + '<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'
+             + '</button>';
+    html += '<div class="gl-row" data-term="' + safeTerm + '" onclick="this.classList.toggle(\'open\')">'
+          + '<div class="gl-row-head">'
+          + dot
+          + termCell
+          + '<span class="gl-prev">' + esc(desc) + '</span>'   // anteprima della definizione (prototipo), nascosta quando la riga è aperta
+          + cat
+          + star
+          + '<svg class="gl-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>'
+          + '</div>'
+          + '<div class="gl-desc-wrap"><div class="gl-desc">' + esc(desc) + '</div></div>'
+          + '</div>';
+  });
+
+  list.innerHTML = html;
+  renderAZ(present);
+}
+
+// ── Set active category ──────────────────────────────────────────────
+window.setCat = function(cat) { activeCat = cat; buildFilters(); renderTerms(); };
+
+// ── Lang change (called by shared.js applyLang) ──────────────────────
+window._onLangChange = function(lang) {
+  LANG = lang;
+  var s = document.getElementById('gl-search');
+  if (s) s.placeholder = tl('gloss.search');
+  syncLangDrop();
+  glPdfLabel();
+  buildFilters();
+  renderTerms();
+  glRenderSide();
+  setTimeout(fixSidebarActive, 0);
+};
+
+// ── Search ───────────────────────────────────────────────────────────
+document.getElementById('gl-search').addEventListener('input', function() {
+  activeAZ = null;
+  renderTerms();
+});
+
+// ── Init ─────────────────────────────────────────────────────────────
+applyLang(LANG);
+renderChrome('glossary');
+fixSidebarActive();
+document.getElementById('gl-search').placeholder = tl('gloss.search');
+var totalBadge = document.getElementById('gl-total-badge');
+if (totalBadge) totalBadge.textContent = tl('gloss.count').replace('{n}', GLOSSARY.length);
+buildFilters();
+// deep-link dalla ricerca globale: ?q=<termine> → precompila e filtra
+try {
+  var _dq = new URLSearchParams(location.search).get('q');
+  if (_dq) { var _gs = document.getElementById('gl-search'); if (_gs) _gs.value = _dq; }
+} catch (e) {}
+renderTerms();
+updateFavBtn();
+syncLangDrop();
+glRenderSide();
+</script>
+
+</body>
+</html>

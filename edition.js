@@ -1,0 +1,1 @@
+var AW_EDITION = {"id":"fiera","menu":{"notes":true,"kb":false,"dashboard":true,"editor":false},"profiles":["learner"],"languages":["en","it","es","pt-BR","hi"],"unitLabel":"Line","sites":[{"id":"site1","name":"Bar Packaging"},{"id":"site2","name":"Pouch to Shelf"}]};

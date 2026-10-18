@@ -1,0 +1,1939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>(function(){var t=localStorage.getItem('aw_theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})()</script>
+<link rel="stylesheet" href="shared-r14.css?v=20261009a">
+<script src="edition.js?v=202610161633"></script>
+<script src="shared.js?v=20261016f"></script>
+<script src="translations.js?v=20261016e"></script>
+<script src="content.js?v=202610161633"></script>
+<script src="pkx_translations.js?v=20261016f"></script>
+<script src="glossary_data.js?t=63"></script>
+<title data-i18n="title.dashboard">Team Management · Training Platform</title>
+<style>
+.db-hero-inner,.db-inner{max-width:1600px}
+.db-kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.db-kpi-accent{height:3px;margin:-18px -18px 14px}
+.db-kpi-val{font-size:34px;font-weight:700;color:var(--text);line-height:1;letter-spacing:-.5px;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.db-kpi-lbl{font-size:12px;color:var(--text2);margin-top:4px}
+.db-kpi-trend{font-size:11px;font-weight:600;margin-top:8px;display:flex;align-items:center;gap:4px}
+.db-kpi-trend.up{color:var(--teal-d)}
+.db-kpi-trend.warn{color:var(--red-d)}
+.db-spark-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.db-spark-val{font-size:24px;font-weight:700;color:var(--text);line-height:1}
+.db-spark-lbl{font-size:10px;color:var(--text3);margin-top:3px;text-transform:uppercase;letter-spacing:.06em}
+.db-spark-delta{font-size:11px;font-weight:600;margin-top:6px}
+.db-spark-delta.pos{color:var(--teal-d)}
+.db-spark-svg{margin-top:10px;opacity:.7}
+.db-two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.db-funnel-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.db-funnel-lbl{font-size:12px;color:var(--text2);width:110px;flex-shrink:0}
+.db-funnel-track{flex:1;height:7px;background:var(--bg3);border-radius:4px;overflow:hidden;border:.5px solid var(--border)}
+.db-funnel-fill{height:100%;border-radius:4px}
+.db-funnel-pct{font-size:11px;color:var(--text2);width:34px;text-align:right;font-weight:600;flex-shrink:0;font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.db-funnel-n{font-size:10px;color:var(--text3);width:54px;text-align:right;flex-shrink:0}
+.db-quiz-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.db-quiz-range{font-size:11px;color:var(--text3);width:64px;flex-shrink:0}
+.db-quiz-track{flex:1;height:22px;background:var(--bg2);border-radius:5px;overflow:hidden;position:relative;border:.5px solid var(--border)}
+.db-quiz-fill{height:100%;border-radius:5px}
+.db-quiz-n{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:600;color:var(--text);font-family:var(--font-mono)}
+.db-stat-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;padding-top:14px;border-top:.5px solid var(--border)}
+.db-stat-n{font-size:22px;font-weight:700;color:var(--text)}
+.db-stat-l{font-size:10px;color:var(--text3);margin-top:2px}
+.db-sec-lbl{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.db-sec-lbl::after{content:'';flex:1;height:.5px;background:var(--border)}
+/* ── sec-head card (coerente con OP-01/02) ── */
+.sec-head{background:var(--bg);border:.5px solid var(--border);border-radius:14px;padding:18px 22px;margin-bottom:20px;position:relative;overflow:hidden;box-shadow:0 1px 2px rgba(15,39,87,.06),0 10px 28px rgba(15,39,87,.12);display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.sec-head::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--aw-pink)}
+.sec-head-l{flex:1;min-width:0;padding-left:4px}
+.sec-head-r{flex-shrink:0;align-self:flex-start;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+/* ── funnel link ── */
+.db-funnel-lbl a{color:inherit;text-decoration:none;border-bottom:1px solid var(--border2);transition:color .12s,border-color .12s}
+.db-funnel-lbl a:hover{color:var(--purple);border-color:var(--purple)}
+/* ── insight number (warn-box) ── */
+.db-insight-n{font-size:22px;font-weight:700;color:var(--orange-d);flex-shrink:0;line-height:1;font-variant-numeric:tabular-nums}
+.db-fbtn{padding:4px 13px;border-radius:20px;font-size:11px;font-weight:600;border:.5px solid var(--border2);background:var(--bg);color:var(--text2);cursor:pointer;font-family:var(--font);transition:all .12s}
+.db-fbtn:hover,.db-fbtn.on{background:var(--purple-l);color:var(--purple-d);border-color:var(--purple)}
+.db-tbl-wrap{overflow-x:auto;border:.5px solid var(--border);border-radius:10px}
+.db-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.db-tbl thead tr:first-child th:first-child{border-top-left-radius:10px}
+.db-tbl thead tr:first-child th:last-child{border-top-right-radius:10px}
+.db-tbl tbody tr:last-child td:first-child{border-bottom-left-radius:10px}
+.db-tbl tbody tr:last-child td:last-child{border-bottom-right-radius:10px}
+.db-tbl th{background:var(--bg2);color:var(--text3);font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:9px 14px;text-align:left;white-space:nowrap;cursor:pointer;border-bottom:.5px solid var(--border);border-right:.5px solid var(--border);user-select:none}
+.db-tbl th:last-child{border-right:none}
+.db-tbl th:hover{color:var(--text)}
+.db-tbl th .sa{opacity:.4;font-style:normal;margin-left:3px}
+.db-tbl th.sorted .sa{opacity:1;color:var(--purple)}
+.db-tbl td{padding:11px 14px;border-bottom:.5px solid var(--border);border-right:.5px solid var(--border);vertical-align:middle;color:var(--text2)}
+.db-tbl td:last-child{border-right:none}
+.db-tbl tr:last-child td{border-bottom:none}
+.db-tbl tbody tr:nth-child(even) td{background:var(--bg2)}
+.db-tbl tr:hover td{background:var(--bg3)}
+.db-opname{font-weight:600;color:var(--text)}
+.db-you{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;font-size:var(--fs-3xs);font-weight:var(--fw-sb);vertical-align:1px;background:var(--aw-active-lilac);color:var(--aw-navy)}
+.db-dot{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:10px;font-weight:700;font-family:var(--font-mono)}
+.db-dot.done{background:var(--teal-l);color:var(--teal-d);border:.5px solid var(--teal)}
+.db-dot.skip{background:var(--bg2);color:var(--text3);border:.5px solid var(--border)}
+.db-dot.lock{background:var(--bg2);color:var(--text3);border:.5px dashed var(--border2)}
+.db-pill{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700}
+.db-pill.uptodate{background:var(--teal-l);color:var(--teal-d);border:.5px solid var(--teal)}
+.db-pill.inprogress{background:var(--purple-l);color:var(--purple-d);border:.5px solid var(--purple)}
+.db-pill.notstarted{background:var(--red-l);color:var(--red-d);border:.5px solid var(--red)}
+.db-score{font-weight:600;font-variant-numeric:tabular-nums}
+.db-score.hi{color:var(--teal-d)}
+.db-score.mid{color:var(--purple-d)}
+.db-score.none{color:var(--text3)}
+@media(max-width:1000px){.db-kpi-row{grid-template-columns:repeat(2,1fr)}.db-two-col{grid-template-columns:1fr}.db-spark-row{grid-template-columns:1fr 1fr}}
+/* ── SIDEBAR TOGGLE ── */
+.layout{transition:grid-template-columns .26s cubic-bezier(.4,0,.2,1)}
+.sidebar{transition:opacity .2s ease}
+body.sb-collapsed .layout{grid-template-columns:0 1fr}
+body.sb-collapsed .sidebar{min-width:0;width:0;padding-left:0;padding-right:0;opacity:0;overflow:hidden;pointer-events:none;border-right:none}
+.sb-toggle{width:30px;height:30px;border-radius:var(--rsm);border:1px solid rgba(255,255,255,.18);background:transparent;color:rgba(255,255,255,.62);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s,color .15s}
+.sb-toggle:hover{background:rgba(255,255,255,.09);color:#fff}
+.sb-toggle:active{transform:translateY(1px)}
+.sb-toggle svg{width:16px;height:16px;transition:transform .26s cubic-bezier(.4,0,.2,1)}
+body.sb-collapsed .sb-toggle svg{transform:rotate(180deg)}
+/* ── Period filter + chart ── */
+.db-period-bar{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+.db-period-btn{padding:5px 14px;border-radius:20px;font-size:11px;font-weight:600;border:.5px solid var(--border2);background:var(--bg);color:var(--text2);cursor:pointer;font-family:var(--font);transition:all .12s}
+.db-period-btn.on{background:var(--aw-navy);color:#fff;border-color:var(--aw-navy)}
+.db-period-btn:hover:not(.on){background:var(--bg2);color:var(--text)}
+.db-chart-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.db-chart-legend{display:flex;gap:18px;margin-top:8px}
+.db-chart-leg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0;display:inline-block}
+/* ── Mini segment (table progress) ── */
+.db-mseg{display:inline-block;width:26px;height:7px;border-radius:3px;vertical-align:middle}
+.db-mseg.done{background:var(--teal)}
+.db-mseg.done-p{background:var(--aw-pink)}
+.db-mseg.pending{background:var(--bg3);border:.5px solid var(--border)}
+.db-mseg.locked{background:var(--bg3);border:.5px dashed var(--border2);opacity:.4}
+/* ══ MANAGER WORKSPACE ══ */
+.mgr-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:22px;border-bottom:.5px solid var(--border);padding-bottom:0}
+.mgr-tab{position:relative;padding:9px 16px 12px;background:none;border:none;font-family:var(--font);font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;display:flex;align-items:center;gap:7px;border-radius:8px 8px 0 0;transition:color .12s,background .12s}
+.mgr-tab:hover{color:var(--text);background:var(--bg2)}
+.mgr-tab.on{color:var(--aw-pink)}
+.mgr-tab.on::after{content:'';position:absolute;left:8px;right:8px;bottom:-1px;height:2.5px;background:var(--aw-pink);border-radius:2px}
+.mgr-tab svg{width:15px;height:15px}
+.mgr-tab-badge{display:inline-flex;align-items:center;justify-content:center;min-width:17px;height:17px;padding:0 5px;border-radius:9px;background:var(--bg3);color:var(--text2);font-size:10px;font-weight:700}
+.mgr-tab.on .mgr-tab-badge{background:var(--aw-pink);color:#fff}
+.mgr-panel{display:none}
+.mgr-panel.on{display:block;animation:mgrfade .2s ease}
+@keyframes mgrfade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+/* ── Manager form ── */
+.mgr-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;align-items:end}
+.mgr-field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.mgr-field.wide{grid-column:1/-1}
+.mgr-label{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text3)}
+.mgr-input,.mgr-select{width:100%;box-sizing:border-box;padding:9px 12px;border:.5px solid var(--border2);border-radius:var(--rsm);background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px;transition:border-color .12s,box-shadow .12s}
+.mgr-input:focus,.mgr-select:focus{outline:none;border-color:var(--aw-pink);box-shadow:0 0 0 3px var(--red-l)}
+.mgr-input::placeholder{color:var(--text3)}
+.mgr-btn{padding:10px 20px;border:none;border-radius:var(--rsm);background:var(--aw-pink);color:#fff;font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:filter .12s,transform .06s;white-space:nowrap}
+.mgr-btn:hover{filter:brightness(1.06)}
+.mgr-btn:active{transform:translateY(1px)}
+.mgr-btn svg{width:15px;height:15px}
+.mgr-btn.sec{background:var(--bg2);color:var(--text);border:.5px solid var(--border2)}
+.mgr-btn.sec.danger{color:var(--red-d);border-color:var(--red)}
+.mgr-btn.sec.danger:hover{background:var(--red-l)}
+.mgr-btn.sec.danger.confirm{background:var(--red);color:#fff}
+/* ── Manager list items ── */
+.mgr-empty{padding:26px 18px;text-align:center;color:var(--text3);font-size:13px;background:var(--bg2);border:.5px dashed var(--border2);border-radius:var(--r)}
+.mgr-list{display:flex;flex-direction:column;gap:10px}
+.mgr-item{display:flex;align-items:center;gap:14px;padding:13px 16px;border:.5px solid var(--border);border-radius:var(--r);background:var(--bg);box-shadow:var(--e1);transition:box-shadow .12s}
+.mgr-item:hover{box-shadow:var(--e2)}
+.mgr-item-ic{flex-shrink:0;width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.mgr-item-ic svg{width:19px;height:19px}
+.mgr-item-ic.session{background:var(--blue-l);color:var(--blue-d)}
+.mgr-item-ic.deadline{background:var(--amber-l);color:var(--amber-d)}
+.mgr-item-body{flex:1;min-width:0}
+.mgr-item-t{font-size:14px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.mgr-item-sub{font-size:12px;color:var(--text2);margin-top:3px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.mgr-item-sub a{color:var(--blue-d);text-decoration:none;border-bottom:1px solid var(--border2)}
+.mgr-item-sub a:hover{border-color:var(--blue)}
+.mgr-chip{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;background:var(--bg3);color:var(--text2)}
+.mgr-chip.all{background:var(--purple-l);color:var(--purple-d)}
+.mgr-item-actions{display:flex;gap:6px;flex-shrink:0}
+.mgr-iconbtn{width:32px;height:32px;border-radius:8px;border:.5px solid var(--border2);background:var(--bg);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s}
+.mgr-iconbtn:hover{background:var(--bg2);color:var(--text)}
+.mgr-iconbtn.danger:hover{background:var(--red-l);color:var(--red-d);border-color:var(--red)}
+.mgr-iconbtn svg{width:15px;height:15px}
+/* ── Team action buttons in table ── */
+.db-tbl td .mgr-rowacts{display:flex;gap:6px;justify-content:flex-end}
+.mgr-rowbtn{padding:5px 10px;border-radius:16px;font-size:11px;font-weight:600;border:.5px solid var(--border2);background:var(--bg);color:var(--text2);cursor:pointer;font-family:var(--font);display:inline-flex;align-items:center;gap:5px;transition:all .12s;white-space:nowrap}
+.mgr-rowbtn svg{width:12px;height:12px}
+.mgr-rowbtn:hover{background:var(--aw-pink);color:#fff;border-color:var(--aw-pink)}
+.mgr-rowbtn.done{background:var(--teal-l);color:var(--teal-d);border-color:var(--teal);pointer-events:none}
+/* ── Toast ── */
+.mgr-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--aw-navy);color:#fff;padding:12px 20px;border-radius:24px;font-size:13px;font-weight:600;box-shadow:0 12px 32px rgba(15,39,87,.35);display:flex;align-items:center;gap:9px;opacity:0;pointer-events:none;transition:opacity .22s,transform .22s;z-index:2000}
+.mgr-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.mgr-toast svg{width:16px;height:16px;color:var(--teal)}
+.mgr-toast.warn svg{color:var(--amber-d)}
+/* ── Seats counter + new-user row ── */
+.mgr-seats{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.mgr-seat-meter{flex:1;min-width:180px}
+.mgr-seat-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.mgr-seat-lbl{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text3)}
+.mgr-seat-count{font-size:13px;font-weight:700;color:var(--text);font-family:var(--font-mono)}
+.mgr-seat-count.full{color:var(--red-d)}
+.mgr-seat-track{height:8px;background:var(--bg3);border-radius:5px;overflow:hidden;border:.5px solid var(--border)}
+.mgr-seat-fill{height:100%;border-radius:5px;background:var(--aw-navy);transition:width .3s}
+.mgr-seat-fill.full{background:var(--red)}
+.mgr-newuser{margin-top:16px;padding-top:16px;border-top:.5px solid var(--border);align-items:start}
+.mgr-newuser .mgr-field.nu-btnfield{align-items:flex-start}
+.mgr-newuser .mgr-field.nu-btnfield .mgr-label{visibility:hidden}
+.mgr-seatfull{margin-top:14px;margin-bottom:0}
+.mgr-pwd-field{display:flex;gap:6px}
+.mgr-pwd-field .mgr-input{flex:1}
+.mgr-genbtn{flex-shrink:0;width:36px;height:36px;border-radius:var(--rsm);border:.5px solid var(--border2);background:var(--bg);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s}
+.mgr-genbtn:hover{background:var(--bg2);color:var(--aw-pink);border-color:var(--aw-pink)}
+.mgr-genbtn svg{width:15px;height:15px}
+.mgr-hint{font-size:11px;color:var(--text3);margin-top:5px}
+/* ── Bulk add users table ── */
+.mgr-bulk-toggle{margin-top:16px}
+.mgr-bulk-wrap{margin-top:16px;padding-top:16px;border-top:.5px solid var(--border)}
+.mgr-bulk-table{width:100%;border-collapse:collapse}
+.mgr-bulk-table th{text-align:left;font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text3);padding:0 6px 8px}
+.mgr-bulk-table td{padding:4px 6px;vertical-align:middle}
+.mgr-bulk-input,.mgr-bulk-select{width:100%;box-sizing:border-box;padding:7px 9px;border:.5px solid var(--border2);border-radius:6px;background:var(--bg);color:var(--text);font-family:var(--font);font-size:12.5px}
+.mgr-bulk-input:focus,.mgr-bulk-select:focus{outline:none;border-color:var(--aw-pink)}
+.mgr-bulk-rm{width:30px;height:30px;border-radius:7px;border:.5px solid var(--border2);background:var(--bg);color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s}
+.mgr-bulk-rm:hover{background:var(--red-l);color:var(--red-d);border-color:var(--red)}
+.mgr-bulk-rm svg{width:13px;height:13px}
+.mgr-bulk-addrow{margin-top:10px;padding:8px 14px;border-radius:var(--rsm);border:.5px dashed var(--border2);background:none;color:var(--text2);font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.mgr-bulk-addrow:hover{border-color:var(--aw-pink);color:var(--aw-pink)}
+.mgr-bulk-actions{display:flex;justify-content:space-between;align-items:center;margin-top:14px;flex-wrap:wrap;gap:10px}
+.mgr-bulk-note{font-size:11.5px;color:var(--text3)}
+/* ── Training toggles (multi-select) ── */
+.mgr-toggles{display:flex;gap:8px;flex-wrap:wrap}
+.mgr-toggle{display:inline-flex;align-items:center;gap:7px;padding:9px 14px;border:.5px solid var(--border2);border-radius:var(--rsm);background:var(--bg);color:var(--text2);font-family:var(--font);font-size:12.5px;font-weight:600;cursor:pointer;transition:all .12s}
+.mgr-toggle svg{width:14px;height:14px}
+.mgr-toggle:hover{border-color:var(--aw-pink);color:var(--text)}
+.mgr-toggle.on{background:var(--aw-navy);color:#fff;border-color:var(--aw-navy)}
+/* ── Checkbox dropdown (assigned training · assign-to) ── */
+.mgr-dd{position:relative}
+.mgr-dd-btn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 12px;border:.5px solid var(--border2);border-radius:var(--rsm);background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;text-align:left}
+.mgr-dd-btn:hover{border-color:var(--aw-pink)}
+.mgr-dd-btn>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mgr-dd-chev{width:15px;height:15px;color:var(--text3);flex-shrink:0;transition:transform .15s}
+.mgr-dd.open .mgr-dd-chev{transform:rotate(180deg)}
+.mgr-dd-panel{display:none;position:absolute;top:calc(100% + 5px);left:0;right:0;z-index:60;background:var(--bg);border:.5px solid var(--border2);border-radius:var(--rsm);box-shadow:var(--e3);padding:5px;max-height:264px;overflow-y:auto}
+.mgr-dd.open .mgr-dd-panel{display:block}
+.mgr-dd-opt{display:flex;align-items:center;gap:10px;padding:8px 9px;border-radius:7px;cursor:pointer;font-size:13px;color:var(--text)}
+.mgr-dd-opt:hover{background:var(--bg2)}
+.mgr-dd-check{width:17px;height:17px;border-radius:5px;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;transition:all .12s}
+.mgr-dd-check svg{width:12px;height:12px}
+.mgr-dd-check.on{background:var(--aw-pink);border-color:var(--aw-pink)}
+.mgr-dd-master{font-weight:700;color:var(--text)}
+.mgr-dd-div{height:.5px;background:var(--border);margin:5px 4px}
+.mgr-dd-grouplbl{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text3);padding:8px 9px 3px}
+/* ── Assignment: affected-users preview ── */
+.as-preview{border:.5px dashed var(--border2);border-radius:var(--rsm);padding:11px 13px;background:var(--bg2)}
+.as-preview.on{border-style:solid}
+.as-preview-hint,.as-pv-hint{font-size:12px;color:var(--text3)}
+.as-pv-head{font-size:12.5px;color:var(--text2);margin-bottom:9px}
+.as-pv-head b{color:var(--text);font-weight:700}
+.as-pv-avs{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.as-pv-av{width:28px;height:28px;border-radius:8px;background:var(--aw-navy);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:700}
+.as-pv-more{font-size:11px;font-weight:700;color:var(--text2);padding:0 6px}
+.as-pv-miss{display:flex;align-items:flex-start;gap:7px;margin-top:10px;padding-top:9px;border-top:.5px solid var(--border);font-size:11.5px;color:var(--amber-d);line-height:1.45}
+.as-pv-miss svg{width:14px;height:14px;flex-shrink:0;margin-top:1px;color:var(--amber-d)}
+/* ── Site selector ── */
+.mgr-sitebar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px;padding:11px 14px;background:var(--bg);border:.5px solid var(--border);border-radius:var(--r);box-shadow:var(--e1)}
+.mgr-sitebar-lbl{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text3)}
+.mgr-sitebar-lbl svg{width:14px;height:14px}
+.mgr-sitechips{display:flex;gap:8px;flex-wrap:wrap;flex:1;min-width:0}
+.mgr-sitechip{display:inline-flex;align-items:center;gap:8px;padding:8px 13px;border:.5px solid var(--border2);border-radius:20px;background:var(--bg2);color:var(--text2);font-family:var(--font);font-size:12.5px;font-weight:600;cursor:pointer;transition:all .12s}
+.mgr-sitechip svg{width:14px;height:14px}
+.mgr-sitechip:hover{border-color:var(--aw-pink);color:var(--text)}
+.mgr-sitechip.on{background:var(--aw-navy);color:#fff;border-color:var(--aw-navy)}
+.mgr-sitechip-count{font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:12px;background:rgba(15,39,87,.10);font-variant-numeric:tabular-nums}
+.mgr-sitechip.on .mgr-sitechip-count{background:rgba(255,255,255,.22)}
+.mgr-siteadd-btn{display:inline-flex;align-items:center;gap:5px;padding:8px 13px;border:.5px dashed var(--border2);border-radius:20px;background:none;color:var(--text2);font-family:var(--font);font-size:12.5px;font-weight:600;cursor:pointer}
+.mgr-siteadd-btn svg{width:14px;height:14px}
+.mgr-siteadd-btn:hover{border-color:var(--aw-pink);color:var(--aw-pink)}
+.mgr-site-actions{display:inline-flex;gap:4px}
+.mgr-siteform{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+.mgr-siteform .mgr-input{width:150px;padding:7px 10px}
+.mgr-btn.sm{padding:7px 13px;font-size:12px}
+/* ── Mini progress bar in table cells ── */
+.db-prog{display:flex;align-items:center;gap:8px;min-width:118px}
+.db-prog-track{flex:1;height:7px;background:var(--bg3);border-radius:4px;overflow:hidden;border:.5px solid var(--border)}
+.db-prog-fill{height:100%;border-radius:4px;background:var(--teal)}
+.db-prog-fill.pink{background:var(--aw-pink)}
+.db-prog-lbl{font-size:11px;font-weight:600;color:var(--text2);white-space:nowrap;font-variant-numeric:tabular-nums;width:26px;text-align:right;font-family:var(--font-mono)}
+.db-su-lock{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--text3)}
+.db-su-lock svg{width:12px;height:12px}
+.db-su-na{color:var(--text3);font-size:11px}
+/* ── Delay pill ── */
+.delay-pill{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:20px;font-size:10.5px;font-weight:700}
+.delay-pill svg{width:11px;height:11px}
+.delay-pill.ontrack{background:var(--teal-l);color:var(--teal-d)}
+.delay-pill.late{background:var(--red-l);color:var(--red-d);border:.5px solid var(--red)}
+/* ── Manage modal ── */
+.mgr-modal-ov{position:fixed;inset:0;background:rgba(15,39,87,.5);display:none;align-items:flex-start;justify-content:center;z-index:2500;padding:40px 16px;overflow-y:auto}
+.mgr-modal-ov.show{display:flex;animation:mgrfade .16s ease}
+.mgr-modal{background:var(--bg);border-radius:16px;width:100%;max-width:520px;box-shadow:0 24px 64px rgba(15,39,87,.4);overflow:hidden}
+.mgr-modal-head{display:flex;align-items:center;gap:13px;padding:20px 22px;border-bottom:.5px solid var(--border);background:var(--bg2)}
+.mgr-modal-av{width:44px;height:44px;border-radius:12px;background:var(--aw-pink);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex-shrink:0}
+.mgr-modal-name{font-size:17px;font-weight:700;color:var(--text)}
+.mgr-modal-x{margin-left:auto;width:32px;height:32px;border-radius:8px;border:.5px solid var(--border2);background:var(--bg);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mgr-modal-x:hover{background:var(--bg3);color:var(--text)}
+.mgr-modal-x svg{width:16px;height:16px}
+.mgr-modal-body{padding:20px 22px;display:flex;flex-direction:column;gap:20px}
+.mgr-msec-lbl{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:9px}
+.mgr-detail-mod{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:.5px solid var(--border);font-size:12.5px;color:var(--text)}
+.mgr-detail-mod:last-child{border-bottom:none}
+.mgr-detail-mod .db-dot{flex-shrink:0}
+.mgr-detail-hint{font-size:11.5px;color:var(--text3);margin-top:7px;display:flex;align-items:center;gap:6px}
+.mgr-detail-hint svg{width:13px;height:13px;flex-shrink:0}
+.mgr-modal-actions{display:flex;gap:10px;flex-wrap:wrap}
+/* ── Manage modal: account block ── */
+.mgr-acct-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:.5px solid var(--border);font-size:12.5px;color:var(--text)}
+.mgr-acct-row:last-child{border-bottom:none}
+.mgr-acct-lbl{color:var(--text3);font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;flex-shrink:0}
+.mgr-acct-val{text-align:right;min-width:0;word-break:break-word}
+.mgr-acct-val.mono{font-family:'SFMono-Regular',Consolas,monospace;letter-spacing:1px}
+.mgr-acct-actions{display:flex;gap:6px;flex-shrink:0}
+.mgr-mustchange{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;background:var(--amber-l);color:var(--amber-d);margin-left:8px}
+/* ── Assignment state groups + pills ── */
+.asg-group-lbl{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text3);margin:18px 0 10px}
+.asg-group-lbl:first-child{margin-top:0}
+.asg-state{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;flex-shrink:0}
+.asg-state svg{width:11px;height:11px}
+.asg-state.active{background:var(--teal-l);color:var(--teal-d)}
+.asg-state.overdue{background:var(--red-l);color:var(--red-d);border:.5px solid var(--red)}
+.asg-state.waiting{background:var(--amber-l);color:var(--amber-d)}
+.mgr-item.overdue{border-left:3px solid var(--red)}
+.mgr-item.waiting{border-left:3px solid var(--amber-d)}
+/* ══ MANAGER OVERVIEW — index-style (navy hero + 2-col) ══ */
+.mo-hero{position:relative;background:var(--aw-navy);border-radius:18px;box-shadow:var(--e3);overflow:hidden;display:flex;align-items:center;gap:24px;padding:26px 28px;margin-bottom:22px;flex-wrap:wrap}
+.mo-hero-l{flex:1;min-width:240px;z-index:1}
+.mo-eyebrow{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--aw-pink);margin-bottom:7px}
+.mo-hero-h{font-size:23px;font-weight:600;color:#fff;letter-spacing:-.3px;margin-bottom:5px}
+.mo-hero-sub{font-size:13px;color:rgba(255,255,255,.64);margin-bottom:17px}
+.mo-hero-sub b{color:#fff;font-weight:600}
+.mo-hero-row{display:flex;align-items:center;gap:26px;flex-wrap:wrap}
+.mo-cta{background:var(--aw-pink);color:#fff;border:none;border-radius:9px;padding:10px 18px;font-size:12.5px;font-weight:700;font-family:var(--font);display:inline-flex;align-items:center;gap:7px;cursor:pointer;transition:background .14s}
+.mo-cta:hover{background:#c9106d}
+.mo-cta svg{width:15px;height:15px}
+.mo-hstats{display:flex;gap:24px}
+.mo-hstat{display:flex;flex-direction:column;gap:3px;position:relative;padding-left:13px}
+.mo-hstat::before{content:'';position:absolute;left:0;top:2px;bottom:2px;width:3px;border-radius:2px;background:var(--teal)}
+.mo-hstat.prog::before{background:var(--aw-pink)}
+.mo-hstat.late::before{background:#ff6b8f}
+.mo-hstat-n{font-size:21px;font-weight:700;color:#fff;line-height:1;font-variant-numeric:tabular-nums;font-family:var(--font-mono)}
+.mo-hstat-l{font-size:9.5px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.05em}
+.mo-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start}
+@media(max-width:980px){.mo-grid{grid-template-columns:1fr}}
+.mo-col{display:flex;flex-direction:column;gap:16px}
+.mo-card-hd{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px}
+.mo-card-t{font-size:14px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px}
+.mo-card-t svg{width:16px;height:16px;color:var(--text3)}
+.mo-link{font-size:11px;font-weight:600;color:var(--aw-pink);cursor:pointer;background:none;border:none;font-family:var(--font);display:inline-flex;align-items:center;gap:4px;padding:0}
+.mo-link:hover{text-decoration:underline}
+.mo-link svg{width:12px;height:12px}
+.mo-av{width:34px;height:34px;border-radius:10px;background:var(--bg2);border:.5px solid var(--border);color:var(--text2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.mo-tinfo{flex:1;min-width:0}
+.mo-tname{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mo-attn-sub{font-size:10.5px;color:var(--text3);font-variant-numeric:tabular-nums;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mo-empty{padding:22px 14px;text-align:center;color:var(--text3);font-size:12.5px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.mo-empty svg{width:26px;height:26px;color:var(--teal)}
+/* ── Needs attention: grouped by severity (2026-07-17 redesign) ── */
+.attn-filters{display:flex;gap:6px;flex-wrap:wrap}
+.attn-filters .n{opacity:.6;font-family:var(--font-mono);font-size:10px;margin-left:3px}
+/* ── real bordered grid: row rules + column rules, not just spaced-out flex items (2026-07-18) ── */
+.mo-attn-table{border:.5px solid var(--border);border-radius:10px;overflow:hidden;margin-top:2px}
+.mo-attn-thead{display:flex;align-items:stretch;font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text3);background:var(--bg2);border-bottom:.5px solid var(--border)}
+.mo-attn-th{padding:9px 10px;border-right:.5px solid var(--border);display:flex;align-items:center}
+.mo-attn-th:last-child{border-right:none}
+.mo-attn-th.person{flex:2 1 210px;min-width:170px}
+.mo-attn-th.mod{flex:0 0 118px}
+.mo-attn-th.issue{flex:1 1 190px;min-width:120px}
+.mo-attn-th.due{flex:0 0 104px}
+.mo-attn-th.action{flex:0 0 88px;justify-content:flex-end}
+.mo-attn-grp{margin-top:0}
+.mo-attn-hd{display:flex;align-items:center;gap:8px;padding:7px 10px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--text3);background:var(--bg3);border-bottom:.5px solid var(--border)}
+.mo-attn-grp.t-overdue .mo-attn-hd{color:var(--red-d)}
+.mo-attn-grp.t-stalled .mo-attn-hd{color:var(--orange-d)}
+.mo-attn-grp.t-notstarted .mo-attn-hd{color:var(--text3)}
+.mo-attn-row{display:flex;align-items:stretch;border-bottom:.5px solid var(--border);border-left:3px solid transparent}
+.mo-attn-row:hover{background:var(--bg2)}
+.mo-attn-grp:last-child .mo-attn-row:last-child{border-bottom:none}
+.mo-attn-row.sev-overdue{border-left-color:var(--red)}
+.mo-attn-row.sev-stalled{border-left-color:var(--orange)}
+.mo-attn-row.sev-notstarted{border-left-color:var(--border2)}
+/* ── row cells (person / training chip / issue / action), each with its own column rule ── */
+.mo-attn-person{display:flex;align-items:center;gap:10px;flex:2 1 210px;min-width:170px;overflow:hidden;padding:9px 10px;border-right:.5px solid var(--border)}
+.mo-attn-modcell{flex:0 0 118px;padding:9px 10px;border-right:.5px solid var(--border);display:flex;align-items:center}
+.mo-attn-modchip{font-size:10.5px;font-weight:700;color:var(--text2);background:var(--bg2);border:.5px solid var(--border);border-radius:6px;padding:3px 7px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.mo-attn-row.sev-overdue .mo-attn-modchip{color:var(--red-d);border-color:var(--red);background:var(--red-l)}
+.mo-attn-row.sev-stalled .mo-attn-modchip{color:var(--orange-d);border-color:var(--orange);background:var(--orange-l)}
+.mo-attn-issue{flex:1 1 190px;min-width:120px;padding:9px 10px;border-right:.5px solid var(--border);display:flex;align-items:center;font-size:11.5px;color:var(--text2)}
+.mo-attn-row.sev-overdue .mo-attn-issue{color:var(--red-d)}
+.mo-attn-row.sev-stalled .mo-attn-issue{color:var(--orange-d)}
+.mo-attn-due{flex:0 0 104px;padding:9px 10px;border-right:.5px solid var(--border);display:flex;align-items:center;font-size:11.5px;color:var(--text2);font-variant-numeric:tabular-nums}
+.mo-attn-row.sev-overdue .mo-attn-due{color:var(--red-d);font-weight:600}
+.mo-attn-action{flex:0 0 88px;padding:9px 10px;display:flex;align-items:center;justify-content:flex-end}
+.mo-attn-more{padding:10px 6px 2px}
+@media(max-width:640px){
+  .mo-attn-th.issue,.mo-attn-th.mod,.mo-attn-th.due{display:none}
+  .mo-attn-row{flex-wrap:wrap}
+  .mo-attn-person{border-right:none;flex-basis:100%}
+  .mo-attn-modcell,.mo-attn-issue,.mo-attn-due{border-right:none}
+  .mo-attn-issue{flex-basis:100%;order:3;margin-left:44px;padding-top:0}
+  .mo-attn-due{flex-basis:100%;order:4;margin-left:44px;padding-top:0}
+  .mo-attn-action{margin-left:auto}
+}
+/* ── Module completions: real stat row (2026-07-17 redesign) ── */
+.ch-stat-row{display:flex;align-items:baseline;gap:10px;margin-bottom:12px}
+.ch-stat-n{font-size:24px;font-weight:700;color:var(--text);font-family:var(--font-mono);letter-spacing:-.4px}
+.ch-stat-lbl{font-size:11.5px;color:var(--text3)}
+.ch-stat-delta{font-size:11.5px;font-weight:700;display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px}
+.ch-stat-delta.up{color:var(--teal-d);background:var(--teal-l)}
+.ch-stat-delta.down{color:var(--red-d);background:var(--red-l)}
+.ch-stat-delta.flat{color:var(--text3);background:var(--bg2)}
+.mo-seat-mini{margin-bottom:14px}
+.mo-seat-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.mo-seat-lbl{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text3)}
+.mo-seat-count{font-size:12.5px;font-weight:700;color:var(--text);font-family:var(--font-mono)}
+.mo-seat-count.full{color:var(--red-d)}
+.mo-seat-track{height:7px;background:var(--bg3);border-radius:5px;overflow:hidden;border:.5px solid var(--border)}
+.mo-seat-fill{height:100%;border-radius:5px;background:var(--aw-navy);transition:width .3s}
+.mo-seat-fill.full{background:var(--red)}
+.mo-qa{display:flex;flex-direction:column;gap:8px}
+.mo-qa-btn{display:flex;align-items:center;gap:11px;padding:11px 13px;border:.5px solid var(--border2);border-radius:11px;background:var(--bg);color:var(--text);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;text-align:left;transition:border-color .12s,background .12s;width:100%}
+.mo-qa-btn:hover{border-color:var(--aw-pink);background:rgba(224,49,138,.04)}
+.mo-qa-ic{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--bg2);color:var(--aw-navy)}
+.mo-qa-ic svg{width:16px;height:16px}
+</style>
+<link rel="stylesheet" href="tema-2026.css?v=44">
+</head>
+<body>
+<!-- Grafica del prototipo "New Design" (screens/06-team.html). Struttura invariata: line, 4 schede, Needs attention,
+     grafico, moduli. La colonna destra di Overview (Agenda, Seats, Quick actions) è ora la .pt-rail di tutte le schede. -->
+<div class="h-wrap">
+<div class="h-main" id="page-dashboard">
+  <span id="mod-bar-meta" hidden></span>
+
+    <!-- ── Intestazione di pagina: titolo + riepilogo | crea utente ── -->
+    <div class="pt-pagehd pt-pagehd-row">
+      <div class="pt-grow">
+        <h1 class="pt-h1" data-i18n="dash.title">Team Management</h1>
+        <p class="pt-lead" id="mo-hero-sub"></p>
+      </div>
+      <button class="pt-cta" onclick="mgrTab('team',document.querySelectorAll('.mgr-tab')[1])">
+        + <span data-i18n="mgr.team.create">Create user</span></button>
+    </div>
+
+    <!-- ══ SITE SELECTOR ══ -->
+    <div class="mgr-sitebar" id="mgr-sitebar"></div>
+
+    <!-- ── Numeri chiave della line (striscia, prototipo) ── -->
+    <div class="mo-hstats pt-kpis" id="mo-hstats"></div>
+
+    <!-- ══ MANAGER TABS ══ -->
+    <div class="mgr-tabs" role="tablist">
+      <button class="mgr-tab on" onclick="mgrTab('overview',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        <span data-i18n="mgr.tab.overview">Overview</span></button>
+      <button class="mgr-tab" onclick="mgrTab('team',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span data-i18n="mgr.tab.team">My Team</span><span class="mgr-tab-badge" id="tab-team-badge">9</span></button>
+      <button class="mgr-tab" onclick="mgrTab('assign',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span data-i18n="mgr.tab.assign">Assignments</span><span class="mgr-tab-badge" id="tab-assign-badge">0</span></button>
+      <button class="mgr-tab" onclick="mgrTab('sessions',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+        <span data-i18n="mgr.tab.sessions">Live Sessions</span><span class="mgr-tab-badge" id="tab-sessions-badge">0</span></button>
+    </div>
+
+    <!-- ══ PANEL: OVERVIEW ══ -->
+    <div class="mgr-panel on" id="panel-overview">
+
+    <div class="mo-grid">
+      <!-- ── LEFT: team status + timeline ── -->
+      <div class="mo-col">
+        <div class="card" style="margin-bottom:0">
+          <div class="card-body">
+            <div class="mo-card-hd">
+              <div class="mo-card-t">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
+                <span data-i18n="mgr.ov.teamstatus">Needs attention</span>
+              </div>
+              <button class="mo-link" onclick="mgrTab('team',document.querySelectorAll('.mgr-tab')[1])">
+                <span data-i18n="mgr.ov.viewteam">View team</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+            </div>
+            <div class="attn-filters" id="attn-filters" style="margin-bottom:2px"></div>
+            <div id="mo-team-list"></div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:0">
+          <div class="card-head" style="flex-wrap:wrap;gap:10px;align-items:center">
+            <div class="card-title" data-i18n="dash.chart.subtitle">Module completions per period</div>
+            <div class="db-period-bar">
+              <button class="db-period-btn on" onclick="setPeriod('week',this)" data-i18n="dash.period.week">Week</button>
+              <button class="db-period-btn" onclick="setPeriod('month',this)" data-i18n="dash.period.month">Month</button>
+              <button class="db-period-btn" onclick="setPeriod('quarter',this)" data-i18n="dash.period.quarter">Quarter</button>
+            </div>
+          </div>
+          <div class="card-body" style="padding-top:12px">
+            <div class="ch-stat-row">
+              <div class="ch-stat-n" id="ch-total">—</div>
+              <div class="ch-stat-lbl" id="ch-total-lbl"></div>
+              <div class="ch-stat-delta" id="ch-delta"></div>
+            </div>
+            <div class="db-chart-wrap">
+              <svg id="db-chart" viewBox="0 0 600 130" style="width:100%;min-width:320px;height:auto;display:block;overflow:visible"></svg>
+            </div>
+            <div class="db-chart-legend" id="db-chart-legend"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    </div><!-- /panel-overview -->
+
+    <!-- ══ PANEL: TEAM ══ -->
+    <div class="mgr-panel" id="panel-team">
+    <div class="db-sec-lbl" data-i18n="mgr.team.manage">Team management</div>
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-body">
+        <div class="mgr-seats">
+          <div class="mgr-seat-meter">
+            <div class="mgr-seat-top">
+              <span class="mgr-seat-lbl" data-i18n="mgr.team.seats">Seats used</span>
+              <span class="mgr-seat-count" id="seat-count">0 / 20</span>
+            </div>
+            <div class="mgr-seat-track"><div class="mgr-seat-fill" id="seat-fill" style="width:0%"></div></div>
+          </div>
+        </div>
+        <div class="mgr-newuser mgr-form" id="newuser-form">
+          <div class="mgr-field">
+            <label class="mgr-label" for="nu-name" data-i18n="mgr.team.newname">Full name</label>
+            <input class="mgr-input" type="text" id="nu-name" placeholder="e.g. Alex Morgan" data-ph="e.g. Alex Morgan">
+          </div>
+          <div class="mgr-field">
+            <label class="mgr-label" for="nu-email" data-i18n="mgr.f.email">Email</label>
+            <input class="mgr-input" type="email" id="nu-email" placeholder="name@company.com">
+          </div>
+          <div class="mgr-field">
+            <label class="mgr-label" data-i18n="mgr.team.trainings">Assigned training</label>
+            <div class="mgr-dd" id="nu-train-dd">
+              <button type="button" class="mgr-dd-btn" onclick="ddToggle('nu-train-dd')"><span id="nu-train-summary"></span><svg class="mgr-dd-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+              <div class="mgr-dd-panel" id="nu-train-panel" onclick="event.stopPropagation()"></div>
+            </div>
+          </div>
+          <div class="mgr-field">
+            <label class="mgr-label" for="nu-pwd" data-i18n="mgr.team.newpwd">Temporary password</label>
+            <div class="mgr-pwd-field">
+              <input class="mgr-input" type="text" id="nu-pwd" placeholder="—" autocomplete="off">
+              <button type="button" class="mgr-genbtn" title="Generate" data-i18n-attr="title:mgr.team.genpwd" onclick="fillGenPwd('nu-pwd')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              </button>
+            </div>
+            <div class="mgr-hint" data-i18n="mgr.team.pwdhint">The user can change it on first login.</div>
+          </div>
+          <div class="mgr-field nu-btnfield">
+            <label class="mgr-label">&nbsp;</label>
+            <button class="mgr-btn" id="nu-btn" onclick="addUser()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+              <span data-i18n="mgr.team.create">Create user</span></button>
+          </div>
+        </div>
+        <div class="warn-box mgr-seatfull" id="seat-full" style="display:none;align-items:flex-start;gap:10px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--red-d);margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div style="font-size:12px;line-height:1.5" data-i18n="mgr.team.seatfull">No seats left on this site (20/20). Contact the Autoware team for pricing and upgrade options.</div>
+        </div>
+        <div class="mgr-bulk-toggle">
+          <button type="button" class="mo-link" id="bulk-toggle-btn" onclick="toggleBulk()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="9" x2="9" y2="21"/></svg>
+            <span data-i18n="mgr.team.bulk.toggle">Add multiple users at once</span></button>
+        </div>
+        <div class="mgr-bulk-wrap" id="bulk-wrap" style="display:none">
+          <div class="mgr-bulk-note" style="margin-bottom:10px" data-i18n="mgr.team.bulk.hint">Fill in a row per person and create them all together — handy when onboarding a whole site.</div>
+          <div style="overflow-x:auto">
+            <table class="mgr-bulk-table">
+              <thead><tr>
+                <th style="min-width:150px" data-i18n="mgr.team.bulk.col.name">Name</th>
+                <th style="min-width:180px" data-i18n="mgr.f.email">Email</th>
+                <th style="min-width:210px" data-i18n="mgr.team.trainings">Assigned training</th>
+                <th style="min-width:140px" data-i18n="mgr.team.password">Password</th>
+                <th style="width:40px"></th>
+              </tr></thead>
+              <tbody id="bulk-tbody"></tbody>
+            </table>
+          </div>
+          <button type="button" class="mgr-bulk-addrow" onclick="addBulkRow()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span data-i18n="mgr.team.bulk.addrow">Add row</span></button>
+          <div class="mgr-bulk-actions">
+            <span class="mgr-bulk-note" id="bulk-seatnote"></span>
+            <button class="mgr-btn" onclick="createBulkUsers()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+              <span id="bulk-create-lbl" data-i18n="mgr.team.create">Create user</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="db-sec-lbl" data-i18n="dash.ops.title">Operator Overview</div>
+    <div class="card" style="margin-bottom:0">
+      <div class="card-head" style="flex-wrap:wrap;gap:10px">
+        <div class="card-title" id="team-title" data-i18n="dash.ops.team">Team: 9 Operators</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="db-fbtn on" onclick="ft('all',this)" data-i18n="dash.ops.filter.all">All (9)</button>
+          <button class="db-fbtn" onclick="ft('uptodate',this)" data-i18n="dash.ops.filter.up">Up to date (5)</button>
+          <button class="db-fbtn" onclick="ft('inprogress',this)" data-i18n="dash.ops.filter.prog">In Progress (2)</button>
+          <button class="db-fbtn" onclick="ft('notstarted',this)" data-i18n="dash.ops.filter.ns">Not Started (2)</button>
+        </div>
+      </div>
+      <div class="mgr-hint" id="team-scope-hint" style="padding:0 18px 10px"></div>
+      <div class="db-tbl-wrap">
+        <table class="db-tbl" id="ops-table">
+          <thead><tr>
+            <th onclick="st(0,this)"><span data-i18n="dash.ops.col.op">Operator</span> <i class="sa">&#8597;</i></th>
+            <th onclick="st(1,this)"><span data-i18n="mgr.team.trainings">Assigned training</span> <i class="sa">&#8597;</i></th>
+            <th onclick="st(2,this)"><span data-i18n="mgr.team.opprog">OP progress</span> <i class="sa">&#8597;</i></th>
+            <th onclick="st(3,this)"><span data-i18n="mgr.team.suprog">SU progress</span> <i class="sa">&#8597;</i></th>
+            <th onclick="st(4,this)"><span data-i18n="mgr.team.delay">Delay</span> <i class="sa">&#8597;</i></th>
+            <th style="text-align:right;cursor:default"><span data-i18n="mgr.team.col.actions">Actions</span></th>
+          </tr></thead>
+          <tbody id="ops-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+    </div><!-- /panel-team -->
+
+    <!-- ══ PANEL: ASSIGNMENTS (deadlines) ══ -->
+    <div class="mgr-panel" id="panel-assign">
+      <div class="db-sec-lbl" data-i18n="mgr.assign.new">Set a deadline</div>
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-body">
+          <div class="mgr-form">
+            <div class="mgr-field">
+              <label class="mgr-label" data-i18n="mgr.f.who">Assign to</label>
+              <div class="mgr-dd" id="as-target-dd">
+                <button type="button" class="mgr-dd-btn" onclick="ddToggle('as-target-dd')"><span id="as-target-summary"></span><svg class="mgr-dd-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+                <div class="mgr-dd-panel" id="as-target-panel" onclick="event.stopPropagation()"></div>
+              </div>
+            </div>
+            <div class="mgr-field">
+              <label class="mgr-label" data-i18n="mgr.f.choosetraining">Choose a Training</label>
+              <div class="mgr-dd" id="as-train-dd">
+                <button type="button" class="mgr-dd-btn" onclick="ddToggle('as-train-dd')"><span id="as-train-summary"></span><svg class="mgr-dd-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+                <div class="mgr-dd-panel" id="as-train-panel" onclick="event.stopPropagation()"></div>
+              </div>
+            </div>
+            <div class="mgr-field" id="as-module-field">
+              <label class="mgr-label" data-i18n="mgr.f.choosemodule">Choose the module</label>
+              <div class="mgr-dd" id="as-mod-dd">
+                <button type="button" class="mgr-dd-btn" onclick="ddToggle('as-mod-dd')"><span id="as-mod-summary"></span><svg class="mgr-dd-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+                <div class="mgr-dd-panel" id="as-mod-panel" onclick="event.stopPropagation()"></div>
+              </div>
+            </div>
+            <div class="mgr-field">
+              <label class="mgr-label" for="as-due" data-i18n="mgr.f.dueopt">Due date (optional)</label>
+              <input class="mgr-input" type="date" id="as-due">
+            </div>
+            <div class="mgr-field wide">
+              <label class="mgr-label" for="as-note" data-i18n="mgr.f.note">Note (optional)</label>
+              <input class="mgr-input" type="text" id="as-note" placeholder="e.g. Finish chapter 2 before your next shift" data-ph="e.g. Finish chapter 2 before your next shift">
+            </div>
+            <div class="mgr-field wide"><div class="as-preview" id="as-preview"></div></div>
+            <div class="mgr-field">
+              <button class="mgr-btn" onclick="addAssignment()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span data-i18n="mgr.assign.btn">Assign</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="db-sec-lbl" data-i18n="mgr.assign.active">Active assignments</div>
+      <div id="assign-list"></div>
+    </div><!-- /panel-assign -->
+
+    <!-- ══ PANEL: LIVE SESSIONS ══ -->
+    <div class="mgr-panel" id="panel-sessions">
+      <div class="db-sec-lbl" data-i18n="mgr.sess.new">Schedule a live session</div>
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-body">
+          <div class="mgr-form">
+            <div class="mgr-field wide">
+              <label class="mgr-label" for="se-title" data-i18n="mgr.f.title">Title</label>
+              <input class="mgr-input" type="text" id="se-title" placeholder="Live Q&amp;A session" data-ph="Live Q&amp;A session">
+            </div>
+            <div class="mgr-field">
+              <label class="mgr-label" for="se-date" data-i18n="mgr.f.date">Date</label>
+              <input class="mgr-input" type="date" id="se-date">
+            </div>
+            <div class="mgr-field">
+              <label class="mgr-label" for="se-time" data-i18n="mgr.f.time">Time</label>
+              <input class="mgr-input" type="time" id="se-time" value="14:00">
+            </div>
+            <div class="mgr-field">
+              <label class="mgr-label" for="se-invitees" data-i18n="mgr.f.invitees">Invitees</label>
+              <select class="mgr-select" id="se-invitees"></select>
+            </div>
+            <div class="mgr-field">
+              <label class="mgr-label" for="se-expected" data-i18n="mgr.f.expected">Expected attendees</label>
+              <input class="mgr-input" type="number" id="se-expected" min="0" placeholder="e.g. 9" data-ph="e.g. 9">
+            </div>
+            <div class="mgr-field wide">
+              <label class="mgr-label" for="se-url" data-i18n="mgr.f.teams">Microsoft Teams link</label>
+              <input class="mgr-input" type="url" id="se-url" placeholder="https://teams.microsoft.com/l/meetup-join/...">
+            </div>
+            <div class="mgr-field wide">
+              <label class="mgr-label" for="se-desc" data-i18n="mgr.f.desc">Description (optional)</label>
+              <input class="mgr-input" type="text" id="se-desc" placeholder="What this session covers" data-ph="What this session covers">
+            </div>
+            <div class="mgr-field wide">
+              <label class="mgr-label" for="se-materials" data-i18n="mgr.f.materials">Materials (optional)</label>
+              <input class="mgr-input" type="text" id="se-materials" placeholder="Link to slides, docs or a recording" data-ph="Link to slides, docs or a recording">
+            </div>
+            <div class="mgr-field">
+              <button class="mgr-btn" onclick="addSession()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                <span data-i18n="mgr.sess.btn">Create session</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="db-sec-lbl" data-i18n="mgr.sess.upcoming">Scheduled sessions</div>
+      <div class="mgr-list" id="sessions-list"></div>
+    </div><!-- /panel-sessions -->
+
+</div><!-- /h-main -->
+
+<!-- Colonna destra (stessi elementi e id di prima: renderMgrAgenda / contatore posti) -->
+<aside class="h-side pt-rail">
+  <section class="pt-sec">
+    <div class="pt-sec-hd"><span class="pt-ic"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16"/><path d="M9 3v4"/><path d="M15 3v4"/></svg></span><span class="pt-sec-t" data-i18n="mgr.ov.agenda">Agenda</span><span class="pt-rule"></span></div>
+    <div class="pt-sec-bd"><div id="mo-agenda"></div></div>
+  </section>
+  <section class="pt-sec">
+    <div class="pt-sec-hd"><span class="pt-ic"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg></span><span class="pt-sec-t" data-i18n="mgr.team.seats">Seats used</span><span class="pt-rule"></span></div>
+    <div class="pt-sec-bd">
+      <div class="mo-seat-mini">
+        <div class="mo-seat-top"><span class="mo-seat-lbl" data-i18n="mgr.team.seats">Seats used</span><span class="mo-seat-count" id="mo-seat-count">0 / 20</span></div>
+        <div class="mo-seat-track"><div class="mo-seat-fill" id="mo-seat-fill" style="width:0%"></div></div>
+      </div>
+    </div>
+  </section>
+  <section class="pt-sec">
+    <div class="pt-sec-hd"><span class="pt-ic"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9z"/></svg></span><span class="pt-sec-t" data-i18n="mgr.ov.quick">Quick actions</span><span class="pt-rule"></span></div>
+    <div class="pt-sec-bd">
+      <div class="mo-qa">
+        <button class="mo-qa-btn" onclick="mgrTab('team',document.querySelectorAll('.mgr-tab')[1])">
+          <span class="mo-qa-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></span>
+          <span data-i18n="mgr.team.create">Create user</span></button>
+        <button class="mo-qa-btn" onclick="mgrTab('assign',document.querySelectorAll('.mgr-tab')[2])">
+          <span class="mo-qa-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+          <span data-i18n="mgr.assign.btn">Assign</span></button>
+        <button class="mo-qa-btn" onclick="mgrTab('sessions',document.querySelectorAll('.mgr-tab')[3])">
+          <span class="mo-qa-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></span>
+          <span data-i18n="mgr.sess.btn">Create session</span></button>
+      </div>
+    </div>
+  </section>
+</aside>
+</div><!-- /h-wrap -->
+<div class="mgr-modal-ov" id="mgr-modal" onclick="if(event.target===this)closeManage()"></div>
+<div class="mgr-toast" id="mgr-toast"></div>
+<div class="aw-footer" data-i18n="footer">© {year} autoware · Beyond Operations Management · Training Platform</div>
+
+<script>
+var LANG=localStorage.getItem('aw_lang')||'en';
+var SL={},OPS=[],USERS=[];
+function statusOf(u){var done=AW_OP_BUILT.filter(function(k){return !!u['op'+k];}).length;if(done===0)return 'notstarted';if(done<AW_OP_BUILT.length)return 'inprogress';return 'uptodate';}
+function lastActLabel(ord){var tl=(window.T&&window.T[LANG])||{};if(ord>=999)return tl['dash.sl.never']||'Never';if(ord===0)return tl['dash.sl.today']||'Today';if(ord===1)return tl['dash.sl.yesterday']||'Yesterday';return (tl['dash.sl.ndays']||'{n} days ago').replace('{n}',ord);}
+function buildOPS(lang){
+  SL={
+    uptodate:   T[lang]['dash.sl.uptodate']   || 'Up to date',
+    inprogress: T[lang]['dash.sl.inprogress'] || 'In Progress',
+    notstarted: T[lang]['dash.sl.notstarted'] || 'Not Started'
+  };
+  var site=awActiveSite();
+  USERS=awLoadUsers().filter(function(u){return u.siteId===site;});
+  OPS=USERS.map(function(u){
+    var o={id:u.id,me:!!u.me,name:u.name,initials:u.initials,trainings:awUserTrainings(u),siteId:u.siteId,
+      score:(u.score===undefined?null:u.score),time:u.time||0,
+      lastOrd:(u.lastOrd===undefined?999:u.lastOrd),suDone:u.suDone||0};
+    AW_OP_BUILT.forEach(function(k){o['op'+k]=!!u['op'+k];});
+    o.status=statusOf(o);o.lastAct=lastActLabel(u.lastOrd);
+    return o;
+  });
+}
+// 14/10 (3.1): la riga del Learner collegato (u.me, edizioni) — etichetta "You", niente Manage (non si cancella in fiera)
+function youTag(o){return o&&o.me?' <span class="db-you">'+esc(awDictT('You'))+'</span>':'';}
+function hasT(o,k){return (o&&o.trainings)?o.trainings.indexOf(k)>=0:window.awHasTraining(o,k);}
+function siteUsers(){var s=awActiveSite();return awLoadUsers().filter(function(u){return u.siteId===s;});}
+function siteUserCount(){return siteUsers().length;}
+let cf='all',sc=-1,sa=true;
+// ── row helpers ──
+// Plain text, no colored icon pills — same wording as the training picker in Assignments
+// (trainLabel/courseSummary), just comma-joined. Colored badges here read as generic/AI-ish.
+function courseChips(o){
+  var parts=[];
+  if(hasT(o,'op'))parts.push(mgrT('mgr.course.op','TilliT Operator Training'));
+  if(hasT(o,'su'))parts.push(mgrT('mgr.course.su','TilliT Superuser Training'));
+  return parts.length?esc(parts.join(', ')):'<span class="db-su-na">—</span>';
+}
+var _lockSVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+var _warnSVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+var _checkSVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+var _hourSVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>';
+var _gearSVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>';
+function progBar(done,total,pink){var pct=total?Math.round(done/total*100):0;return '<div class="db-prog"><div class="db-prog-track"><div class="db-prog-fill'+(pink?' pink':'')+'" style="width:'+pct+'%"></div></div><span class="db-prog-lbl">'+done+'/'+total+'</span></div>';}
+function opDoneOf(o){return AW_OP_BUILT.filter(function(k){return !!o['op'+k];}).length;}
+function suCell(o){
+  if(!hasT(o,'su'))return '<span class="db-su-na">'+mgrT('mgr.team.suNA','— Not enrolled')+'</span>';
+  if(!awOpComplete(o))return '<span class="db-su-lock" title="'+mgrT('mgr.team.sulockedtip','Unlocks when the OP course is completed')+'">'+_lockSVG+mgrT('mgr.team.sulocked','Locked · finish OP')+'</span>';
+  return progBar(o.suDone,AW_SU_TOTAL,true);
+}
+function delayCell(o){
+  if(userDelayed(o))return '<span class="delay-pill late">'+_warnSVG+mgrT('mgr.team.late','Overdue')+'</span>';
+  return '<span class="delay-pill ontrack">'+_checkSVG+mgrT('mgr.team.ontrack','On track')+'</span>';
+}
+// Un solo training (nessun modulo SU, es. un'edizione demo): niente colonne "training assegnato"
+// e "SU progress", che con un solo corso non dicono niente. Vale per qualunque training futuro.
+var SINGLE_TRAINING=!(window.AW_SU_MODULES||[]).length;
+if(SINGLE_TRAINING)document.addEventListener('DOMContentLoaded',function(){
+  document.querySelectorAll('#ops-table thead th').forEach(function(th,i){if(i===1||i===3)th.style.display='none';});
+});
+function render(data){
+  var manageL=mgrT('mgr.team.manage.btn','Manage');
+  document.getElementById('ops-tbody').innerHTML=data.map(function(o){
+    return '<tr>'
+     +'<td class="db-opname">'+esc(o.name)+youTag(o)+'</td>'
+     +(SINGLE_TRAINING?'':'<td>'+courseChips(o)+'</td>')
+     +'<td>'+progBar(opDoneOf(o),(window.AW_MODULES||[]).length,false)+'</td>'
+     +(SINGLE_TRAINING?'':'<td>'+suCell(o)+'</td>')
+     +'<td>'+delayCell(o)+'</td>'
+     +'<td><div class="mgr-rowacts">'+(o.me?'':'<button class="mgr-rowbtn" onclick="openManage(\''+o.id+'\')">'+_gearSVG+manageL+'</button>')+'</div></td>'
+     +'</tr>';
+  }).join('');
+}
+function applyTeamView(){var d=cf==='all'?OPS.slice():OPS.filter(function(o){return o.status===cf;});if(sc>=0)sort2(d);else render(d);}
+// "OP progress" now counts against the full 7-module roadmap (AW_MODULES), not just what's
+// built (AW_OP_BUILT) — this caption makes that scope explicit so "3/7" doesn't read as a bug.
+function renderScopeHint(){
+  var el=document.getElementById('team-scope-hint');if(!el)return;
+  var total=(window.AW_MODULES||[]).length,built=AW_OP_BUILT.length;
+  if(built>=total){el.textContent='';el.style.display='none';return;} // tutto costruito: niente da spiegare
+  el.textContent=mgrT('mgr.team.opscope','OP progress counts all {n} modules in the full course · only the first {b} are built and completable today').replace('{n}',total).replace('{b}',built);
+}
+function ft(s,btn){cf=s;document.querySelectorAll('#panel-team .db-fbtn').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');applyTeamView();}
+function st(col,th){if(sc===col){sa=!sa;}else{sc=col;sa=true;}document.querySelectorAll('#ops-table th').forEach(function(t){t.classList.remove('sorted');var s2=t.querySelector('.sa');if(s2)s2.innerHTML='&#8597;';});th.classList.add('sorted');var s3=th.querySelector('.sa');if(s3)s3.innerHTML=sa?'&#8593;':'&#8595;';applyTeamView();}
+function sortVal(o,col){switch(col){case 0:return o.name;case 1:return (hasT(o,'su')?1:0);case 2:return opDoneOf(o);case 3:return (hasT(o,'su')&&awOpComplete(o))?o.suDone:-1;case 4:return userDelayed(o)?1:0;}return o.name;}
+function sort2(data){data=data.slice().sort(function(a,b){var av=sortVal(a,sc),bv=sortVal(b,sc);if(typeof av==='string')return sa?av.localeCompare(bv):bv.localeCompare(av);return sa?av-bv:bv-av;});render(data);}
+// ── assignment / delay domain logic (shared by team + assignments tab) ──
+function targetMatchesUser(target,u){return awAssignMatch(target,u.name,awUserTrainings(u));}
+function targetedUsers(a){return USERS.filter(function(u){return targetMatchesUser(a.target,u);});}
+function assignLateForUser(a,u){
+  var today=isoPlus(0);
+  if(!a.dueDate||a.dueDate>=today)return false;
+  if(!targetMatchesUser(a.target,u))return false;
+  if(a.level==='module'){
+    return assignMods(a).some(function(mid){
+      var isSU=/^SU/.test(mid||'');
+      if(isSU){if(!hasT(u,'su')||!awOpComplete(u))return false;return (u.suDone||0)<AW_SU_TOTAL;}
+      if(AW_OP_BUILT.indexOf(mid)>=0)return !u['op'+mid];
+      return false;
+    });
+  }
+  var opLate=hasT(u,'op')&&!awOpComplete(u);
+  var suLate=(hasT(u,'su')&&awOpComplete(u)&&(u.suDone||0)<AW_SU_TOTAL);
+  return opLate||suLate;
+}
+function userDelayed(o){var u=USERS.filter(function(x){return x.id===o.id;})[0]||o;return awLoadAssignments().some(function(a){return assignLateForUser(a,u);});}
+function getISOWeek(d){var jan4=new Date(d.getFullYear(),0,4);var diff=d-jan4;return 1+Math.round((diff/86400000+jan4.getDay())/7);}
+function updateWeek(){var now=new Date();document.querySelectorAll('[data-i18n="dash.modbar.sub"]').forEach(function(el){el.textContent=el.textContent.replace('{week}',getISOWeek(now)).replace('{year}',now.getFullYear());});}
+function toggleSidebar(){
+  var collapsed=document.body.classList.toggle('sb-collapsed');
+  try{localStorage.setItem('aw_sb_collapsed',collapsed?'1':'0');}catch(e){}
+}
+window.toggleSidebar=toggleSidebar;
+if(localStorage.getItem('aw_sb_collapsed')==='1')document.body.classList.add('sb-collapsed');
+
+var _activePeriod='week';
+// ── real completions-over-time, derived from aw_users[].completedAt (no fake arrays) ──
+function _dAgo(n){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-n);return d;}
+function allCompletions(){
+  var out=[];
+  USERS.forEach(function(u){AW_OP_BUILT.forEach(function(k){var c=u.completedAt&&u.completedAt[k];if(c)out.push({mod:k,date:new Date(c)});});});
+  return out;
+}
+function _countInRange(list,from,to){var c={};AW_OP_BUILT.forEach(function(k){c[k]=0;});list.forEach(function(x){if(x.date>=from&&x.date<to)c[x.mod]++;});return c;}
+function _sumC(c){return AW_OP_BUILT.reduce(function(s,k){return s+c[k];},0);}
+function _emptySeries(){var s={};AW_OP_BUILT.forEach(function(k){s[k]=[];});return s;}
+function _pushCounts(series,c){AW_OP_BUILT.forEach(function(k){series[k].push(c[k]);});}
+function buildWeekData(){
+  var comps=allCompletions(),loc=window.awLangCode();
+  var labels=[],series=_emptySeries();
+  for(var i=6;i>=0;i--){
+    var from=_dAgo(i),to=new Date(from);to.setDate(to.getDate()+1);
+    labels.push(from.toLocaleDateString(loc,{weekday:'short'}));
+    _pushCounts(series,_countInRange(comps,from,to));
+  }
+  var curFrom=_dAgo(6),curTo=new Date(),prevFrom=_dAgo(13),prevTo=curFrom;
+  return {labels:labels,series:series,curTotal:_sumC(_countInRange(comps,curFrom,curTo)),prevTotal:_sumC(_countInRange(comps,prevFrom,prevTo))};
+}
+function buildMonthData(){
+  var comps=allCompletions();
+  var labels=[],series=_emptySeries();
+  for(var w=3;w>=0;w--){
+    var from=_dAgo((w+1)*7),to=w===0?new Date():_dAgo(w*7);
+    labels.push('W-'+w);
+    _pushCounts(series,_countInRange(comps,from,to));
+  }
+  var curFrom=_dAgo(28),curTo=new Date(),prevFrom=_dAgo(56),prevTo=curFrom;
+  return {labels:labels,series:series,curTotal:_sumC(_countInRange(comps,curFrom,curTo)),prevTotal:_sumC(_countInRange(comps,prevFrom,prevTo))};
+}
+function buildQuarterData(){
+  var comps=allCompletions(),loc=window.awLangCode();
+  var labels=[],series=_emptySeries();
+  for(var m=2;m>=0;m--){
+    var ref=new Date();ref.setDate(1);ref.setMonth(ref.getMonth()-m);
+    var from=new Date(ref.getFullYear(),ref.getMonth(),1),to=m===0?new Date():new Date(ref.getFullYear(),ref.getMonth()+1,1);
+    labels.push(ref.toLocaleDateString(loc,{month:'short'}));
+    _pushCounts(series,_countInRange(comps,from,to));
+  }
+  var curFrom=_dAgo(90),curTo=new Date(),prevFrom=_dAgo(180),prevTo=curFrom;
+  return {labels:labels,series:series,curTotal:_sumC(_countInRange(comps,curFrom,curTo)),prevTotal:_sumC(_countInRange(comps,prevFrom,prevTo))};
+}
+function setPeriod(p,btn){
+  _activePeriod=p;
+  document.querySelectorAll('.db-period-btn').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  drawChart(p);
+}
+window.setPeriod=setPeriod;
+var PERIOD_TOTAL_KEY={week:'mgr.chart.total.week',month:'mgr.chart.total.month',quarter:'mgr.chart.total.quarter'};
+var PERIOD_TOTAL_FB={week:'completions this week',month:'completions this month',quarter:'completions this quarter'};
+var _opChartColors=['var(--aw-navy)','var(--aw-pink)','var(--purple)','var(--teal)','var(--orange)'];
+function renderChartLegend(){
+  var box=document.getElementById('db-chart-legend');if(!box)return;
+  box.innerHTML=AW_OP_BUILT.map(function(k,i){
+    return '<div style="display:flex;align-items:center;gap:7px"><span class="db-chart-leg-dot" style="background:'+_opChartColors[i%_opChartColors.length]+'"></span><span style="font-size:11px;color:var(--text2)">'+(/^\d+$/.test(k)?'OP-'+k:(window.awChapLabel?awChapLabel(k):k))+'</span></div>';
+  }).join('');
+}
+function drawChart(period){
+  renderChartLegend();
+  var data=period==='month'?buildMonthData():period==='quarter'?buildQuarterData():buildWeekData();
+  var svg=document.getElementById('db-chart');
+  if(!svg)return;
+  var W=600,H=130,pL=24,pR=8,pT=14,pB=26;
+  var cW=W-pL-pR,cH=H-pT-pB,n=data.labels.length,nSeries=AW_OP_BUILT.length;
+  var allVals=[];AW_OP_BUILT.forEach(function(k){allVals=allVals.concat(data.series[k]);});
+  var maxV=Math.max(2,Math.max.apply(null,allVals));
+  var grpW=cW/n,bW=Math.min(grpW*0.75/nSeries,20),gap=3,baseY=pT+cH,html='';
+  for(var g=1;g<=maxV;g++){
+    var gy=(pT+cH-(g/maxV)*cH).toFixed(1);
+    html+='<line x1="'+pL+'" y1="'+gy+'" x2="'+(W-pR)+'" y2="'+gy+'" stroke="var(--border)" stroke-width=".5" stroke-dasharray="3,4"/>';
+    html+='<text x="'+(pL-4)+'" y="'+(parseFloat(gy)+4).toFixed(1)+'" text-anchor="end" font-size="9" fill="var(--text3)">'+g+'</text>';
+  }
+  html+='<line x1="'+pL+'" y1="'+baseY+'" x2="'+(W-pR)+'" y2="'+baseY+'" stroke="var(--border2)" stroke-width="1"/>';
+  var totalGrpW=nSeries*bW+(nSeries-1)*gap;
+  for(var i=0;i<n;i++){
+    var cx=pL+(i+0.5)*grpW,startX=cx-totalGrpW/2;
+    AW_OP_BUILT.forEach(function(k,si){
+      var v=data.series[k][i],h=(v/maxV)*cH,x=startX+si*(bW+gap);
+      if(h>0){html+='<rect x="'+x.toFixed(1)+'" y="'+(baseY-h).toFixed(1)+'" width="'+bW.toFixed(1)+'" height="'+h.toFixed(1)+'" rx="2.5" fill="'+_opChartColors[si%_opChartColors.length]+'" opacity=".88"/>';html+='<text x="'+(x+bW/2).toFixed(1)+'" y="'+(baseY-h-4).toFixed(1)+'" text-anchor="middle" font-size="9" fill="var(--text2)">'+v+'</text>';}
+    });
+    html+='<text x="'+cx.toFixed(1)+'" y="'+(H-6)+'" text-anchor="middle" font-size="9" fill="var(--text3)">'+data.labels[i]+'</text>';
+  }
+  svg.innerHTML=html;
+  var totEl=document.getElementById('ch-total'),lblEl=document.getElementById('ch-total-lbl'),deltaEl=document.getElementById('ch-delta');
+  if(totEl)totEl.textContent=data.curTotal;
+  if(lblEl)lblEl.textContent=mgrT(PERIOD_TOTAL_KEY[period],PERIOD_TOTAL_FB[period]);
+  if(deltaEl){
+    var delta=data.curTotal-data.prevTotal;
+    if(delta>0){deltaEl.className='ch-stat-delta up';deltaEl.textContent='▲ +'+delta+' '+mgrT('mgr.chart.vsprev','vs previous period');}
+    else if(delta<0){deltaEl.className='ch-stat-delta down';deltaEl.textContent='▼ '+delta+' '+mgrT('mgr.chart.vsprev','vs previous period');}
+    else{deltaEl.className='ch-stat-delta flat';deltaEl.textContent='= '+mgrT('mgr.chart.nochange','no change vs previous period');}
+  }
+}
+function updateKPIs(){
+  var total=OPS.length,utd=0,inp=0,ns=0;
+  OPS.forEach(function(o){if(o.status==='uptodate')utd++;else if(o.status==='inprogress')inp++;else ns++;});
+  var pct=Math.round(utd/total*100);
+  var el0=document.getElementById('kpi-v0'),el1=document.getElementById('kpi-v1');
+  var el2=document.getElementById('kpi-v2'),el3=document.getElementById('kpi-v3');
+  var elS=document.getElementById('kpi-v1-sub');
+  if(el0)el0.textContent=pct+'%';
+  if(el1)el1.textContent=utd;
+  if(el2)el2.textContent=inp;
+  if(el3)el3.textContent=ns;
+  if(elS){var tl=(window.T&&window.T[LANG])||{};var tmpl=tl['dash.kpi.done.of']||'of {n} operators';elS.textContent=tmpl.replace('{n}',total);}
+}
+// ══ OVERVIEW (index-style landing) ══
+function renderOverview(){
+  var total=OPS.length,utd=0,inp=0,ns=0;
+  OPS.forEach(function(o){if(o.status==='uptodate')utd++;else if(o.status==='inprogress')inp++;else ns++;});
+  var late=OPS.filter(userDelayed).length;
+  var free=Math.max(0,AW_SITE_CAP-total);
+  var sub=document.getElementById('mo-hero-sub');
+  if(sub){var tmpl=mgrT('mgr.ov.sub','<b>{n}</b> users \xB7 <b>{free}</b> seats available \xB7 {site}');
+    sub.innerHTML=tmpl.replace('{n}',total).replace('{free}',free).replace('{cap}',AW_SITE_CAP).replace('{site}',esc(awSiteName(awActiveSite())));}
+  var scored=USERS.filter(function(u){return u.score!=null;});
+  var avgScore=scored.length?Math.round(scored.reduce(function(s,u){return s+u.score;},0)/scored.length):null;
+  var supers=USERS.filter(function(u){return hasT(u,'su');});
+  var suActive=supers.filter(window.awSuUnlocked).length;
+  var hs=document.getElementById('mo-hstats');
+  if(hs){hs.innerHTML=
+     '<div class="mo-hstat" title="'+mgrT('mgr.ov.st.trained.tip','Finished every OP module built so far — not the same as finishing the full course')+'"><span class="mo-hstat-n">'+utd+'</span><span class="mo-hstat-l">'+mgrT('mgr.ov.st.trained','Up to date')+'</span></div>'
+    +'<div class="mo-hstat prog"><span class="mo-hstat-n">'+inp+'</span><span class="mo-hstat-l">'+mgrT('mgr.ov.st.progress','In progress')+'</span></div>'
+    +'<div class="mo-hstat late"><span class="mo-hstat-n">'+late+'</span><span class="mo-hstat-l">'+mgrT('mgr.ov.st.late','Overdue')+'</span></div>'
+    +'<div class="mo-hstat" title="'+mgrT('mgr.ov.st.avgscore.tip','Average quiz score across each operator’s completed modules')+'"><span class="mo-hstat-n">'+(avgScore==null?'—':avgScore+'%')+'</span><span class="mo-hstat-l">'+mgrT('mgr.ov.st.avgscore','Avg. score')+'</span></div>'
+    +(supers.length?'<div class="mo-hstat prog"><span class="mo-hstat-n">'+suActive+'/'+supers.length+'</span><span class="mo-hstat-l">'+mgrT('mgr.ov.st.suactive','SU active')+'</span></div>':'');}
+  var sc=document.getElementById('mo-seat-count'),sf=document.getElementById('mo-seat-fill'),full=total>=AW_SITE_CAP;
+  if(sc){sc.textContent=total+' / '+AW_SITE_CAP;sc.classList.toggle('full',full);}
+  if(sf){sf.style.width=Math.min(100,Math.round(total/AW_SITE_CAP*100))+'%';sf.classList.toggle('full',full);}
+  renderTeamStatus();renderMgrAgenda();
+}
+// ── Needs attention: 3 severity tiers (overdue > stalled > not started). ──
+// Users actively progressing (touched within ATTN_STALL_DAYS) are excluded —
+// only real blockers surface here (2026-07-17 redesign, see manager_overview_proposal.html).
+var ATTN_STALL_DAYS=5,_attnFilter='all';
+function overdueInfo(u){
+  var today=isoPlus(0),found=null;
+  awLoadAssignments().some(function(a){
+    if(!a.dueDate||a.dueDate>=today)return false;
+    if(!targetMatchesUser(a.target,u))return false;
+    var mod=null;
+    if(a.level==='module'){
+      mod=assignMods(a).filter(function(mid){
+        var isSU=/^SU/.test(mid||'');
+        if(isSU){if(!hasT(u,'su')||!awOpComplete(u))return false;return (u.suDone||0)<AW_SU_TOTAL;}
+        if(AW_OP_BUILT.indexOf(mid)>=0)return !u['op'+mid];
+        return false;
+      })[0];
+      if(mod===undefined)return false;
+      if(/^SU/.test(mod))mod='SU';
+    }else{
+      if(hasT(u,'op')&&!awOpComplete(u))mod=AW_OP_BUILT.filter(function(k){return !u['op'+k];})[0];
+      else if(hasT(u,'su')&&awOpComplete(u)&&(u.suDone||0)<AW_SU_TOTAL)mod='SU';
+      else return false;
+    }
+    found={mod:mod,days:Math.round((new Date(today)-new Date(a.dueDate))/86400000),due:a.dueDate};
+    return true;
+  });
+  return found;
+}
+function computeAttnTier(o){
+  var u=USERS.filter(function(x){return x.id===o.id;})[0]||o;
+  var od=overdueInfo(u);
+  if(od)return {tier:'overdue',mod:od.mod,days:od.days,due:od.due};
+  var stMod=null,stDays=0;
+  if(o.status==='inprogress'&&o.lastOrd>=ATTN_STALL_DAYS){stMod=AW_OP_BUILT.filter(function(k){return !o['op'+k];})[0];stDays=o.lastOrd;}
+  if(o.status==='uptodate'&&hasT(u,'su')&&(u.suDone||0)<AW_SU_TOTAL&&o.lastOrd>=ATTN_STALL_DAYS&&o.lastOrd>stDays){stMod='SU';stDays=o.lastOrd;}
+  if(stMod)return {tier:'stalled',mod:stMod,days:stDays};
+  if(o.status==='notstarted'){
+    var days=u.createdAt?Math.round((new Date(isoPlus(0))-new Date(u.createdAt))/86400000):null;
+    return {tier:'notstarted',days:days};
+  }
+  return null;
+}
+// Training column: always the generic track name (Operator/Superuser) — the specific module/date
+// now live in the Issue text (attnModCode/attnIssueText) so the two columns don't disagree on
+// granularity (this used to show "OP-03" here, which didn't match a column literally called "Training").
+function attnModLabel(mod){
+  return (mod==='SU')?mgrT('mgr.attn.chip.su','Superuser'):mgrT('mgr.attn.chip.op','Operator');
+}
+// Specific module/course this row is about, for the Issue text — null for notstarted (no single module yet).
+function attnModCode(mod){
+  if(!mod)return null;
+  // id numerici ('01') = moduli OP storici; id completi ('PKX-01.1') si mostrano come sono.
+  return (mod==='SU')?mgrT('mgr.course.su','Superuser Training'):(/^\d+$/.test(mod)?'OP-'+mod:(window.awChapLabel?awChapLabel(mod):mod));
+}
+// Issue text: leads with the specific module/course. The due date is its own column
+// (attnDueText) so it's a scannable field, not text buried inside this sentence.
+function attnIssueText(a){
+  var code=attnModCode(a.mod);
+  if(a.tier==='overdue')return (code?code+' ':'')+mgrT('mgr.attn.overdue.days','overdue by {n} days').replace('{n}',a.days);
+  if(a.tier==='stalled')return (code?code+' ':'')+mgrT('mgr.attn.stalled.days','stalled for {n} days — no activity').replace('{n}',a.days);
+  if(a.tier==='notstarted')return a.days!=null?mgrT('mgr.attn.notstarted.detail','Enrolled {n} days ago, no module started yet').replace('{n}',a.days):mgrT('mgr.attn.notstarted.nodate','No module started yet');
+  return '';
+}
+// Due date, as its own column — only overdue rows are tied to an actual deadline.
+function attnDueText(a){return a.due?fmtDate(a.due):'—';}
+// Compact overall standing under the person's name — "where they are", in plain text (no icons).
+function attnProgressLabel(o){
+  var s=(SINGLE_TRAINING?'':'OP ')+opDoneOf(o)+'/'+(window.AW_MODULES||[]).length;
+  if(hasT(o,'su')&&awOpComplete(o))s+=' \xB7 SU '+(o.suDone||0)+'/'+AW_SU_TOTAL;
+  return s;
+}
+var ATTN_TIER_ORDER={overdue:0,stalled:1,notstarted:2},ATTN_TOTAL_CAP=10;
+function renderAttnFilters(all){
+  var box=document.getElementById('attn-filters');if(!box)return;
+  var defs=[{k:'all',lbl:mgrT('mgr.attn.f.all','All')},{k:'overdue',lbl:mgrT('mgr.team.late','Overdue')},{k:'stalled',lbl:mgrT('mgr.attn.tier.stalled','Stalled')},{k:'notstarted',lbl:mgrT('dash.sl.notstarted','Not Started')}];
+  box.innerHTML=defs.map(function(f){
+    var n=f.k==='all'?all.length:all.filter(function(a){return a.tier===f.k;}).length;
+    return '<button class="db-fbtn'+(f.k===_attnFilter?' on':'')+'" onclick="setAttnFilter(\''+f.k+'\',this)">'+f.lbl+' <span class="n">'+n+'</span></button>';
+  }).join('');
+}
+function setAttnFilter(k,btn){_attnFilter=k;document.querySelectorAll('#attn-filters .db-fbtn').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');renderTeamStatus();}
+window.setAttnFilter=setAttnFilter;
+function renderTeamStatus(){
+  var box=document.getElementById('mo-team-list');if(!box)return;
+  var all=OPS.map(function(o){var t=computeAttnTier(o);return t?Object.assign({o:o},t):null;}).filter(Boolean);
+  all.sort(function(a,b){if(a.tier!==b.tier)return ATTN_TIER_ORDER[a.tier]-ATTN_TIER_ORDER[b.tier];return (b.days||0)-(a.days||0);});
+  renderAttnFilters(all);
+  var vis=all.filter(function(a){return _attnFilter==='all'||a.tier===_attnFilter;});
+  if(!vis.length){box.innerHTML='<div class="mo-empty">'+_checkSVG+'<span>'+mgrT('mgr.ov.ontrack','Everyone is on track — no action needed.')+'</span></div>';return;}
+  var shown=vis.slice(0,ATTN_TOTAL_CAP),hidden=vis.length-shown.length;
+  var groups=['overdue','stalled','notstarted'].map(function(t){return {t:t,items:shown.filter(function(a){return a.tier===t;})};}).filter(function(g){return g.items.length;});
+  // Column header (once, not per row) so each row can be a plain field instead of a sentence.
+  // Framed as a real bordered grid (row + column rules), not just spaced-out flex items.
+  var thead='<div class="mo-attn-thead">'
+    +'<span class="mo-attn-th person">'+mgrT('mgr.attn.col.person','Person')+'</span>'
+    +'<span class="mo-attn-th mod">'+mgrT('mgr.attn.col.module','Training')+'</span>'
+    +'<span class="mo-attn-th issue">'+mgrT('mgr.attn.col.issue','Issue')+'</span>'
+    +'<span class="mo-attn-th due">'+mgrT('mgr.attn.col.due','Due date')+'</span>'
+    +'<span class="mo-attn-th action">'+mgrT('mgr.team.col.actions','Actions')+'</span></div>';
+  var body=groups.map(function(g){
+    var lbl=g.t==='overdue'?mgrT('mgr.team.late','Overdue'):g.t==='stalled'?mgrT('mgr.attn.tier.stalled','Stalled'):mgrT('dash.sl.notstarted','Not Started');
+    return '<div class="mo-attn-grp t-'+g.t+'"><div class="mo-attn-hd"><span>'+lbl+'</span></div>'
+      +g.items.map(function(a){var o=a.o;
+        return '<div class="mo-attn-row sev-'+a.tier+'">'
+          +'<div class="mo-attn-person"><div class="mo-av">'+esc(o.initials||nameInitials(o.name))+'</div><div class="mo-tinfo"><div class="mo-tname">'+esc(o.name)+youTag(o)+'</div><div class="mo-attn-sub">'+attnProgressLabel(o)+'</div></div></div>'
+          +'<div class="mo-attn-modcell"><span class="mo-attn-modchip">'+attnModLabel(a.mod)+'</span></div>'
+          +'<div class="mo-attn-issue">'+attnIssueText(a)+'</div>'
+          +'<div class="mo-attn-due">'+attnDueText(a)+'</div>'
+          +'<div class="mo-attn-action">'+(o.me?'':'<button class="mgr-rowbtn" onclick="openManage(\''+o.id+'\')">'+_gearSVG+mgrT('mgr.team.manage.btn','Manage')+'</button>')+'</div></div>';
+      }).join('')
+      +'</div>';
+  }).join('');
+  box.innerHTML='<div class="mo-attn-table">'+thead+body+'</div>'
+  +(hidden>0?'<div class="mo-attn-more"><button class="mo-link" onclick="mgrTab(\'team\',document.querySelectorAll(\'.mgr-tab\')[1])">+'+hidden+' '+mgrT('mgr.attn.more','more — view team')+'</button></div>':'');
+}
+function renderMgrAgenda(){
+  var box=document.getElementById('mo-agenda');if(!box)return;
+  var items=[];
+  sitedAssignments().forEach(function(a){if(assignmentState(a)==='overdue')items.push({kind:'assign',a:a});});
+  var today=isoPlus(0);
+  var up=sitedSessions().filter(function(s){return s.date>=today;}).sort(function(a,b){return (a.date+a.time).localeCompare(b.date+b.time);});
+  if(up[0])items.push({kind:'session',s:up[0]});
+  if(!items.length){box.innerHTML='<div class="mo-empty" style="color:var(--text3)"><span>'+mgrT('mgr.ov.noagenda','Nothing scheduled. Assign training or plan a session.')+'</span></div>';return;}
+  box.innerHTML='<div class="mgr-list">'+items.map(function(it){
+    if(it.kind==='assign'){
+      var a=it.a,what=assignWhat(a);
+      return '<div class="mgr-item overdue"><div class="mgr-item-ic deadline">'+ICO.deadline+'</div>'
+        +'<div class="mgr-item-body"><div class="mgr-item-t">'+what+' <span class="asg-state overdue">'+_warnSVG+mgrT('mgr.state.overdue','Overdue')+'</span></div>'
+        +'<div class="mgr-item-sub">'+mgrT('mgr.item.for','for')+' '+targetChip(a.target)+(a.dueDate?' \xB7 '+mgrT('mgr.item.due','due')+' '+fmtDate(a.dueDate):'')+'</div></div></div>';
+    }
+    var s=it.s;
+    return '<div class="mgr-item"><div class="mgr-item-ic session">'+ICO.session+'</div>'
+      +'<div class="mgr-item-body"><div class="mgr-item-t">'+esc(s.title||mgrT('mgr.sess.deftitle','Live Q&A session'))+'</div>'
+      +'<div class="mgr-item-sub">'+fmtDate(s.date)+' \xB7 '+esc(awFmtTime(s.time))+'</div></div></div>';
+  }).join('')+'</div>';
+}
+// ══ MANAGER WORKSPACE LOGIC ══
+var ICO={
+  deadline:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+  session:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+  copy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>'
+};
+function mgrT(k,fb){var tl=(window.T&&window.T[LANG])||{};return tl[k]||fb;}
+function langCodeD(){return window.awLangCode();}
+function fmtDate(iso){if(!iso)return '';var p=iso.split('-');var d=new Date(+p[0],+p[1]-1,+p[2]);return d.toLocaleDateString(langCodeD(),{weekday:'short',day:'numeric',month:'short'});}
+function uid(){return 'x'+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36);}
+function isoPlus(days){var d=new Date();d.setDate(d.getDate()+days);return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function mgrTab(name,btn){
+  document.querySelectorAll('.mgr-tab').forEach(function(b){b.classList.remove('on');});
+  if(btn)btn.classList.add('on');
+  document.querySelectorAll('.mgr-panel').forEach(function(p){p.classList.remove('on');});
+  var panel=document.getElementById('panel-'+name);if(panel)panel.classList.add('on');
+}
+window.mgrTab=mgrTab;
+
+// ── Sites (multi-site manager) ──
+var _siteSVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M4 21V7l8-4 8 4v14M9 21v-4h6v4"/></svg>';
+var _plusSVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
+var _editSVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>';
+var _siteFormMode=null,_siteFormVal='';
+function inSite(x){var s=awActiveSite(),first=(awLoadSites()[0]||{}).id;return (x.siteId||first)===s;}
+function sitedAssignments(){return awLoadAssignments().filter(inSite);}
+function sitedSessions(){return awLoadSessions().filter(inSite);}
+function renderSiteBar(){
+  var bar=document.getElementById('mgr-sitebar');if(!bar)return;
+  var sites=awLoadSites(),active=awActiveSite(),all=awLoadUsers();
+  var chips=sites.map(function(s){
+    var n=all.filter(function(u){return u.siteId===s.id;}).length;
+    var on=s.id===active;
+    return '<button class="mgr-sitechip'+(on?' on':'')+'" onclick="switchSite(\''+s.id+'\')">'
+      +'<span class="mgr-sitechip-ic">'+_siteSVG+'</span>'
+      +'<span class="mgr-sitechip-name">'+esc(s.name)+'</span>'
+      +'<span class="mgr-sitechip-count">'+n+'/'+AW_SITE_CAP+'</span></button>';
+  }).join('');
+  var form;
+  if(_siteFormMode){
+    var ph=_siteFormMode==='rename'?mgrT('mgr.site.rename','Rename site'):mgrT('mgr.site.name','Site name');
+    form='<div class="mgr-siteform"><input class="mgr-input" id="site-form-in" type="text" placeholder="'+ph+'" value="'+esc(_siteFormVal)+'" oninput="_siteFormVal=this.value" onkeydown="if(event.key===\'Enter\')siteFormSave();if(event.key===\'Escape\')siteFormCancel()">'
+      +'<button class="mgr-btn sm" onclick="siteFormSave()">'+(_siteFormMode==='rename'?mgrT('mgr.site.save','Save'):mgrT('mgr.site.create','Create'))+'</button>'
+      +'<button class="mgr-btn sec sm" onclick="siteFormCancel()">'+mgrT('mgr.cancel','Cancel')+'</button></div>';
+  }else{
+    var s=sites.filter(function(x){return x.id===active;})[0];
+    var canDel=sites.length>1&&all.filter(function(u){return u.siteId===active;}).length===0;
+    form='<button class="mgr-siteadd-btn" onclick="siteFormNew()">'+_plusSVG+mgrT('mgr.site.new','New site')+'</button>'
+      +'<span class="mgr-site-actions">'
+      +'<button class="mgr-iconbtn" title="'+mgrT('mgr.site.rename','Rename site')+'" onclick="siteFormRename()">'+_editSVG+'</button>'
+      +(canDel?'<button class="mgr-iconbtn danger" title="'+mgrT('mgr.site.delete','Delete site')+'" onclick="deleteSite()">'+ICO.trash+'</button>':'')
+      +'</span>';
+  }
+  bar.innerHTML='<span class="mgr-sitebar-lbl">'+_siteSVG+mgrT('mgr.site.label','Site')+'</span>'
+    +'<div class="mgr-sitechips">'+chips+'</div>'+form;
+  if(_siteFormMode){var i=document.getElementById('site-form-in');if(i)setTimeout(function(){i.focus();},10);}
+  var mb=document.getElementById('mod-bar-meta');
+  if(mb)mb.textContent=awSiteName(active)+' \xB7 '+mgrT('mgr.site.nusers','{n} users').replace('{n}',all.filter(function(u){return u.siteId===active;}).length);
+}
+function resetTeamFilterBtns(){document.querySelectorAll('#panel-team .db-fbtn').forEach(function(b,i){b.classList.toggle('on',i===0);});}
+function switchSite(id){if(id===awActiveSite())return;awSetActiveSite(id);_siteFormMode=null;closeManage();cf='all';sc=-1;asAll=true;asSel=[];asMods=[];asModsAll=false;resetTeamFilterBtns();refreshTeam();renderSessions();}
+window.switchSite=switchSite;
+function siteFormNew(){_siteFormMode='new';_siteFormVal='';renderSiteBar();}
+window.siteFormNew=siteFormNew;
+function siteFormRename(){_siteFormMode='rename';_siteFormVal=awSiteName(awActiveSite());renderSiteBar();}
+window.siteFormRename=siteFormRename;
+function siteFormCancel(){_siteFormMode=null;renderSiteBar();}
+window.siteFormCancel=siteFormCancel;
+function siteFormSave(){
+  var name=(_siteFormVal||'').trim();
+  if(!name){toast(mgrT('mgr.site.needname','Enter a site name'),true);return;}
+  var sites=awLoadSites();
+  if(_siteFormMode==='rename'){
+    var s=sites.filter(function(x){return x.id===awActiveSite();})[0];if(s)s.name=name;awSaveSites(sites);
+    _siteFormMode=null;refreshTeam();renderSessions();toast(mgrT('mgr.site.renamed','Site renamed'));
+  }else{
+    var id='site'+uid();sites.push({id:id,name:name});awSaveSites(sites);awSetActiveSite(id);
+    _siteFormMode=null;cf='all';sc=-1;asAll=true;asSel=[];resetTeamFilterBtns();refreshTeam();renderSessions();toast(mgrT('mgr.site.created','Site created'));
+  }
+}
+window.siteFormSave=siteFormSave;
+function deleteSite(){
+  var sites=awLoadSites(),active=awActiveSite();
+  if(sites.length<=1)return;
+  if(awLoadUsers().some(function(u){return u.siteId===active;})){toast(mgrT('mgr.site.notempty','Move or remove its users first'),true);return;}
+  sites=sites.filter(function(s){return s.id!==active;});awSaveSites(sites);awSetActiveSite(sites[0].id);
+  refreshTeam();renderSessions();toast(mgrT('mgr.site.deleted','Site deleted'));
+}
+window.deleteSite=deleteSite;
+
+// ── option builders ──
+function peopleOptions(){
+  var tAll=mgrT('mgr.f.allteam','All team ({n} operators)').replace('{n}',USERS.length);
+  var html='<option value="all">'+tAll+'</option>';
+  USERS.forEach(function(o){html+='<option value="'+esc(o.name)+'">'+esc(o.name)+'</option>';});
+  return html;
+}
+// ── Assign-to: multi-select checkbox dropdown with a "Select all" master ──
+// "Select all" is a capability of the control (header row), not a listed option.
+var asAll=true,asSel=[];
+function asNames(){return USERS.map(function(u){return u.name;});}
+function renderAsTarget(){
+  var panel=document.getElementById('as-target-panel');if(!panel)return;
+  var names=asNames();
+  var masterOn=asAll||(names.length>0&&asSel.length===names.length);
+  var html='<div class="mgr-dd-opt mgr-dd-master" onclick="asToggleAll()"><span class="mgr-dd-check'+(masterOn?' on':'')+'">'+(masterOn?_checkSVG:'')+'</span><span>'+mgrT('mgr.f.selectall','Select all')+'</span></div>'
+    +'<div class="mgr-dd-div"></div>';
+  html+=names.map(function(n,i){
+    var on=asAll||asSel.indexOf(n)>=0;
+    return '<div class="mgr-dd-opt" onclick="asToggleUserIdx('+i+')"><span class="mgr-dd-check'+(on?' on':'')+'">'+(on?_checkSVG:'')+'</span><span>'+esc(n)+'</span></div>';
+  }).join('');
+  panel.innerHTML=html;
+  var s=document.getElementById('as-target-summary');
+  if(s){
+    if(masterOn)s.textContent=mgrT('mgr.f.allusers','All users ({n})').replace('{n}',names.length);
+    else if(!asSel.length)s.textContent=mgrT('mgr.f.pickusers','Select users…');
+    else if(asSel.length===1)s.textContent=asSel[0];
+    else s.textContent=mgrT('mgr.chip.nusers','{n} users').replace('{n}',asSel.length);
+  }
+  if(typeof renderAssignPreview==='function')renderAssignPreview();
+}
+function asToggleAll(){
+  var names=asNames(),masterOn=asAll||asSel.length===names.length;
+  asAll=!masterOn;asSel=[];renderAsTarget();
+}
+window.asToggleAll=asToggleAll;
+function asToggleUserIdx(i){
+  var names=asNames(),n=names[i];if(n===undefined)return;
+  if(asAll){asAll=false;asSel=names.slice();}
+  var j=asSel.indexOf(n);if(j>=0)asSel.splice(j,1);else asSel.push(n);
+  if(asSel.length===names.length){asAll=true;asSel=[];}
+  renderAsTarget();
+}
+window.asToggleUserIdx=asToggleUserIdx;
+function asResetTarget(){asAll=true;asSel=[];renderAsTarget();}
+function _modOpt(m){var t=(window.awModTitle?awModTitle(m):null)||m.title;return '<option value="'+m.id+'">'+(window.awChapNo?awChapNo(m):m.num)+' \xB7 '+esc(t)+'</option>';}
+function moduleOptions(){
+  var opG=(window.AW_MODULES||[]).map(_modOpt).join('');
+  var suG=(window.AW_SU_MODULES||[]).map(_modOpt).join('');
+  return '<optgroup label="'+mgrT('mgr.f.opcourse','Operator course (OP)')+'">'+opG+'</optgroup>'
+        +'<optgroup label="'+mgrT('mgr.f.sucourse','SuperUser course (SU)')+'">'+suG+'</optgroup>';
+}
+function findMod(id){var all=(window.AW_MODULES||[]).concat(window.AW_SU_MODULES||[]);return all.filter(function(m){return m.id===id;})[0];}
+function modLabel(id){var m=findMod(id);if(!m)return id;var t=(window.awModTitle?awModTitle(m):null)||m.title;return (window.awChapNo?awChapNo(m):m.num)+' \xB7 '+esc(t);}
+function assignMods(a){return a.moduleIds||(a.moduleId?[a.moduleId]:[]);}
+// which of the 2 trainings are covered end-to-end by this module list (used to show
+// "TilliT Operator Training" instead of "7 modules" when a manager picked "Select all").
+function fullTrainingsCovered(mods){
+  var out=[];
+  var opIds=(window.AW_MODULES||[]).map(function(m){return m.id;});
+  var suIds=(window.AW_SU_MODULES||[]).map(function(m){return m.id;});
+  if(opIds.length&&opIds.every(function(id){return mods.indexOf(id)>=0;}))out.push('op');
+  if(suIds.length&&suIds.every(function(id){return mods.indexOf(id)>=0;}))out.push('su');
+  return out;
+}
+function assignWhat(a){
+  if(a.level==='course')return mgrT('mgr.f.coursefull','Full training course');
+  var mods=assignMods(a);
+  var full=fullTrainingsCovered(mods);
+  if(full.length===2)return mgrT('mgr.course.both','Both trainings');
+  if(full.length===1)return trainLabel(full[0]);
+  if(mods.length===1)return modLabel(mods[0]);
+  return mgrT('mgr.item.nmods','{n} modules').replace('{n}',mods.length);
+}
+function populateSelects(){
+  var i=document.getElementById('se-invitees');
+  renderAsTarget();
+  renderAsTrain();
+  if(i)i.innerHTML=peopleOptions();
+}
+
+// ── refresh everything driven by the team / assignment stores ──
+function refreshTeam(){buildOPS(LANG);renderSiteBar();applyTeamView();renderScopeHint();updateSeats();updateFilterCounts();updateTeamTitle();renderOverview();drawChart(_activePeriod);populateSelects();renderAssignments();updateBadges();}
+
+// ── assignment level: always specific modules now — the training picked in step 1
+// scopes the module list in step 2; selecting every module of a training is how a
+// manager assigns "the full course" (no separate full-course/module toggle anymore). ──
+var asKindVal='module';
+
+// ── step 1: which training(s) this assignment covers ──
+var asTrainSel=[]; // subset of ['op','su']
+function trainKeys(){return SINGLE_TRAINING?['op']:['op','su'];}
+function trainLabel(k){return k==='op'?mgrT('mgr.course.op','TilliT Operator Training'):mgrT('mgr.course.su','TilliT Superuser Training');}
+function renderAsTrain(){
+  var panel=document.getElementById('as-train-panel');if(!panel)return;
+  var all=trainKeys(),masterOn=asTrainSel.length===all.length;
+  var html='<div class="mgr-dd-opt mgr-dd-master" onclick="asTrainToggleAll()"><span class="mgr-dd-check'+(masterOn?' on':'')+'">'+(masterOn?_checkSVG:'')+'</span><span>'+mgrT('mgr.f.selectall','Select all')+'</span></div>'
+    +'<div class="mgr-dd-div"></div>';
+  html+=all.map(function(k,i){
+    var on=asTrainSel.indexOf(k)>=0;
+    return '<div class="mgr-dd-opt" onclick="asTrainToggleIdx('+i+')"><span class="mgr-dd-check'+(on?' on':'')+'">'+(on?_checkSVG:'')+'</span><span>'+trainLabel(k)+'</span></div>';
+  }).join('');
+  panel.innerHTML=html;
+  var s=document.getElementById('as-train-summary');
+  if(s){
+    if(masterOn)s.textContent=mgrT('mgr.course.both','Both trainings');
+    else if(asTrainSel.length===1)s.textContent=trainLabel(asTrainSel[0]);
+    else s.textContent=mgrT('mgr.f.picktraining','Choose a training…');
+  }
+  pruneAsModsToTraining();renderAsMods();renderAssignPreview();
+}
+function asTrainToggleAll(){var all=trainKeys();asTrainSel=(asTrainSel.length===all.length)?[]:all.slice();renderAsTrain();}
+window.asTrainToggleAll=asTrainToggleAll;
+function asTrainToggleIdx(i){
+  var all=trainKeys(),k=all[i];if(k===undefined)return;
+  var j=asTrainSel.indexOf(k);if(j>=0)asTrainSel.splice(j,1);else asTrainSel.push(k);
+  renderAsTrain();
+}
+window.asTrainToggleIdx=asTrainToggleIdx;
+
+// ── step 2: module multi-select, scoped to the training(s) chosen in step 1 ──
+// asModsAll = "all modules of the chosen training(s)"; otherwise asMods = explicit ids.
+var asMods=[],asModsAll=false;
+function moduleCourse(mid){return /^SU/.test(mid||'')?'su':'op';}
+function asModList(){
+  var out=[];
+  if(asTrainSel.indexOf('op')>=0)(window.AW_MODULES||[]).forEach(function(m){out.push({id:m.id,g:'op'});});
+  if(asTrainSel.indexOf('su')>=0)(window.AW_SU_MODULES||[]).forEach(function(m){out.push({id:m.id,g:'su'});});
+  return out;
+}
+function allModuleIds(){return asModList().map(function(x){return x.id;});}
+function selectedModuleIds(){return asModsAll?allModuleIds():asMods.slice();}
+function pruneAsModsToTraining(){var ids=allModuleIds();asMods=asMods.filter(function(id){return ids.indexOf(id)>=0;});}
+function renderAsMods(){
+  var panel=document.getElementById('as-mod-panel');if(!panel)return;
+  var s=document.getElementById('as-mod-summary');
+  if(!asTrainSel.length){
+    panel.innerHTML='<div class="as-preview-hint" style="padding:8px 9px">'+mgrT('mgr.f.needtrainfirst','Choose a training first')+'</div>';
+    if(s)s.textContent=mgrT('mgr.f.needtrainfirst','Choose a training first');
+    return;
+  }
+  var list=asModList(),ids=list.map(function(x){return x.id;});
+  var masterOn=asModsAll||(ids.length>0&&asMods.length===ids.length);
+  var html='<div class="mgr-dd-opt mgr-dd-master" onclick="asModsToggleAll()"><span class="mgr-dd-check'+(masterOn?' on':'')+'">'+(masterOn?_checkSVG:'')+'</span><span>'+mgrT('mgr.f.selectall','Select all')+'</span></div>'
+    +'<div class="mgr-dd-div"></div>';
+  var lastG=null;
+  list.forEach(function(x,i){
+    if(x.g!==lastG){lastG=x.g;html+='<div class="mgr-dd-grouplbl">'+mgrT(x.g==='op'?'mgr.f.opcourse':'mgr.f.sucourse',x.g)+'</div>';}
+    var on=asModsAll||asMods.indexOf(x.id)>=0;
+    html+='<div class="mgr-dd-opt" onclick="asModsToggleIdx('+i+')"><span class="mgr-dd-check'+(on?' on':'')+'">'+(on?_checkSVG:'')+'</span><span>'+esc(modLabel(x.id))+'</span></div>';
+  });
+  panel.innerHTML=html;
+  if(s){
+    if(masterOn)s.textContent=mgrT('mgr.f.allmods','All modules ({n})').replace('{n}',ids.length);
+    else if(!asMods.length)s.textContent=mgrT('mgr.f.pickmods','Select modules…');
+    else if(asMods.length===1)s.textContent=modLabel(asMods[0]);
+    else s.textContent=mgrT('mgr.item.nmods','{n} modules').replace('{n}',asMods.length);
+  }
+}
+function asModsToggleAll(){var ids=allModuleIds(),on=asModsAll||asMods.length===ids.length;asModsAll=!on;asMods=[];renderAsMods();renderAssignPreview();}
+window.asModsToggleAll=asModsToggleAll;
+function asModsToggleIdx(i){
+  var ids=allModuleIds(),id=ids[i];if(id===undefined)return;
+  if(asModsAll){asModsAll=false;asMods=ids.slice();}
+  var j=asMods.indexOf(id);if(j>=0)asMods.splice(j,1);else asMods.push(id);
+  if(asMods.length===ids.length){asModsAll=true;asMods=[];}
+  renderAsMods();renderAssignPreview();
+}
+window.asModsToggleIdx=asModsToggleIdx;
+
+// ── live preview of who an assignment actually reaches ──
+function currentTargetVal(){if(asAll)return 'all';if(!asSel.length)return null;return asSel.length===1?asSel[0]:asSel.slice();}
+function renderAssignPreview(){
+  var box=document.getElementById('as-preview');if(!box)return;
+  var tv=currentTargetVal();
+  if(tv==null){box.className='as-preview';box.innerHTML='<span class="as-preview-hint">'+mgrT('mgr.pv.none','Pick who and what to assign to preview who’s affected.')+'</span>';return;}
+  var targeted=USERS.filter(function(u){return awAssignMatch(tv,u.name,awUserTrainings(u));});
+  var reached=targeted,missed=[];
+  if(asKindVal==='module'){
+    if(!asTrainSel.length){box.className='as-preview';box.innerHTML='<span class="as-preview-hint">'+mgrT('mgr.pv.picktrain','Choose a training to preview.')+'</span>';return;}
+    var mods=selectedModuleIds();
+    if(!mods.length){box.className='as-preview';box.innerHTML='<span class="as-preview-hint">'+mgrT('mgr.pv.pickmod','Select one or more modules to preview.')+'</span>';return;}
+    var courses={};mods.forEach(function(m){courses[moduleCourse(m)]=true;});
+    reached=targeted.filter(function(u){return Object.keys(courses).some(function(c){return hasT(u,c);});});
+    missed=targeted.filter(function(u){return reached.indexOf(u)<0;});
+  }
+  var av=reached.slice(0,10).map(function(u){return '<span class="as-pv-av" title="'+esc(u.name)+'">'+esc(u.initials||nameInitials(u.name))+'</span>';}).join('');
+  if(reached.length>10)av+='<span class="as-pv-more">+'+(reached.length-10)+'</span>';
+  var head=mgrT('mgr.pv.reach','Reaches <b>{k}</b> of {n} selected').replace('{k}',reached.length).replace('{n}',targeted.length);
+  var missNote=missed.length?'<div class="as-pv-miss">'+_warnSVG+'<span>'+mgrT('mgr.pv.missed','{m} not enrolled in the required training — they won’t receive this.').replace('{m}',missed.length)+'</span></div>':'';
+  box.className='as-preview on'+(reached.length?'':' empty');
+  box.innerHTML='<div class="as-pv-head">'+head+'</div>'+(reached.length?'<div class="as-pv-avs">'+av+'</div>':'<div class="as-pv-hint">'+mgrT('mgr.pv.noone','No selected user is enrolled in these modules.')+'</div>')+missNote;
+}
+
+function addAssignment(){
+  var due=document.getElementById('as-due').value||null;   // optional
+  var note=(document.getElementById('as-note').value||'').trim()||null;
+  var target;
+  if(asAll)target='all';
+  else if(!asSel.length){toast(mgrT('mgr.f.needtarget','Pick who to assign to'),true);return;}
+  else target=asSel.length===1?asSel[0]:asSel.slice();
+  if(!asTrainSel.length){toast(mgrT('mgr.f.needtrainfirst','Choose a training first'),true);return;}
+  var mods=selectedModuleIds();
+  if(!mods.length){toast(mgrT('mgr.f.needmodule','Pick at least one module'),true);return;}
+  var a={id:uid(),target:target,level:asKindVal,
+    moduleIds:mods,moduleId:(mods.length===1)?mods[0]:null,
+    dueDate:due,note:note,siteId:awActiveSite(),assignedBy:window.AW_MANAGER_NAME||(window.AW_USER&&AW_USER.name)||'Manager',createdAt:isoPlus(0)};
+  var list=awLoadAssignments();list.push(a);awSaveAssignments(list);
+  document.getElementById('as-note').value='';
+  asResetTarget();asTrainSel=[];asMods=[];asModsAll=false;renderAsTrain();
+  refreshTeam();
+  toast(mgrT('mgr.toast.assigned','Assignment saved'));
+}
+window.addAssignment=addAssignment;
+function delAssignment(id){awSaveAssignments(awLoadAssignments().filter(function(a){return a.id!==id;}));refreshTeam();toast(mgrT('mgr.toast.removed','Removed'));}
+window.delAssignment=delAssignment;
+
+// State of an assignment: waiting (OP prereq pending for SU content) → overdue → active.
+function assignConcernsSU(a){
+  if(a.level==='module')return assignMods(a).some(function(id){return /^SU/.test(id||'');});
+  return targetedUsers(a).some(function(u){return hasT(u,'su');});
+}
+function assignmentState(a){
+  var targets=targetedUsers(a);
+  // "Waiting" only when NOBODY targeted can act on this today — i.e. every single targeted
+  // user is SU-enrolled and still SU-blocked (OP not complete). A mixed assignment (e.g. "Both
+  // trainings" sent to the whole team) is still genuinely overdue for the Operator-only people
+  // in it, even though it also happens to concern SU for the couple of people it's blocked for —
+  // it must not disappear from the Agenda/overdue view just because SOME of its audience is blocked.
+  if(assignConcernsSU(a)&&targets.length&&targets.every(function(u){return hasT(u,'su')&&!awOpComplete(u);}))return 'waiting';
+  var today=isoPlus(0);
+  if(a.dueDate&&a.dueDate<today)return 'overdue';
+  return 'active';
+}
+function targetChip(target){
+  if(Object.prototype.toString.call(target)==='[object Array]'){
+    var lbl0=target.length===1?target[0]:mgrT('mgr.chip.nusers','{n} users').replace('{n}',target.length);
+    return '<span class="mgr-chip'+(target.length>1?' all':'')+'">'+esc(lbl0)+'</span>';
+  }
+  var g=(target==='all'||target==='operators'||target==='superusers');
+  var lbl=target==='all'?mgrT('mgr.chip.allteam','All team')
+    :target==='operators'?mgrT('mgr.chip.operators','Operator course')
+    :target==='superusers'?mgrT('mgr.chip.superusers','Superuser course'):target;
+  return '<span class="'+(g?'mgr-chip all':'mgr-chip')+'">'+esc(lbl)+'</span>';
+}
+var _stateMeta={
+  overdue:{ic:_warnSVG,k:'mgr.state.overdue',fb:'Overdue'},
+  active:{ic:_checkSVG,k:'mgr.state.active',fb:'On track'},
+  waiting:{ic:_hourSVG,k:'mgr.state.waiting',fb:'Waiting for OP'}
+};
+function assignItemHTML(a,stt){
+  var what=assignWhat(a);
+  var due=a.dueDate?(mgrT('mgr.item.due','due')+' '+fmtDate(a.dueDate)):mgrT('mgr.item.nodue','No deadline');
+  var waitnote=stt==='waiting'?' \xB7 <span style="color:var(--amber-d)">'+mgrT('mgr.state.waitnote','Normal wait: OP course not completed yet')+'</span>':'';
+  var m=_stateMeta[stt];
+  var pill='<span class="asg-state '+stt+'">'+m.ic+mgrT(m.k,m.fb)+'</span>';
+  var byLine=mgrT('mgr.item.createdby','Created by {who} \xB7 {date}').replace('{who}',esc(awWho(a.assignedBy)||'Manager')).replace('{date}',a.createdAt?fmtDate(a.createdAt):'');
+  var noteLine=a.note?'<div class="mgr-item-sub" style="font-style:italic">'+esc(a.note)+'</div>':'';
+  return '<div class="mgr-item '+(stt==='active'?'':stt)+'"><div class="mgr-item-ic deadline">'+ICO.deadline+'</div>'
+    +'<div class="mgr-item-body"><div class="mgr-item-t">'+what+' '+pill+'</div>'
+    +'<div class="mgr-item-sub">'+mgrT('mgr.item.for','for')+' '+targetChip(a.target)+' \xB7 '+due+waitnote+'</div>'
+    +noteLine
+    +'<div class="mgr-item-sub" style="color:var(--text3)">'+byLine+'</div></div>'
+    +'<div class="mgr-item-actions"><button class="mgr-iconbtn danger" title="'+mgrT('mgr.del','Delete')+'" onclick="delAssignment(\''+a.id+'\')">'+ICO.trash+'</button></div></div>';
+}
+function renderAssignments(){
+  var box=document.getElementById('assign-list');if(!box)return;
+  var list=sitedAssignments();
+  if(!list.length){box.innerHTML='<div class="mgr-empty">'+mgrT('mgr.assign.empty','No assignments yet. Set one above.')+'</div>';return;}
+  var groups={overdue:[],active:[],waiting:[]};
+  list.forEach(function(a){groups[assignmentState(a)].push(a);});
+  var order=['overdue','active','waiting'];
+  var html='';
+  order.forEach(function(stt){
+    var g=groups[stt];if(!g.length)return;
+    g.sort(function(a,b){return (a.dueDate||'9999').localeCompare(b.dueDate||'9999');});
+    html+='<div class="asg-group-lbl">'+mgrT(_stateMeta[stt].k+'.h',_stateMeta[stt].fb)+' <span class="mgr-tab-badge">'+g.length+'</span></div>';
+    html+='<div class="mgr-list">'+g.map(function(a){return assignItemHTML(a,stt);}).join('')+'</div>';
+  });
+  box.innerHTML=html;
+}
+
+// ── checkbox dropdown: shared helpers ──
+var _chevSVG='<svg class="mgr-dd-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+// The panel is positioned `fixed` (computed from the button rect) so it escapes
+// the overflow:hidden of .card / .mgr-modal instead of being clipped inside them.
+// position:fixed is relative to the viewport UNLESS an ancestor has a transform/filter/
+// perspective/will-change (it then becomes that ancestor's containing block, per spec) —
+// several card containers here animate in with a transform, so we must offset for that.
+function fixedContainingBlockRect(el){
+  var n=el.parentElement;
+  while(n && n!==document.body){
+    var cs=getComputedStyle(n);
+    if(cs.transform!=='none'||cs.filter!=='none'||cs.perspective!=='none'||cs.willChange==='transform'||cs.contain.indexOf('layout')!==-1||cs.contain.indexOf('paint')!==-1){
+      return n.getBoundingClientRect();
+    }
+    n=n.parentElement;
+  }
+  return null;
+}
+function positionDD(el){
+  var btn=el.querySelector('.mgr-dd-btn'),panel=el.querySelector('.mgr-dd-panel');if(!btn||!panel)return;
+  var r=btn.getBoundingClientRect(),vh=window.innerHeight;
+  var below=vh-r.bottom-10,above=r.top-10,up=below<200&&above>below;
+  var cb=fixedContainingBlockRect(panel);
+  var offX=cb?cb.left:0,offY=cb?cb.top:0,offBottom=cb?(vh-cb.bottom):0;
+  panel.style.position='fixed';
+  panel.style.left=(r.left-offX)+'px';
+  panel.style.width=r.width+'px';
+  panel.style.zIndex='3200';
+  panel.style.maxHeight=Math.max(150,Math.min(300,up?above:below))+'px';
+  if(up){panel.style.top='auto';panel.style.bottom=(vh-r.top+6-offBottom)+'px';}
+  else{panel.style.bottom='auto';panel.style.top=(r.bottom+6-offY)+'px';}
+}
+var _bulkDDopen=null;
+function closeAllDD(){document.querySelectorAll('.mgr-dd.open').forEach(function(d){d.classList.remove('open');var p=d.querySelector('.mgr-dd-panel');if(p)p.removeAttribute('style');});_bulkDDopen=null;}
+window.closeAllDD=closeAllDD;
+function ddToggle(id){
+  var el=document.getElementById(id);if(!el)return;
+  var wasOpen=el.classList.contains('open');
+  closeAllDD();
+  if(!wasOpen){el.classList.add('open');positionDD(el);}
+}
+window.ddToggle=ddToggle;
+// Close on page scroll, but NOT when scrolling inside an open panel.
+window.addEventListener('scroll',function(e){
+  if(e.target&&e.target.closest&&e.target.closest('.mgr-dd-panel'))return;
+  closeAllDD();
+},true);
+window.addEventListener('resize',function(){closeAllDD();});
+// Two-course checkbox rows (Operator / Superuser) + summary label.
+function courseCheckRows(sel,cb){
+  return [['op','mgr.course.op.full'],['su','mgr.course.su.full']].filter(function(p){return !SINGLE_TRAINING||p[0]==='op';}).map(function(p){
+    var on=sel.indexOf(p[0])>=0;
+    return '<div class="mgr-dd-opt" onclick="'+cb+'(\''+p[0]+'\')"><span class="mgr-dd-check'+(on?' on':'')+'">'+(on?_checkSVG:'')+'</span><span>'+mgrT(p[1],p[0])+'</span></div>';
+  }).join('');
+}
+function courseSummary(sel){
+  var parts=[];
+  if(sel.indexOf('op')>=0)parts.push(mgrT('mgr.course.op.full','Operator Training Modules'));
+  if(sel.indexOf('su')>=0)parts.push(mgrT('mgr.course.su.full','Superuser Training Modules'));
+  return parts.join(', ')||mgrT('mgr.course.op.full','Operator Training Modules');
+}
+// ── seats + new user ──
+// Which courses the new user is enrolled in — at least one must stay selected.
+var nuTrainings=['op'];
+function renderNuTrain(){
+  var p=document.getElementById('nu-train-panel');if(p)p.innerHTML=courseCheckRows(nuTrainings,'nuToggle');
+  var s=document.getElementById('nu-train-summary');if(s)s.textContent=courseSummary(nuTrainings);
+}
+function nuToggle(course){
+  var i=nuTrainings.indexOf(course);
+  if(i>=0){if(nuTrainings.length===1){toast(mgrT('mgr.team.trainings.min','Keep at least one course assigned'),true);return;}nuTrainings.splice(i,1);}
+  else nuTrainings.push(course);
+  renderNuTrain();
+}
+window.nuToggle=nuToggle;
+function nameInitials(name){var p=name.trim().split(/\s+/);return (p.slice(0,2).map(function(x){return x.charAt(0).toUpperCase();}).join(''))||name.charAt(0).toUpperCase();}
+var EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+function fillGenPwd(inputId){var el=document.getElementById(inputId);if(el)el.value=awGenPassword();}
+window.fillGenPwd=fillGenPwd;
+function newUserRecord(name,email,trainings,pwd){
+  var u={id:uid(),name:name,initials:nameInitials(name),siteId:awActiveSite(),
+    trainings:(trainings&&trainings.length)?trainings.slice():['op'],
+    email:email||null,password:pwd||awGenPassword(),mustChangePassword:true,createdAt:isoPlus(0),
+    completedAt:{},score:null,time:0,lastOrd:999,suDone:0};
+  AW_OP_BUILT.forEach(function(k){u['op'+k]=false;u.completedAt[k]=null;});
+  return u;
+}
+function addUser(){
+  var users=awLoadUsers();
+  if(siteUserCount()>=AW_SITE_CAP){toast(mgrT('mgr.team.seatfulltoast','No seats left — contact the Autoware team.'),true);updateSeats();return;}
+  var name=(document.getElementById('nu-name').value||'').trim();
+  if(!name){toast(mgrT('mgr.team.needname','Enter a name'),true);return;}
+  var email=(document.getElementById('nu-email').value||'').trim();
+  if(email&&!EMAIL_RE.test(email)){toast(mgrT('mgr.team.invalidemail','Enter a valid email'),true);return;}
+  var pwd=(document.getElementById('nu-pwd').value||'').trim();
+  users.push(newUserRecord(name,email,nuTrainings,pwd));
+  awSaveUsers(users);
+  document.getElementById('nu-name').value='';
+  document.getElementById('nu-email').value='';
+  document.getElementById('nu-pwd').value='';
+  nuTrainings=['op'];renderNuTrain();
+  refreshTeam();
+  toast(mgrT('mgr.team.created','User created'));
+}
+window.addUser=addUser;
+function updateSeats(){
+  var n=USERS.length,cap=AW_SITE_CAP,full=n>=cap;
+  var c=document.getElementById('seat-count'),f=document.getElementById('seat-fill');
+  if(c){c.textContent=n+' / '+cap;c.classList.toggle('full',full);}
+  if(f){f.style.width=Math.min(100,Math.round(n/cap*100))+'%';f.classList.toggle('full',full);}
+  var form=document.getElementById('newuser-form'),warn=document.getElementById('seat-full'),bulkT=document.getElementById('bulk-toggle-btn');
+  if(form)form.style.display=full?'none':'';
+  if(warn)warn.style.display=full?'flex':'none';
+  if(bulkT)bulkT.style.display=full?'none':'';
+  var note=document.getElementById('bulk-seatnote');
+  if(note)note.textContent=full?'':mgrT('mgr.team.bulk.seatsleft','{n} seats left').replace('{n}',cap-n);
+}
+
+// ── bulk add (spreadsheet-like row entry) ──
+var _bulkRows=[];
+function emptyBulkRow(){return {name:'',email:'',trainings:['op'],password:''};}
+// map between a bulk-select value and a trainings array
+function trArr(v){return v==='op-su'?['op','su']:v==='su'?['su']:['op'];}
+function trKey(arr){arr=arr||['op'];var op=arr.indexOf('op')>=0,su=arr.indexOf('su')>=0;return (op&&su)?'op-su':su?'su':'op';}
+// Per-row training checkbox dropdown (same UI as the single form).
+function bulkTrainRows(i,sel){
+  return [['op','mgr.course.op.full'],['su','mgr.course.su.full']].filter(function(p){return !SINGLE_TRAINING||p[0]==='op';}).map(function(p){
+    var on=sel.indexOf(p[0])>=0;
+    return '<div class="mgr-dd-opt" onclick="bulkTrainToggle('+i+',\''+p[0]+'\')"><span class="mgr-dd-check'+(on?' on':'')+'">'+(on?_checkSVG:'')+'</span><span>'+mgrT(p[1],p[0])+'</span></div>';
+  }).join('');
+}
+function bulkDDToggle(i){
+  var id='bulk-train-dd-'+i,el=document.getElementById(id),wasOpen=el&&el.classList.contains('open');
+  closeAllDD();
+  if(el&&!wasOpen){_bulkDDopen=i;el.classList.add('open');positionDD(el);}
+}
+window.bulkDDToggle=bulkDDToggle;
+function bulkTrainToggle(i,course){
+  var r=_bulkRows[i];if(!r)return;var tr=(r.trainings||['op']).slice(),k=tr.indexOf(course);
+  if(k>=0){if(tr.length===1){toast(mgrT('mgr.team.trainings.min','Keep at least one course assigned'),true);return;}tr.splice(k,1);}
+  else tr.push(course);
+  r.trainings=tr;_bulkDDopen=i;renderBulkRows();
+}
+window.bulkTrainToggle=bulkTrainToggle;
+function toggleBulk(){
+  var wrap=document.getElementById('bulk-wrap');if(!wrap)return;
+  var show=wrap.style.display==='none';
+  wrap.style.display=show?'':'none';
+  if(show&&!_bulkRows.length){_bulkRows=[emptyBulkRow(),emptyBulkRow(),emptyBulkRow()];renderBulkRows();}
+}
+window.toggleBulk=toggleBulk;
+function addBulkRow(){_bulkRows.push(emptyBulkRow());renderBulkRows();}
+window.addBulkRow=addBulkRow;
+function removeBulkRow(i){_bulkRows.splice(i,1);renderBulkRows();}
+window.removeBulkRow=removeBulkRow;
+function bulkSet(i,field,val){if(_bulkRows[i])_bulkRows[i][field]=(field==='trainings')?trArr(val):val;updateBulkCreateLabel();}
+window.bulkSet=bulkSet;
+function bulkGenPwd(i){if(!_bulkRows[i])return;_bulkRows[i].password=awGenPassword();renderBulkRows();}
+window.bulkGenPwd=bulkGenPwd;
+function updateBulkCreateLabel(){
+  var lbl=document.getElementById('bulk-create-lbl');if(!lbl)return;
+  var n=_bulkRows.filter(function(r){return (r.name||'').trim();}).length;
+  lbl.textContent=n>0?mgrT('mgr.team.bulk.create','Create {n} users').replace('{n}',n):mgrT('mgr.team.create','Create user');
+}
+function renderBulkRows(){
+  var tb=document.getElementById('bulk-tbody');if(!tb)return;
+  tb.innerHTML=_bulkRows.map(function(r,i){
+    var sel=r.trainings||['op'];
+    return '<tr>'
+     +'<td><input class="mgr-bulk-input" type="text" value="'+esc(r.name)+'" placeholder="'+esc(awDictT('e.g. Alex Morgan'))+'" oninput="bulkSet('+i+',\'name\',this.value)"></td>'
+     +'<td><input class="mgr-bulk-input" type="email" value="'+esc(r.email)+'" placeholder="name@company.com" oninput="bulkSet('+i+',\'email\',this.value)"></td>'
+     +'<td><div class="mgr-dd" id="bulk-train-dd-'+i+'"><button type="button" class="mgr-dd-btn" onclick="bulkDDToggle('+i+')"><span>'+esc(courseSummary(sel))+'</span>'+_chevSVG+'</button><div class="mgr-dd-panel" onclick="event.stopPropagation()">'+bulkTrainRows(i,sel)+'</div></div></td>'
+     +'<td><div class="mgr-pwd-field"><input class="mgr-bulk-input" type="text" value="'+esc(r.password)+'" placeholder="—" autocomplete="off" oninput="bulkSet('+i+',\'password\',this.value)">'
+       +'<button type="button" class="mgr-genbtn" onclick="bulkGenPwd('+i+')" title="'+mgrT('mgr.team.genpwd','Generate')+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></button></div></td>'
+     +'<td><button type="button" class="mgr-bulk-rm" title="'+mgrT('mgr.team.bulk.remove','Remove row')+'" onclick="removeBulkRow('+i+')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></td>'
+     +'</tr>';
+  }).join('');
+  if(_bulkDDopen!=null){var el=document.getElementById('bulk-train-dd-'+_bulkDDopen);if(el){el.classList.add('open');positionDD(el);}}
+  updateBulkCreateLabel();
+}
+function createBulkUsers(){
+  var users=awLoadUsers();
+  var free=AW_SITE_CAP-siteUserCount();
+  var valid=_bulkRows.filter(function(r){return (r.name||'').trim();});
+  var skippedEmpty=_bulkRows.length-valid.length;
+  var badEmail=valid.filter(function(r){return r.email&&!EMAIL_RE.test(r.email.trim());});
+  if(badEmail.length){toast(mgrT('mgr.team.invalidemail','Enter a valid email'),true);return;}
+  var toCreate=valid.slice(0,Math.max(0,free));
+  var skippedCap=valid.length-toCreate.length;
+  if(!toCreate.length){toast(free<=0?mgrT('mgr.team.seatfulltoast','No seats left — contact the Autoware team.'):mgrT('mgr.team.needname','Enter a name'),true);return;}
+  toCreate.forEach(function(r){users.push(newUserRecord(r.name.trim(),(r.email||'').trim(),r.trainings,(r.password||'').trim()));});
+  awSaveUsers(users);
+  _bulkRows=[emptyBulkRow(),emptyBulkRow(),emptyBulkRow()];
+  renderBulkRows();
+  refreshTeam();
+  var msg=mgrT('mgr.team.bulk.created','{n} users created').replace('{n}',toCreate.length);
+  if(skippedCap>0)msg+=' \xB7 '+mgrT('mgr.team.bulk.capnote','{n} skipped — no seats left').replace('{n}',skippedCap);
+  toast(msg);
+}
+window.createBulkUsers=createBulkUsers;
+function updateTeamTitle(){var el=document.getElementById('team-title');if(el)el.textContent=mgrT('dash.ops.team','Team: {n} Operators').replace(/\{n\}|\d+/,USERS.length);}
+function updateFilterCounts(){
+  var utd=0,inp=0,ns=0;OPS.forEach(function(o){if(o.status==='uptodate')utd++;else if(o.status==='inprogress')inp++;else ns++;});
+  var vals=[OPS.length,utd,inp,ns];
+  document.querySelectorAll('#panel-team .db-fbtn').forEach(function(b,i){b.textContent=b.textContent.replace(/\(\d+\)/,'('+vals[i]+')');});
+}
+
+// ── Manage user modal ──
+var _manageId=null;
+function detailRow(label,state){
+  var glyph=state==='done'?'&#10003;':state==='lock'?'&#128274;':'';
+  var cls=state==='done'?'done':state==='lock'?'lock':'skip';
+  return '<div class="mgr-detail-mod"><span class="db-dot '+cls+'">'+glyph+'</span>'+label+'</div>';
+}
+function manageHTML(u){
+  var xSVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+  var opRows=(window.AW_MODULES||[]).map(function(m){
+    var built=AW_OP_BUILT.indexOf(m.id)>=0;
+    return detailRow(modLabel(m.id),built?(u['op'+m.id]?'done':'pending'):'lock');
+  }).join('');
+  var hasSU=awHasTraining(u,'su'),hasOP=awHasTraining(u,'op');
+  var suUnlocked=(hasSU&&awOpComplete(u));
+  var suRows='';
+  if(hasSU){
+    (window.AW_SU_MODULES||[]).forEach(function(m,idx){
+      var state=!suUnlocked?'lock':(idx<(u.suDone||0)?'done':'pending');
+      suRows+=detailRow(modLabel(m.id),state);
+    });
+  }
+  var suHint=(hasSU&&!suUnlocked)
+    ?'<div class="mgr-detail-hint">'+_lockSVG+mgrT('mgr.team.sulockedtip','Unlocks when the OP course is completed')+'</div>':'';
+  var suSection=hasSU
+    ?'<div><div class="mgr-msec-lbl" data-nolang>'+mgrT('mgr.f.sucourse','SuperUser course (SU)')+'</div>'+suRows+suHint+'</div>':'';
+  var opHint=(window.AW_MODULES||[]).length>AW_OP_BUILT.length
+    ?'<div class="mgr-detail-hint">'+_lockSVG+mgrT('mgr.team.opnotbuilttip','Modules below the built line are not published yet — nobody can complete them')+'</div>':'';
+  var opSection=hasOP
+    ?'<div><div class="mgr-msec-lbl">'+mgrT('mgr.f.opcourse','Operator course (OP)')+'</div>'+opRows+opHint+'</div>':'';
+  var eyeSVG=_pwdRevealed
+    ?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+    :'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+  var regenSVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>';
+  var pwdVal=u.password?(_pwdRevealed?esc(u.password):'••••••••'):mgrT('mgr.team.noemail','— not set');
+  var mustChangeBadge=u.mustChangePassword?'<span class="mgr-mustchange">'+mgrT('mgr.team.pwdmustchange','Must change at next login')+'</span>':'';
+  var acctSection='<div><div class="mgr-msec-lbl">'+mgrT('mgr.team.account','Account')+'</div>'
+    +'<div class="mgr-acct-row"><span class="mgr-acct-lbl">'+mgrT('mgr.team.newname','Full name')+'</span><input class="mgr-input" style="width:190px" id="mgr-acct-name" type="text" value="'+esc(u.name)+'"></div>'
+    +'<div class="mgr-acct-row"><span class="mgr-acct-lbl">'+mgrT('mgr.f.email','Email')+'</span><input class="mgr-input" style="width:190px" id="mgr-acct-email" type="email" value="'+esc(u.email||'')+'"></div>'
+    +'<div class="mgr-acct-row" style="border-bottom:none;padding-top:0;justify-content:flex-end">'
+      +'<button class="mgr-btn sec" style="padding:6px 14px;font-size:12px" onclick="saveAcctInfo()">'+mgrT('mgr.team.saveinfo','Save changes')+'</button></div>'
+    +'<div class="mgr-acct-row"><span class="mgr-acct-lbl">'+mgrT('mgr.team.password','Password')+'</span>'
+      +'<span class="mgr-acct-val mono">'+pwdVal+'<span class="mgr-acct-actions" style="margin-left:8px"><button class="mgr-iconbtn" title="'+mgrT('mgr.team.pwdreveal','Show/hide')+'" onclick="togglePwdReveal()">'+eyeSVG+'</button><button class="mgr-iconbtn" title="'+mgrT('mgr.team.pwdregen','Generate new')+'" onclick="regenPassword()">'+regenSVG+'</button></span></span></div>'
+    +(mustChangeBadge?'<div class="mgr-acct-row" style="border-bottom:none;padding-top:0"><span></span><span>'+mustChangeBadge+'</span></div>':'')
+    +'<div class="mgr-acct-row"><span class="mgr-acct-lbl">'+mgrT('mgr.team.created.lbl','Created')+'</span><span class="mgr-acct-val">'+(u.createdAt?fmtDate(u.createdAt):'—')+'</span></div>'
+    +'<div class="mgr-acct-row"><span class="mgr-acct-lbl">'+mgrT('mgr.team.lastactive.lbl','Last active')+'</span><span class="mgr-acct-val">'+lastActLabel(u.lastOrd)+'</span></div>'
+    +'</div>';
+  return '<div class="mgr-modal">'
+    +'<div class="mgr-modal-head"><div class="mgr-modal-av">'+esc(u.initials||'')+'</div>'
+      +'<div><div class="mgr-modal-name">'+esc(u.name)+'</div>'+courseChips(u)+'</div>'
+      +'<button class="mgr-modal-x" onclick="closeManage()">'+xSVG+'</button></div>'
+    +'<div class="mgr-modal-body">'
+      +acctSection
+      +'<div><div class="mgr-msec-lbl">'+mgrT('mgr.team.trainings','Assigned training')+'</div>'
+        +'<div class="mgr-dd'+(_mngTrainOpen?' open':'')+'" id="mng-train-dd">'
+        +'<button type="button" class="mgr-dd-btn" onclick="ddToggle(\'mng-train-dd\')"><span>'+courseSummary(awUserTrainings(u))+'</span>'+_chevSVG+'</button>'
+        +'<div class="mgr-dd-panel" onclick="event.stopPropagation()">'+courseCheckRows(awUserTrainings(u),'setTraining')+'</div></div>'
+        +'<div class="mgr-hint">'+mgrT('mgr.team.trainings.hint','At least one course must stay assigned. SU unlocks after OP.')+'</div></div>'
+      +opSection
+      +suSection
+      +'<div class="mgr-modal-actions" style="justify-content:space-between">'
+        +'<button class="mgr-btn sec danger'+(_deleteConfirmId===u.id?' confirm':'')+'" onclick="deleteUser(\''+u.id+'\')">'+(_deleteConfirmId===u.id?mgrT('mgr.team.deleteconfirm','Click again to confirm'):mgrT('mgr.team.delete','Delete user'))+'</button>'
+        +'<div style="display:flex;gap:10px"><button class="mgr-btn sec" onclick="resetProgress()">'+mgrT('mgr.team.reset','Reset progress')+'</button>'
+        +'<button class="mgr-btn" onclick="closeManage()">'+mgrT('mgr.team.done','Done')+'</button></div></div>'
+    +'</div></div>';
+}
+var _pwdRevealed=false,_mngTrainOpen=false;
+var _deleteConfirmId=null,_delConfirmTimer=null;
+function openManage(id){
+  if(id!==_manageId){_pwdRevealed=false;_deleteConfirmId=null;_mngTrainOpen=false;clearTimeout(_delConfirmTimer);}
+  _manageId=id;
+  var u=awLoadUsers().filter(function(x){return x.id===id;})[0];if(!u||u.me)return;
+  var ov=document.getElementById('mgr-modal');
+  ov.innerHTML=manageHTML(u);
+  ov.classList.add('show');
+  if(_mngTrainOpen){var dd=document.getElementById('mng-train-dd');if(dd)positionDD(dd);}
+}
+window.openManage=openManage;
+function closeManage(){document.getElementById('mgr-modal').classList.remove('show');_manageId=null;_pwdRevealed=false;_mngTrainOpen=false;_deleteConfirmId=null;clearTimeout(_delConfirmTimer);}
+window.closeManage=closeManage;
+function saveAcctInfo(){
+  var users=awLoadUsers();var u=users.filter(function(x){return x.id===_manageId;})[0];if(!u)return;
+  var name=(document.getElementById('mgr-acct-name').value||'').trim();
+  var email=(document.getElementById('mgr-acct-email').value||'').trim();
+  if(!name){toast(mgrT('mgr.team.needname','Enter a name'),true);return;}
+  if(email&&!EMAIL_RE.test(email)){toast(mgrT('mgr.team.invalidemail','Enter a valid email'),true);return;}
+  u.name=name;u.initials=nameInitials(name);u.email=email||null;
+  awSaveUsers(users);
+  refreshTeam();openManage(_manageId);
+  toast(mgrT('mgr.toast.infosaved','Changes saved'));
+}
+window.saveAcctInfo=saveAcctInfo;
+function deleteUser(id){
+  if(_deleteConfirmId!==id){
+    _deleteConfirmId=id;openManage(id);
+    clearTimeout(_delConfirmTimer);
+    _delConfirmTimer=setTimeout(function(){if(_deleteConfirmId===id){_deleteConfirmId=null;if(_manageId===id)openManage(id);}},4000);
+    return;
+  }
+  clearTimeout(_delConfirmTimer);_deleteConfirmId=null;
+  var users=awLoadUsers().filter(function(x){return x.id!==id;});
+  awSaveUsers(users);
+  closeManage();
+  refreshTeam();
+  toast(mgrT('mgr.toast.userdeleted','User deleted'));
+}
+window.deleteUser=deleteUser;
+function togglePwdReveal(){_pwdRevealed=!_pwdRevealed;openManage(_manageId);}
+window.togglePwdReveal=togglePwdReveal;
+function regenPassword(){
+  var users=awLoadUsers();var u=users.filter(function(x){return x.id===_manageId;})[0];if(!u)return;
+  u.password=awGenPassword();u.mustChangePassword=true;awSaveUsers(users);
+  _pwdRevealed=true;
+  refreshTeam();openManage(_manageId);
+  toast(mgrT('mgr.toast.pwdreset','New temporary password generated'));
+}
+window.regenPassword=regenPassword;
+function setTraining(course){
+  var users=awLoadUsers();var u=users.filter(function(x){return x.id===_manageId;})[0];if(!u)return;
+  var tr=awUserTrainings(u).slice();var i=tr.indexOf(course);
+  if(i>=0){
+    if(tr.length===1){toast(mgrT('mgr.team.trainings.min','Keep at least one course assigned'),true);return;}
+    tr.splice(i,1);
+  }else tr.push(course);
+  u.trainings=tr;awSaveUsers(users);
+  _mngTrainOpen=true;
+  refreshTeam();openManage(_manageId);
+  var added=i<0;
+  var msg=course==='su'
+    ?(added?(awOpComplete(u)?mgrT('mgr.toast.suadded.unlocked','Superuser course assigned — unlocked'):mgrT('mgr.toast.suadded','Superuser course assigned — unlocks after OP')):mgrT('mgr.toast.suremoved','Superuser course removed'))
+    :(added?mgrT('mgr.toast.opadded','Operator course assigned'):mgrT('mgr.toast.opremoved','Operator course removed'));
+  toast(msg);
+}
+window.setTraining=setTraining;
+function resetProgress(){
+  var users=awLoadUsers();var u=users.filter(function(x){return x.id===_manageId;})[0];if(!u)return;
+  AW_OP_BUILT.forEach(function(k){u['op'+k]=false;u.completedAt=u.completedAt||{};u.completedAt[k]=null;});
+  u.score=null;u.time=0;u.lastOrd=999;u.suDone=0;awSaveUsers(users);
+  refreshTeam();openManage(_manageId);
+  toast(mgrT('mgr.toast.reset','Progress reset'));
+}
+window.resetProgress=resetProgress;
+
+function addSession(){
+  var date=document.getElementById('se-date').value;
+  if(!date){toast(mgrT('mgr.err.date','Pick a date'),true);return;}
+  var expected=parseInt(document.getElementById('se-expected').value,10);
+  var s={id:uid(),title:document.getElementById('se-title').value.trim()||mgrT('mgr.sess.deftitle','Live Q&A session'),date:date,time:document.getElementById('se-time').value||'14:00',teamsUrl:document.getElementById('se-url').value.trim(),host:window.AW_MANAGER_NAME||(window.AW_USER&&AW_USER.name)||'Manager',invitees:document.getElementById('se-invitees').value,description:document.getElementById('se-desc').value.trim()||null,materials:document.getElementById('se-materials').value.trim()||null,expected:isNaN(expected)?null:expected,siteId:awActiveSite(),createdBy:window.AW_MANAGER_NAME||(window.AW_USER&&AW_USER.name)||'Manager'};
+  var list=awLoadSessions();list.push(s);awSaveSessions(list);
+  renderSessions();updateBadges();
+  document.getElementById('se-url').value='';document.getElementById('se-title').value='';document.getElementById('se-desc').value='';document.getElementById('se-materials').value='';document.getElementById('se-expected').value='';
+  toast(mgrT('mgr.toast.sesscreated','Session scheduled'));
+}
+window.addSession=addSession;
+function delSession(id){awSaveSessions(awLoadSessions().filter(function(x){return x.id!==id;}));renderSessions();updateBadges();toast(mgrT('mgr.toast.removed','Removed'));}
+window.delSession=delSession;
+function copyLink(id){var s=awLoadSessions().filter(function(x){return x.id===id;})[0];if(!s||!s.teamsUrl)return;var done=function(){toast(mgrT('mgr.toast.copied','Link copied'));};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(s.teamsUrl).then(done,function(){toast(s.teamsUrl);});}else{toast(s.teamsUrl);}}
+window.copyLink=copyLink;
+function renderSessions(){
+  var box=document.getElementById('sessions-list');if(!box)return;
+  var list=sitedSessions();
+  if(!list.length){box.innerHTML='<div class="mgr-empty">'+mgrT('mgr.sess.empty','No sessions scheduled. Create one above.')+'</div>';return;}
+  var hostL=mgrT('mgr.item.host','Host'),joinL=mgrT('mgr.item.join','Join in Teams'),copyL=mgrT('mgr.item.copy','Copy link'),delT=mgrT('mgr.del','Delete'),allL=mgrT('mgr.chip.allteam','All team'),matL=mgrT('mgr.item.materials','Materials');
+  box.innerHTML=list.slice().sort(function(a,b){return (a.date+a.time).localeCompare(b.date+b.time);}).map(function(s){
+    var chip=s.invitees==='all'?'<span class="mgr-chip all">'+allL+'</span>':'<span class="mgr-chip">'+esc(s.invitees)+'</span>';
+    var link=s.teamsUrl?' \xB7 <a href="'+esc(s.teamsUrl)+'" target="_blank" rel="noopener">'+joinL+'</a>':'';
+    var copy=s.teamsUrl?'<button class="mgr-iconbtn" title="'+copyL+'" onclick="copyLink(\''+s.id+'\')">'+ICO.copy+'</button>':'';
+    var expected=s.expected!=null?' \xB7 '+mgrT('mgr.item.expected','{n} expected').replace('{n}',s.expected):'';
+    var descLine=s.description?'<div class="mgr-item-sub">'+esc(s.description)+'</div>':'';
+    var matLine=s.materials?'<div class="mgr-item-sub">'+matL+': '+esc(s.materials)+'</div>':'';
+    return '<div class="mgr-item"><div class="mgr-item-ic session">'+ICO.session+'</div>'
+      +'<div class="mgr-item-body"><div class="mgr-item-t">'+esc(s.title||mgrT('mgr.sess.deftitle','Live Q&A session'))+' '+chip+'</div>'
+      +'<div class="mgr-item-sub">'+fmtDate(s.date)+' \xB7 '+esc(awFmtTime(s.time))+' \xB7 '+hostL+' '+esc(awWho(s.host))+expected+link+'</div>'
+      +descLine+matLine+'</div>'
+      +'<div class="mgr-item-actions">'+copy+'<button class="mgr-iconbtn danger" title="'+delT+'" onclick="delSession(\''+s.id+'\')">'+ICO.trash+'</button></div></div>';
+  }).join('');
+}
+
+function updateBadges(){
+  var eA=document.getElementById('tab-assign-badge'),eS=document.getElementById('tab-sessions-badge'),eT=document.getElementById('tab-team-badge');
+  if(eA)eA.textContent=sitedAssignments().length;
+  if(eS)eS.textContent=sitedSessions().length;
+  if(eT)eT.textContent=USERS.length;
+}
+var _toastTimer;
+function toast(msg,warn){var el=document.getElementById('mgr-toast');if(!el)return;var okSVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';el.innerHTML=(warn?'':okSVG)+'<span>'+msg+'</span>';el.classList.add('show');clearTimeout(_toastTimer);_toastTimer=setTimeout(function(){el.classList.remove('show');},2600);}
+window.toast=toast;
+
+function initManager(){renderSiteBar();renderNuTrain();populateSelects();renderAssignments();renderSessions();updateBadges();updateSeats();updateTeamTitle();updateFilterCounts();}
+
+buildOPS(LANG);
+render(OPS);
+renderScopeHint();
+applyLang(LANG);
+updateWeek();
+renderOverview();
+drawChart('week');
+renderChrome('dashboard');
+initManager();
+document.getElementById('as-due').value='';
+document.getElementById('se-date').value=isoPlus(2);
+// 14/10: placeholder dei moduli nella lingua scelta (dizionario pkx_translations.js; senza voce resta l'inglese)
+function applyPh(){document.querySelectorAll('[data-ph]').forEach(function(el){el.placeholder=awDictT(el.getAttribute('data-ph'));});}
+applyPh();
+// deep-link dalla ricerca globale: ?tab=team|assign|sessions  ?user=<id>
+try {
+  var _p=new URLSearchParams(location.search), _tab=_p.get('tab'), _usr=_p.get('user');
+  var _map={overview:0,team:1,assign:2,sessions:3};
+  if(_usr){ var _b=document.querySelectorAll('.mgr-tab')[1]; if(_b)mgrTab('team',_b); openManage(_usr); }
+  else if(_tab&&_map[_tab]!=null){ var _bt=document.querySelectorAll('.mgr-tab')[_map[_tab]]; if(_bt)mgrTab(_tab,_bt); }
+} catch(e){}
+window._onLangChange=function(newLang){LANG=newLang;applyPh();buildOPS(LANG);renderSiteBar();renderNuTrain();applyTeamView();renderScopeHint();updateWeek();renderOverview();drawChart(_activePeriod);populateSelects();renderAssignments();renderSessions();updateBadges();updateSeats();updateTeamTitle();updateFilterCounts();if(_bulkRows.length)renderBulkRows();if(_manageId)openManage(_manageId);};
+</script>
+<script>
+document.addEventListener('click',function(e){
+  document.querySelectorAll('[data-lang-menu]').forEach(function(m){
+    if(!m.contains(e.target))m.querySelector('div').style.display='none';
+  });
+  if(!e.target.closest('.mgr-dd')&&window.closeAllDD)window.closeAllDD();
+});
+</script>
+</body>
+</html>
+

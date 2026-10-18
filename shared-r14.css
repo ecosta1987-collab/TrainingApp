@@ -1,0 +1,1149 @@
+/* ============================================================
+   shared.css — Autoware Training Platform
+   Common styles for all OP-0x training modules
+   v1.0
+   ============================================================ */
+
+/* ── FONT (self-hosted, funziona offline su file://) ──
+   IBM Plex Sans per il testo. Path relativo a shared.css → 'fonts/...'.
+   Per ZH (cinese) IBM Plex Sans non ha glifi → fallback CJK nello stack --font. */
+@font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/ibm-plex-sans-v23-latin-ext-regular.woff2') format('woff2')}
+@font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/ibm-plex-sans-v23-latin-ext-500.woff2') format('woff2')}
+@font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:600;font-display:swap;src:url('fonts/ibm-plex-sans-v23-latin-ext-600.woff2') format('woff2')}
+@font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:700;font-display:swap;src:url('fonts/ibm-plex-sans-v23-latin-ext-700.woff2') format('woff2')}
+/* 08/10 hindi (fiera): IBM Plex Sans Devanagari, OFL (licenza in fonts/). unicode-range = solo i caratteri devanagari: il resto non cambia */
+@font-face{font-family:'IBM Plex Sans Devanagari';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/IBMPlexSansDevanagari-Regular.woff2') format('woff2');unicode-range:U+0900-097F,U+1CD0-1CF9,U+200C-200D,U+20A8,U+20B9,U+25CC,U+A830-A839,U+A8E0-A8FF}
+@font-face{font-family:'IBM Plex Sans Devanagari';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/IBMPlexSansDevanagari-Medium.woff2') format('woff2');unicode-range:U+0900-097F,U+1CD0-1CF9,U+200C-200D,U+20A8,U+20B9,U+25CC,U+A830-A839,U+A8E0-A8FF}
+@font-face{font-family:'IBM Plex Sans Devanagari';font-style:normal;font-weight:600;font-display:swap;src:url('fonts/IBMPlexSansDevanagari-SemiBold.woff2') format('woff2');unicode-range:U+0900-097F,U+1CD0-1CF9,U+200C-200D,U+20A8,U+20B9,U+25CC,U+A830-A839,U+A8E0-A8FF}
+@font-face{font-family:'IBM Plex Sans Devanagari';font-style:normal;font-weight:700;font-display:swap;src:url('fonts/IBMPlexSansDevanagari-Bold.woff2') format('woff2');unicode-range:U+0900-097F,U+1CD0-1CF9,U+200C-200D,U+20A8,U+20B9,U+25CC,U+A830-A839,U+A8E0-A8FF}
+
+/* ── RESET ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ── TOKENS ── */
+:root{
+  --bg:#fff;--bg2:#f4f5f7;--bg3:#eceef2;
+  --border:rgba(15,39,87,.12);--border2:rgba(15,39,87,.20);
+  --text:#1a1a18;--text2:#5a5a56;--text3:#9a9a94;
+  --purple:#4565AD;--purple-l:#EAEEF7;--purple-d:#36508a;
+  --teal:#0F6E56;--teal-l:#E1F5EE;--teal-d:#085041;
+  --amber:#BA7517;--amber-l:#FAEEDA;--amber-d:#633806;
+  --blue:#185FA5;--blue-l:#E6F1FB;--blue-d:#0C447C;
+  --green:#3B6D11;--green-l:#EAF3DE;--green-d:#27500A;
+  --red:#A32D2D;--red-l:#FCEBEB;--red-d:#791F1F;
+  --orange:#C05A00;--orange-l:#FEF0E0;--orange-d:#7A3800;
+  --gray:#888780;--gray-l:#F1EFE8;--gray-d:#444441;
+  /* colori del PRODOTTO TilliT (anteprime d'interfaccia) — palette canonica presa dai
+     mockup della sezione concept (NON il pink Autoware). Blu TilliT = #4d7ff7. */
+  --tillit-blue:#4d7ff7;--tillit-blue-d:#3b6fe8;
+  --tillit-run:#16a34a;--tillit-stop:#dc2626;--tillit-starve:#eab308;--tillit-block:#f97316;
+  --r:10px;--rsm:6px;
+  /* Stack unico: IBM Plex Sans (latin) → fallback CJK per ZH → system-ui */
+  --font:'IBM Plex Sans','IBM Plex Sans Devanagari','Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,'SFMono-Regular','Consolas',monospace;
+  /* ── ELEVAZIONE — profondità per ombra, mai per trasparenza (no glass/glow) ── */
+  --e1:0 1px 2px rgba(15,39,87,.07),0 2px 5px rgba(15,39,87,.07);
+  --e2:0 2px 8px rgba(15,39,87,.10),0 6px 16px rgba(15,39,87,.08);
+  --e3:0 10px 28px rgba(15,39,87,.16),0 18px 44px rgba(15,39,87,.12);
+  /* e4: hero-only, top of the elevation scale — reserved for the single highest-priority surface per page */
+  --e4:0 18px 40px rgba(15,39,87,.22),0 32px 72px rgba(15,39,87,.16);
+  /* ── AUTOWARE CHROME — palette brand reale (brand book + autoware.it) ── */
+  /* Disciplina: SOLO 2 blu (Deep Blue #0F2757 chrome · Waikawa #4565AD accent) + 1 pink #E0318A.
+     Nessun gradiente tri-color, nessun viola. Status TilLiT (verde/rosso/giallo/blu) invariati. */
+  --aw-navy:#0F2757;--aw-navy-2:#13294f;--aw-navy-3:#16315f;--aw-navy-4:#0a1c3d;
+  --aw-blue:#4565AD;--aw-purple:#4565AD;--aw-pink:#E0318A;
+  --aw-accent-grad:#E0318A;
+  --aw-accent-grad-135:#E0318A;
+  --aw-hero-grad:linear-gradient(135deg,#0F2757 0%,#13294f 50%,#0F2757 100%);
+  --aw-db-body-grad:linear-gradient(180deg,#0F2757 0%,#0a1c3d 100%);
+  --aw-fg:#ffffff;--aw-fg-2:rgba(255,255,255,.70);--aw-fg-3:rgba(255,255,255,.45);
+  --aw-fg-4:rgba(255,255,255,.30);--aw-fg-5:rgba(255,255,255,.15);
+  --aw-line:rgba(255,255,255,.09);--aw-line-2:rgba(255,255,255,.18);
+  --aw-surface:rgba(255,255,255,.05);--aw-surface-2:rgba(255,255,255,.08);
+  --aw-ok:#4dc9a0;--aw-active-lilac:#8AA0D4;
+  --aw-score-hi:#4dc9a0;--aw-score-mid:#8AA0D4;--aw-score-lo:#E0318A;
+  /* ── TYPE SCALE ── */
+  --fs-hero:42px;--fs-h1:28px;--fs-h2:22px;--fs-h3:15px;--fs-h4:14px;
+  --fs-body:14px;--fs-sm:13px;--fs-xs:12px;--fs-2xs:11px;--fs-3xs:10px;
+  --fw-reg:400;--fw-med:500;--fw-sb:600;--fw-b:700;
+  --lh-tight:1.2;--lh-snug:1.3;--lh-body:1.6;--lh-read:1.75
+}
+/* ── DARK MODE — attivato via data-theme="dark" su <html>; mai automatico, mai OS ── */
+[data-theme="dark"]{
+  --bg:#1e2d4a;--bg2:#19253e;--bg3:#141d30;
+  --border:rgba(255,255,255,.10);--border2:rgba(255,255,255,.18);
+  --text:#e4e8f0;--text2:#8fa4c0;--text3:#6b82a4;
+  --purple-l:#1e2d55;--purple-d:#a0b8e8;
+  --teal-l:#0a2820;--teal-d:#7fd9c0;
+  --amber-l:#2a1a04;--amber-d:#e8b870;
+  --blue-l:#0a2040;--blue-d:#90c0e8;
+  --green-l:#0e2204;--green-d:#90d070;
+  --red-l:#2c0e0e;--red-d:#e89090;
+  --orange-l:#281000;--orange-d:#e0a060;
+  --gray-l:#1a2030;--gray-d:#b0b8c8;
+  --e1:0 1px 2px rgba(0,0,0,.22),0 1px 3px rgba(0,0,0,.18);
+  --e2:0 2px 6px rgba(0,0,0,.30),0 4px 12px rgba(0,0,0,.24);
+  --e3:0 8px 24px rgba(0,0,0,.44),0 16px 40px rgba(0,0,0,.36);
+  --e4:0 16px 36px rgba(0,0,0,.52),0 28px 64px rgba(0,0,0,.42)
+}
+
+/* ── BASE ── */
+body{font-family:var(--font);background:var(--bg3);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6}
+
+/* ── TOPBAR (light, hidden by autoware override) ── */
+.topbar{background:var(--bg);border-bottom:.5px solid var(--border);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-mark{width:30px;height:30px;background:var(--purple);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:600}
+.logo-text{font-size:15px;font-weight:600;color:var(--text)}
+.logo-sub{font-size:11px;color:var(--text3);margin-left:2px}
+.user-pill{display:flex;align-items:center;gap:7px;padding:4px 12px 4px 4px;border-radius:20px;border:.5px solid var(--border);font-size:12px;color:var(--text2)}
+.user-av{width:26px;height:26px;border-radius:50%;background:var(--purple-l);color:var(--purple-d);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600}
+
+/* ── LAYOUT ── (shell v4: i moduli usano .aw-mod-layout; .layout = pagine utility full-width) */
+.layout{display:block;min-height:100vh}
+
+/* ── SIDEBAR ── */
+.sidebar{background:var(--bg);border-right:.5px solid var(--border);padding:14px 0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sb-label{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.06em;padding:10px 12px 4px;text-transform:uppercase}
+.sb-item{display:flex;align-items:center;gap:9px;padding:7px 12px;border-radius:var(--rsm);cursor:pointer;font-size:12px;color:var(--text2);transition:background .1s;text-decoration:none}
+.sb-item:hover:not(.locked){background:var(--bg2)}
+.sb-item.active{background:var(--purple-l);color:var(--purple-d);font-weight:600}
+.sb-item.locked{opacity:.38;cursor:not-allowed}
+.sb-item.done-mod{color:var(--teal-d)}
+.sb-check{width:16px;height:16px;border-radius:50%;flex-shrink:0;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:8px;color:transparent}
+.sb-check.done{background:var(--teal);border-color:var(--teal);color:#fff}
+.sb-check.current{border-color:var(--purple);border-width:2px}
+.sb-group-toggle{display:flex;align-items:center;gap:9px;padding:7px 12px;cursor:pointer;font-size:12px;color:var(--text2);transition:background .1s;user-select:none}
+.sb-group-toggle:hover{background:var(--bg2)}
+.sb-chevron{font-size:9px;color:var(--text3);transition:transform .2s;margin-left:auto}
+.sb-chevron.open{transform:rotate(90deg)}
+.sb-sublist{display:none;padding-left:28px}
+.sb-sublist.open{display:block}
+.sb-subitem{display:flex;align-items:center;gap:7px;padding:5px 12px 5px 4px;font-size:11px;color:var(--text2)}
+.sb-subitem.locked{opacity:.35}
+.sb-subdot{width:6px;height:6px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0}
+.sb-footer{margin-top:auto;padding:14px 16px;border-top:.5px solid var(--border)}
+.prog-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:6px}
+.prog-track{height:4px;background:var(--bg3);border-radius:2px}
+.prog-fill{height:100%;background:var(--purple);border-radius:2px;transition:width .4s}
+
+/* ── MAIN ── */
+.main{background:var(--bg3);display:flex;flex-direction:column}
+.mod-bar{background:var(--bg);border-bottom:.5px solid var(--border);padding:0 24px;height:44px;display:flex;align-items:center;gap:12px}
+.back-btn{font-size:12px;color:var(--text2);cursor:pointer;padding:4px 9px;border-radius:var(--rsm);transition:background .1s;text-decoration:none}
+.back-btn:hover{background:var(--bg2)}
+.mod-bar-title{font-size:13px;font-weight:600;color:var(--text);flex:1}
+.mod-bar-meta{font-size:11px;color:var(--text3)}
+
+/* ── SECTION NAV ── */
+.sect-nav{background:var(--bg);border-bottom:.5px solid var(--border);display:flex;overflow-x:auto;padding:0 24px}
+.sect-nav::-webkit-scrollbar{display:none}
+.sect-tab{padding:10px 16px;font-size:12px;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-.5px;white-space:nowrap;display:flex;align-items:center;gap:5px;transition:color .1s}
+.sect-tab:hover{color:var(--text2)}
+.sect-tab.active{color:var(--purple);border-color:var(--purple);font-weight:600}
+.sect-tab.done{color:var(--teal)}
+.tab-dot{width:6px;height:6px;border-radius:50%;background:var(--border2);flex-shrink:0}
+.sect-tab.active .tab-dot{background:var(--purple)}
+.sect-tab.done .tab-dot{background:var(--teal)}
+
+/* ── PAGE AREA + PAGES ── */
+.page-area{flex:1;overflow-y:auto}
+.page{display:none;padding:28px}
+.page.active{display:block}
+.page-title{font-size:22px;font-weight:600;color:var(--text);margin-bottom:6px}
+.page-sub{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:24px;max-width:640px}
+.sect-badge{display:inline-block;font-size:11px;padding:3px 10px;border-radius:20px;margin-bottom:10px;font-weight:500}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:start}
+
+/* ── CARDS ── */
+.card{background:var(--bg);border:.5px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:16px}
+.card-head{padding:12px 18px;border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:600;color:var(--text)}
+.card-tag{font-size:10px;padding:2px 9px;border-radius:20px;font-weight:500}
+.card-body{padding:18px}
+
+/* ── INFO BOXES ── */
+.info-box{background:var(--bg2);border-radius:var(--rsm);padding:11px 14px;font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:10px}
+.warn-box{background:var(--orange-l);border-radius:var(--rsm);padding:11px 14px;font-size:13px;color:var(--orange-d);line-height:1.6;margin-bottom:10px}
+.tip-box{background:var(--purple-l);border-radius:var(--rsm);padding:11px 14px;font-size:13px;color:var(--purple-d);line-height:1.6;margin-bottom:10px}
+.success-box{background:var(--teal-l);border-radius:var(--rsm);padding:11px 14px;font-size:13px;color:var(--teal-d);line-height:1.6;margin-bottom:10px}
+
+/* ── INTRO v5: visual-led (condiviso da tutti i moduli) ──────────────────
+   Testo essenziale a sinistra, anteprima dello schermo reale TilliT nel bezel
+   navy a destra, "cosa imparerai" come lista leggera senza box. Niente griglia
+   di card/tile: una sola superficie chiara, il blu resta confinato nel device. */
+/* la intro galleggia come UNICA superficie bianca elevata sul canvas grigio:
+   profondità via ombra marcata + filo fucsia in alto, non via tante scatole */
+.iv-wrap{max-width:1180px;margin:14px auto;background:var(--bg);border:.5px solid var(--border);border-top:3px solid var(--aw-pink);border-radius:18px;box-shadow:var(--e3);padding:42px 46px}
+.iv-hero{display:grid;grid-template-columns:1fr 1.04fr;gap:52px;align-items:center}
+@media(max-width:860px){.iv-hero{grid-template-columns:1fr;gap:32px}}
+.iv-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.iv-dot{width:8px;height:8px;border-radius:50%;background:var(--aw-pink);box-shadow:0 0 0 4px rgba(224,49,138,.18);animation:iaPulse 2s ease-in-out infinite;flex-shrink:0}
+@keyframes iaPulse{0%,100%{box-shadow:0 0 0 4px rgba(224,49,138,.18)}50%{box-shadow:0 0 0 9px rgba(224,49,138,0)}}
+.iv-eyebrow span{font-size:11px;font-weight:var(--fw-b);letter-spacing:.1em;text-transform:uppercase;color:var(--text2)}
+.iv-h1{font-size:var(--fs-hero);font-weight:var(--fw-b);line-height:1.08;letter-spacing:-1.2px;color:var(--text);margin:0 0 16px}
+.iv-sub{font-size:16px;line-height:var(--lh-body);color:var(--text2);margin:0 0 24px;max-width:460px}
+.iv-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px}
+.iv-chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--text2);padding:7px 14px;background:var(--bg2);border:.5px solid var(--border);border-radius:100px;line-height:1.3;box-shadow:var(--e1)}
+.iv-chip svg{width:14px;height:14px;color:var(--aw-blue);flex-shrink:0}
+.iv-cta{display:inline-flex;align-items:center;gap:10px;padding:15px 32px;background:var(--aw-pink);color:#fff;border:none;border-radius:var(--rsm);font-size:15px;font-weight:var(--fw-sb);cursor:pointer;font-family:var(--font);transition:background .15s,transform .08s}
+.iv-cta:hover{background:var(--aw-navy)}
+.iv-cta:active{transform:translateY(1px)}
+.iv-cta svg{width:16px;height:16px}
+.iv-tutor{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text3);margin-top:20px}
+.iv-tutor svg{width:15px;height:15px;color:var(--aw-blue);flex-shrink:0}
+/* anteprima schermo nel bezel navy (il blu è contenuto qui, non invade la pagina) */
+.iv-visual{position:relative}
+.iv-dev{background:var(--aw-navy);border-radius:14px;box-shadow:var(--e3);overflow:hidden;border:1px solid rgba(255,255,255,.06)}
+.iv-dev-bar{height:38px;display:flex;align-items:center;gap:14px;padding:0 14px;background:var(--aw-navy-2);border-bottom:1px solid rgba(255,255,255,.07)}
+.iv-dev-dots{display:flex;gap:6px}.iv-dev-dots i{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.22)}
+.iv-dev-url{font-family:var(--font-mono,monospace);font-size:11px;color:rgba(255,255,255,.45);letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.iv-dev-screen{padding:26px;position:relative}
+/* schermo LOGIN (OP-01) */
+.ivl-card{background:#fff;border-radius:12px;padding:28px 26px;max-width:280px;margin:8px auto;box-shadow:0 12px 30px rgba(0,0,0,.28)}
+.ivl-logo{font-size:22px;font-weight:var(--fw-b);color:var(--tillit-blue);text-align:center;letter-spacing:-.5px}
+.ivl-logo b{color:inherit}
+.ivl-tt{font-size:12px;color:#8a8f9c;text-align:center;margin:4px 0 20px}
+.ivl-corp{display:flex;align-items:center;justify-content:center;gap:9px;background:var(--tillit-blue);color:#fff;border-radius:7px;padding:12px;font-size:13.5px;font-weight:var(--fw-sb);box-shadow:0 0 0 3px rgba(77,127,247,.20)}
+.ivl-corp svg{width:16px;height:16px}
+.ivl-or{display:flex;align-items:center;gap:10px;margin:16px 0;color:#b5b9c2;font-size:11px}
+.ivl-or::before,.ivl-or::after{content:'';flex:1;height:1px;background:#e6e8ec}
+.ivl-field{height:36px;border:1px solid #e1e3e8;border-radius:6px;margin-bottom:9px;display:flex;align-items:center;padding:0 12px;font-size:12px;color:#b5b9c2;background:#fafbfc}
+.ivl-globe{position:absolute;top:48px;right:22px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;color:#fff}
+.ivl-globe svg{width:15px;height:15px}
+/* schermo COCKPIT (OP-02) */
+.ivc-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.ivc-card{background:#fff;border-radius:9px;overflow:hidden;box-shadow:0 6px 16px rgba(0,0,0,.16)}
+.ivc-hd{height:28px;display:flex;align-items:center;padding:0 11px;font-size:10.5px;font-weight:var(--fw-b);color:#fff;letter-spacing:.03em}
+.ivc-hd.run{background:var(--tillit-run)}.ivc-hd.stop{background:var(--tillit-stop)}.ivc-hd.starv{background:var(--tillit-starve)}.ivc-hd.block{background:var(--tillit-block)}
+.ivc-bd{padding:10px 11px}
+.ivc-line{font-size:12px;font-weight:var(--fw-sb);color:#1a1a18}
+.ivc-meta{font-size:10px;color:#9a9a94;margin-top:3px}
+.ivc-bar{height:5px;background:#eee;border-radius:3px;margin-top:8px;overflow:hidden}
+.ivc-bar i{display:block;height:100%;border-radius:3px}
+/* lista "cosa imparerai" leggera (niente box) */
+.iv-learn{margin-top:38px;padding-top:26px;border-top:.5px solid var(--border)}
+.iv-learn-h{font-size:12px;font-weight:var(--fw-b);letter-spacing:.06em;text-transform:uppercase;color:var(--text);margin-bottom:18px}
+.iv-learn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:30px}
+@media(max-width:860px){.iv-learn-grid{grid-template-columns:1fr;gap:16px}}
+.iv-learn-n{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:9px;background:var(--aw-pink);color:#fff;font-size:12px;font-weight:var(--fw-b);margin-bottom:10px;box-shadow:0 3px 8px rgba(224,49,138,.28)}
+.iv-learn-t{font-size:13.5px;color:var(--text);line-height:1.5}
+
+/* ── VIDEO PLACEHOLDER ── */
+.ph{background:#111827;border-radius:var(--rsm);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;padding:20px}
+.ph:hover .ph-ring{border-color:rgba(255,255,255,.65)}
+.ph-ring{width:48px;height:48px;border-radius:50%;border:2px solid rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;margin-bottom:10px;transition:border-color .15s}
+.ph-tri{width:0;height:0;border-top:9px solid transparent;border-bottom:9px solid transparent;border-left:16px solid rgba(255,255,255,.85);margin-left:3px}
+.ph-label{color:rgba(255,255,255,.78);font-size:12px;font-weight:600}
+.ph-sub{color:rgba(255,255,255,.38);font-size:10px;margin-top:3px}
+.ph-badge{position:absolute;top:10px;right:10px;font-size:9px;padding:2px 8px;border-radius:20px;background:rgba(255,255,255,.12);color:rgba(255,255,255,.6)}
+
+/* ── VIDEO ACCORDION (script scenes) ── */
+.script-scene{padding:16px 0;border-bottom:.5px solid var(--border)}
+.script-scene:last-child{border-bottom:none}
+.scene-lbl{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px}
+.scene-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px}
+.scene-vo{font-size:13px;color:var(--text2);line-height:1.75;font-style:italic;border-left:3px solid var(--purple);padding-left:14px;margin-bottom:8px}
+.scene-kp{font-size:12px;color:var(--text3);display:flex;gap:6px;margin-top:3px}
+.kpb{color:var(--teal);font-size:10px;margin-top:2px;flex-shrink:0}
+
+/* ── CONCEPT STEPPER ── */
+.cpills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.cp{padding:6px 16px;border-radius:20px;font-size:13px;cursor:pointer;border:.5px solid var(--border2);background:var(--bg2);color:var(--text2);transition:all .15s}
+.cp.active{background:var(--purple);border-color:var(--purple);color:#fff;font-weight:600}
+.cp.done{background:var(--teal-l);border-color:var(--teal);color:var(--teal-d)}
+.cpanel{display:none}
+.cpanel.active{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+
+/* ── CLICK SIMULATION ── */
+.sim-task{background:var(--purple-l);border-radius:var(--rsm);padding:12px 16px;font-size:14px;color:var(--purple-d);font-weight:500;margin-bottom:14px}
+.sim-hint{font-size:12px;color:var(--text3);margin:-6px 0 12px;display:flex;align-items:center;gap:6px}
+.sim-hint::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--aw-pink);flex-shrink:0}
+.sim-fb{font-size:13px;padding:10px 14px;border-radius:var(--rsm);margin-top:10px;display:none}
+.sim-fb.ok{background:var(--teal-l);color:var(--teal-d)}
+.sim-fb.ko{background:var(--red-l);color:var(--red-d)}
+.shake{animation:shk .35s ease}
+@keyframes shk{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+
+/* ── DEVICE FRAME — simulatore = schermo TilliT incassato ──
+   Bezel navy (chrome) + barra titolo, incassato dentro la card chiara (lezione).
+   Lo schermo dentro resta il mockup TilliT chiaro: profondità per ombra (--e3), mai trasparenza. */
+.device{background:var(--aw-navy);border:1px solid var(--aw-line);border-radius:12px;box-shadow:var(--e3);overflow:hidden}
+.device-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;height:40px;padding:0 14px;background:var(--aw-navy-2);border-bottom:1px solid var(--aw-line)}
+.device-dots{display:flex;gap:6px;flex-shrink:0}
+.device-dots i{width:9px;height:9px;border-radius:50%;background:var(--aw-fg-4)}
+.device-title{font-family:var(--font-mono);font-size:var(--fs-2xs);font-weight:var(--fw-sb);letter-spacing:.04em;color:var(--aw-fg-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.device-hint{display:inline-flex;align-items:center;gap:7px;flex-shrink:0;font-size:var(--fs-2xs);color:var(--aw-fg-3)}
+.device-hint .pulse{width:7px;height:7px;border-radius:50%;background:var(--aw-pink);animation:devpulse 1.6s ease-in-out infinite}
+@keyframes devpulse{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:1;transform:scale(1.25)}}
+.device-screen{padding:14px;background:var(--aw-navy)}
+
+/* ════════════════════════════════════════════════════════════
+   GUIDED CONCEPTS (.gc-*) — modello "guidato dall'azione".
+   Colonna destra: Stepper → Contesto (blu, "cosa vedi") →
+   Azione (rosa, "cosa fare") → NON fare (rosso, su errore) →
+   Fatto (teal). Palco a sinistra = .ca-spotlight (esistente).
+   Condiviso da OP-01/OP-02.
+   ════════════════════════════════════════════════════════════ */
+.gc-side{display:flex;flex-direction:column;gap:16px}
+
+/* stepper interno al concetto */
+.gc-steps{display:flex;align-items:center;gap:10px}
+.gc-steps-lbl{font-size:var(--fs-2xs);font-weight:var(--fw-sb);letter-spacing:.08em;text-transform:uppercase;color:var(--text3)}
+.gc-dots{display:flex;gap:6px;margin-left:auto}
+.gc-dot{width:9px;height:9px;border-radius:50%;background:var(--border2);transition:background .25s,transform .25s}
+.gc-dot.on{background:var(--aw-pink);transform:scale(1.15)}
+.gc-dot.done{background:var(--teal)}
+
+/* card CONTESTO — la SPIEGAZIONE: elemento HERO del pannello (spicca più della
+   checklist) e legata al mockup — stesso accento ROSA dell'anello + punta che
+   "indica" verso il mockup a sinistra. */
+.gc-ctx{position:relative;background:var(--bg);border:1px solid var(--border);border-left:5px solid var(--aw-pink);border-radius:14px;padding:20px 22px 20px 20px;display:flex;gap:16px;align-items:flex-start;box-shadow:var(--e2)}
+.gc-ctx::before{content:'';position:absolute;left:-9px;top:26px;width:0;height:0;border-top:9px solid transparent;border-bottom:9px solid transparent;border-right:9px solid var(--aw-pink)}
+.gc-ctx-ico{width:44px;height:44px;border-radius:12px;background:rgba(224,49,138,.10);color:var(--aw-pink);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.gc-ctx-ico svg{width:23px;height:23px}
+.gc-ctx-tag{font-size:var(--fs-2xs);font-weight:var(--fw-b);letter-spacing:.09em;text-transform:uppercase;color:var(--aw-pink);margin-bottom:6px}
+.gc-ctx-h{font-size:19px;font-weight:var(--fw-b);color:var(--text);margin-bottom:6px;line-height:1.3}
+.gc-ctx-d{font-size:13.5px;color:var(--text2);line-height:1.6}
+
+/* card AZIONE ("Do this") — SECONDARIA: istruzione del passo corrente (sequence mode,
+   es. Concept 4). La spiegazione .gc-ctx resta l'hero; questa è quieta come la checklist. */
+.gc-do{background:transparent;border:1px dashed var(--border2);border-radius:11px;padding:11px 13px;display:flex;gap:11px;align-items:flex-start;position:relative}
+.gc-do-ico{width:30px;height:30px;border-radius:8px;background:rgba(224,49,138,.10);color:var(--aw-pink);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.gc-do-ico svg{width:16px;height:16px}
+.gc-do-tag{font-size:var(--fs-3xs);font-weight:var(--fw-b);letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:3px}
+.gc-do-h{font-size:var(--fs-sm);font-weight:var(--fw-sb);color:var(--text);line-height:1.4}
+.gc-do-hint{font-size:var(--fs-xs);color:var(--text2);line-height:1.5}
+.gc-do-arrow{position:absolute;right:14px;bottom:12px;color:var(--aw-pink);opacity:.5;animation:gcnudge 1.6s ease-in-out infinite}
+.gc-do-arrow svg{width:16px;height:16px}
+.gc-do-arrow svg{width:18px;height:18px}
+@keyframes gcnudge{0%,100%{transform:translateX(0)}50%{transform:translateX(4px)}}
+
+/* alert NON FARE — pieno rosso, compare solo su errore */
+.gc-dont{background:var(--red-l);border:1px solid var(--red);border-radius:12px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;animation:gcpop .25s ease}
+.gc-dont-ico{width:32px;height:32px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:17px;font-weight:var(--fw-b);line-height:1}
+.gc-dont-h{font-size:var(--fs-sm);font-weight:var(--fw-sb);color:var(--red-d);margin-bottom:2px}
+.gc-dont-d{font-size:var(--fs-xs);color:var(--red-d);line-height:1.5;opacity:.9}
+@keyframes gcpop{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+
+/* card FATTO — teal pieno */
+.gc-done{background:var(--teal-l);border:1px solid var(--teal);border-radius:12px;padding:16px 18px;display:flex;gap:13px;align-items:flex-start;animation:gcpop .3s ease}
+.gc-done-ico{width:34px;height:34px;border-radius:50%;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.gc-done-ico svg{width:18px;height:18px}
+.gc-done-h{font-size:var(--fs-h4);font-weight:var(--fw-sb);color:var(--teal-d);margin-bottom:3px}
+.gc-done-d{font-size:12.5px;color:var(--teal-d);line-height:1.55;opacity:.92}
+
+/* mini-mappa del flusso in cima al palco (concetti lineari) */
+.gc-path{display:flex;align-items:center;gap:0;margin-bottom:16px;position:relative;z-index:2}
+.gc-path-i{display:flex;align-items:center;gap:7px;font-size:var(--fs-2xs);font-weight:var(--fw-sb);color:rgba(255,255,255,.45)}
+.gc-path-i .n{width:20px;height:20px;border-radius:50%;border:1.5px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:var(--fs-3xs);flex-shrink:0}
+.gc-path-i.on{color:#fff}
+.gc-path-i.on .n{background:var(--aw-pink);border-color:var(--aw-pink);color:#fff}
+.gc-path-i.done{color:rgba(255,255,255,.7)}
+.gc-path-i.done .n{background:var(--teal);border-color:var(--teal);color:#fff}
+.gc-path-sep{flex:1;height:1.5px;background:rgba(255,255,255,.15);margin:0 8px;min-width:14px}
+.gc-path-sep.done{background:var(--teal)}
+
+/* target da cliccare nel mockup: anello ROSA sempre visibile + alone pulsante.
+   Ombra sull'elemento stesso (non su ::after) così NON viene tagliata dall'overflow:hidden
+   del contenitore (es. .sv-col) e rispetta il border-radius del target. */
+/* anello FISSO di default (indica dove cliccare senza distrarre mentre si legge).
+   Il pulsare (.pulse) si usa solo per INIZIARE un concetto, non dopo ogni click. */
+.gc-target{position:relative;z-index:3;border-radius:8px;box-shadow:0 0 0 3px var(--aw-pink),0 0 0 5px rgba(224,49,138,.22);cursor:pointer}
+.gc-target.pulse{animation:gcPulse 1.4s ease-in-out infinite}
+@keyframes gcPulse{
+  0%{box-shadow:0 0 0 3px var(--aw-pink),0 0 0 5px rgba(224,49,138,.55)}
+  70%{box-shadow:0 0 0 3px var(--aw-pink),0 0 0 14px rgba(224,49,138,0)}
+  100%{box-shadow:0 0 0 3px var(--aw-pink),0 0 0 5px rgba(224,49,138,0)}
+}
+@media(prefers-reduced-motion:reduce){.gc-target.pulse{animation:none}}
+/* elemento GIÀ esplorato: anello teal persistente (stato "fatto" chiaro sul mockup) */
+.gc-cleared{position:relative;z-index:2;border-radius:8px;box-shadow:0 0 0 2.5px var(--teal)}
+/* zona non pertinente al passo corrente: attenuata e non cliccabile (effetto riflettore) */
+.gc-dim{opacity:.32;filter:saturate(.55);pointer-events:none;transition:opacity .3s ease,filter .3s ease}
+
+/* checklist a due livelli: elenca gli elementi cliccabili dell'AREA corrente.
+   Ogni click ne spiega uno; l'area avanza solo quando sono tutti esplorati. */
+/* checklist = navigazione/progresso, VOLUTAMENTE secondaria alla spiegazione:
+   piatta, intestazione attenuata, e il pallino corrente NON pulsa
+   (l'unico elemento che lampeggia è il target sul mockup, per non rubare attenzione). */
+.gc-check{background:transparent;border:1px dashed var(--border2);border-radius:12px;padding:10px 13px}
+.gc-check-hd{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:2px}
+.gc-check-tag{font-size:var(--fs-3xs);font-weight:var(--fw-b);letter-spacing:.08em;text-transform:uppercase;color:var(--text3)}
+.gc-check-count{font-size:var(--fs-xs);font-weight:var(--fw-sb);color:var(--text3);font-variant-numeric:tabular-nums;flex-shrink:0}
+.gc-check-sub{font-size:var(--fs-xs);color:var(--text3);line-height:1.4;margin-bottom:8px}
+.gc-check-list{display:flex;flex-direction:column;gap:1px}
+.gc-check-item{display:flex;align-items:center;gap:9px;padding:5px 7px;border-radius:8px;font-size:var(--fs-xs);color:var(--text3);transition:background .15s,color .15s}
+.gc-check-box{width:16px;height:16px;border-radius:50%;border:2px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:var(--fw-b);transition:background .18s,border-color .18s}
+.gc-check-item.done{color:var(--text2)}
+.gc-check-item.done .gc-check-box{background:var(--teal);border-color:var(--teal)}
+.gc-check-item.cur{color:var(--text);font-weight:var(--fw-sb)}
+.gc-check-item.cur .gc-check-box{border-color:var(--aw-pink);box-shadow:0 0 0 3px rgba(224,49,138,.16)}
+/* item della checklist senza bersaglio nel mockup: un bottone vero, non un indicatore (OP-03.1 c1, 2026-09-23) */
+.gc-check-btn{border:none;background:none;width:100%;font:inherit;text-align:left;cursor:pointer;-webkit-appearance:none;appearance:none}
+.gc-check-btn:hover{background:var(--bg2)}
+.gc-check-swatch{width:12px;height:12px;border-radius:50%;flex-shrink:0;border:1px solid rgba(0,0,0,.15)}
+/* pulsante "Continua" — appare quando l'area è completa; il salto NON è automatico */
+.gc-check-cont{display:flex;align-items:center;gap:6px;width:100%;margin-top:11px;padding:10px 12px;background:var(--aw-pink);color:#fff;border:none;border-radius:9px;font-size:var(--fs-sm);font-weight:var(--fw-sb);cursor:pointer;transition:filter .15s}
+.gc-check-cont b{font-weight:var(--fw-b)}
+.gc-check-cont svg{width:15px;height:15px;margin-left:auto}
+.gc-check-cont:hover{filter:brightness(1.08)}
+/* freccia inline "prossimo concetto" — compare quando il concetto è completato (condivisa OP-01/02/03) */
+.gc-next{display:flex;align-items:center;gap:12px;margin-top:2px}
+.gc-next span{font-size:var(--fs-sm);color:var(--text2);font-weight:var(--fw-sb)}
+
+/* griglia 3 segmenti (sostituisce .seg-g a 4 col, che schiacciava) */
+.seg-g3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+/* header in colonna (nome sopra, stato sotto) + pulsante compatto: niente overflow su card strette */
+.seg-g3 .ck-hd{flex-direction:column;align-items:flex-start;gap:1px}
+.seg-g3 .ck-btn{font-size:9px;padding:5px 2px;white-space:nowrap}
+.seg-g3 .ck-body{padding:8px 7px 9px}
+.seg-g3 .ck-hd{padding:7px 8px}
+.seg-g3 .ck-c{overflow:visible}/* lascia respirare l'anello pulse del target */
+/* al Livello 2 la sidebar del Cockpit non serve: i segmenti prendono tutta la larghezza */
+.ts-noside .ts-body{grid-template-columns:1fr}
+.ts-noside .ts-sb{display:none}
+
+/* ── PRACTICE STEP INDICATOR ── */
+.pstep{transition:opacity .3s}
+
+/* ── STEP FLOW ── */
+.step-flow{display:flex;flex-direction:column;gap:0}
+.step{display:flex;gap:14px;position:relative;padding-bottom:16px}
+.step:last-child{padding-bottom:0}
+.step-line{position:absolute;left:16px;top:34px;bottom:0;width:1px;background:var(--border2)}
+.step:last-child .step-line{display:none}
+.step-num{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;z-index:1;margin-top:2px}
+.step-body{flex:1}
+.step-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px}
+.step-desc{font-size:12px;color:var(--text2);line-height:1.55}
+
+/* ── CHATBOT / TUTOR ── */
+.chat-wrap{background:var(--bg);border:.5px solid var(--border);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column}
+.chat-hd{padding:11px 16px;border-bottom:.5px solid var(--border);display:flex;align-items:center;gap:10px}
+.chat-av{width:30px;height:30px;border-radius:50%;background:var(--purple);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.chat-name{font-size:13px;font-weight:600;color:var(--text)}
+.chat-st{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:5px}
+.sdot{width:6px;height:6px;border-radius:50%;background:var(--teal);flex-shrink:0}
+.msgs{overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;scroll-behavior:smooth}
+.m{display:flex;gap:8px}
+.m.user{flex-direction:row-reverse}
+.mav{width:24px;height:24px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;margin-top:2px}
+.mav.ai{background:var(--purple-l);color:var(--purple-d)}
+.mav.coach{background:var(--blue-l);color:var(--blue-d)}
+.mav.user{background:var(--teal-l);color:var(--teal-d)}
+.mbubble{padding:9px 12px;border-radius:var(--rsm);font-size:13px;line-height:1.6;max-width:88%}
+.m.ai .mbubble,.m.coach .mbubble{background:var(--bg2);color:var(--text);border-radius:2px var(--rsm) var(--rsm) var(--rsm)}
+.m.user .mbubble{background:var(--purple);color:#fff;border-radius:var(--rsm) 2px var(--rsm) var(--rsm)}
+/* verdetto risposta scenario (colore = informazione, non decorazione) */
+.m.coach .mbubble.verdict-ok{background:var(--teal-l);color:var(--teal-d)}
+.m.coach .mbubble.verdict-partial{background:var(--amber-l);color:var(--amber-d)}
+.m.coach .mbubble.verdict-ko{background:var(--red-l);color:var(--red-d)}
+.tdots{display:inline-flex;gap:3px;align-items:center;padding:2px 0}
+.tdots span{width:5px;height:5px;border-radius:50%;background:var(--text3);animation:td .9s ease-in-out infinite}
+.tdots span:nth-child(2){animation-delay:.15s}
+.tdots span:nth-child(3){animation-delay:.3s}
+@keyframes td{0%,80%,100%{transform:scale(1);opacity:.4}40%{transform:scale(1.3);opacity:1}}
+.qbtns{padding:8px 12px;border-top:.5px solid var(--border);display:flex;gap:5px;flex-wrap:wrap}
+.qb{padding:4px 11px;background:var(--bg2);border:.5px solid var(--border2);border-radius:20px;font-size:11px;color:var(--text2);cursor:pointer;font-family:var(--font);transition:all .15s}
+.qb:hover{background:var(--purple-l);border-color:var(--purple);color:var(--purple-d)}
+.chat-ir{padding:9px 12px;border-top:.5px solid var(--border);display:flex;gap:7px}
+.cinput{flex:1;font-size:12px;padding:8px 12px;border-radius:var(--rsm);border:.5px solid var(--border2);background:var(--bg2);color:var(--text);outline:none;font-family:var(--font);height:38px;transition:border-color .15s}
+.cinput:focus{border-color:var(--purple)}
+.csend{width:38px;height:38px;background:var(--purple);border:none;border-radius:var(--rsm);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.csend:hover{background:var(--purple-d)}
+
+/* ── QUIZ ── */
+.qhdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.qdots{display:flex;gap:6px}
+.qdot{width:10px;height:10px;border-radius:50%;background:var(--border2)}
+.qdot.done{background:var(--teal)}
+.qdot.active{background:var(--purple)}
+.qscore{font-size:13px;color:var(--text3)}
+.qlbl{font-size:12px;color:var(--text3);margin-bottom:8px}
+.qtxt{font-size:15px;font-weight:600;color:var(--text);line-height:1.5;margin-bottom:16px}
+.qopts{display:flex;flex-direction:column;gap:10px}
+.qopt{padding:13px 16px;border-radius:var(--rsm);border:.5px solid var(--border2);font-size:13px;cursor:pointer;text-align:left;background:var(--bg2);color:var(--text);line-height:1.4;transition:all .15s;font-family:var(--font)}
+.qopt:hover:not(:disabled){border-color:var(--purple);background:var(--purple-l);color:var(--purple-d)}
+.qopt.correct{background:var(--teal-l);border-color:var(--teal);color:var(--teal-d)}
+.qopt.wrong{background:var(--red-l);border-color:#F09595;color:var(--red-d)}
+.qexp{font-size:13px;color:var(--text2);line-height:1.6;padding:12px 14px;background:var(--bg2);border-radius:var(--rsm);margin-top:12px;display:none}
+.qvis{margin-top:10px;display:none}
+.btn-nq{padding:9px 22px;background:var(--purple);color:#fff;border:none;border-radius:var(--rsm);font-size:13px;cursor:pointer;display:none;font-family:var(--font);margin-top:14px}
+.btn-nq:hover{background:var(--purple-d)}
+/* Flash card: una domanda per schermo. Score nascosto durante il quiz (solo nel risultato). */
+.qhdr .qscore{display:none}
+/* Lettere A/B/C sulle opzioni (+ scorciatoie 1/2/3 in shared.js) */
+.qopts{counter-reset:qopt}
+.qopt{display:flex;align-items:center;gap:12px}
+.qopt::before{counter-increment:qopt;content:counter(qopt,upper-alpha);flex-shrink:0;width:24px;height:24px;border-radius:6px;background:var(--bg3);border:.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:var(--font-mono);color:var(--text2);transition:all .15s}
+.qopt:hover:not(:disabled)::before{border-color:var(--purple);color:var(--purple-d)}
+.qopt.correct::before{background:var(--teal);border-color:var(--teal);color:#fff}
+.qopt.wrong::before{background:var(--red);border-color:var(--red);color:#fff}
+/* Sigillo SVG (cerchio + check) — sostituisce le emoji 🎉/📚 nel risultato */
+.seal{width:56px;height:56px;display:block;margin:0 auto 14px;animation:sealin .4s ease}
+.seal.pass{color:var(--teal)}
+.seal.fail{color:var(--amber)}
+@keyframes sealin{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:none}}
+
+/* ── BUTTONS ── */
+.btn{padding:9px 20px;background:var(--purple);color:#fff;border:none;border-radius:var(--rsm);font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;font-family:var(--font);transition:background .15s;text-decoration:none;display:inline-flex;align-items:center}
+.btn:hover{background:var(--purple-d)}
+.btn-teal{background:var(--teal)}
+.btn-teal:hover{background:var(--teal-d)}
+.next-bar{background:var(--bg);border:.5px solid var(--border);border-radius:var(--r);padding:14px 20px;display:flex;align-items:center;gap:16px;margin-top:16px}
+.next-bar-t{flex:1}
+.next-bar-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px}
+.next-bar-sub{font-size:13px;color:var(--text2)}
+
+/* ── UNIFIED PANEL (Notes + Tutor) ── */
+/* Suggerimenti Tutor: chip cliccabili con accento + chevron (pannello navy) */
+.tutor-qa-item{position:relative;padding:10px 30px 10px 12px;border-radius:9px;cursor:pointer;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.09);transition:background .15s,border-color .15s,transform .1s}
+.tutor-qa-item:hover{background:rgba(255,255,255,.08);border-color:rgba(224,49,138,.45)}
+.tutor-qa-item:active{transform:scale(.99)}
+.tutor-qa-item::after{content:'';position:absolute;right:13px;top:50%;width:6px;height:6px;border-top:2px solid rgba(255,255,255,.4);border-right:2px solid rgba(255,255,255,.4);transform:translateY(-50%) rotate(45deg);transition:border-color .15s}
+.tutor-qa-item:hover::after{border-color:var(--aw-pink)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .two-col,.cpanel.active,.three-col{grid-template-columns:1fr}
+}
+/* nelle pagine modulo (.aw-mod-layout) la spath (188px) + il rail (48px)
+   riducono la larghezza reale del contenuto ben prima che il viewport
+   scenda a 768px → la griglia Concepts si strozza (spotlight+testo <300px
+   a colonna). Soglia più alta, ma scoped: non tocca le pagine senza spath. */
+@media(max-width:1024px){
+  .aw-mod-layout .two-col,.aw-mod-layout .cpanel.active,.aw-mod-layout .three-col{grid-template-columns:1fr}
+}
+
+/* ════════════════════════════════════════════════
+   autoware CHROME OVERRIDE v3.0
+   ════════════════════════════════════════════════ */
+.topbar{display:none!important}
+.layout{min-height:100vh!important}
+.aw-topbar{background:var(--aw-navy);height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:9999}
+.aw-topbar-logo img{height:40px;width:auto;display:block}
+.aw-topbar-title{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.42);flex:1;text-align:center}
+.aw-user-pill{display:flex;align-items:center;gap:7px;padding:4px 12px 4px 4px;border-radius:20px;border:1px solid rgba(255,255,255,.18);font-size:12px;color:rgba(255,255,255,.85)}
+.aw-user-av{width:28px;height:28px;border-radius:50%;background:var(--aw-pink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.aw-accent-line{height:3px;background:var(--aw-accent-grad)}
+.aw-subbar{background:var(--aw-navy-4);height:36px;display:flex;align-items:center;padding:0 24px;gap:6px;font-size:11px;color:rgba(255,255,255,.38)}
+.aw-subbar a{color:rgba(255,255,255,.38);text-decoration:none;transition:color .15s}
+.aw-subbar a:hover{color:rgba(255,255,255,.7)}
+.aw-subbar-sep{color:rgba(255,255,255,.2)}
+.aw-subbar-cur{color:rgba(255,255,255,.8);font-weight:500}
+.sidebar{background:var(--aw-navy)!important;border-right:.5px solid var(--aw-line)!important;top:0!important;height:100vh!important}
+.sb-label{color:rgba(255,255,255,.3)!important}
+.sb-item{color:rgba(255,255,255,.45)!important}
+.sb-item:hover:not(.locked){background:rgba(255,255,255,.05)!important;color:rgba(255,255,255,.8)!important}
+.sb-item.active{background:rgba(251,25,145,.1)!important;color:#fff!important;border-left:2px solid var(--aw-pink);font-weight:600!important}
+.sb-item.locked{opacity:.28!important}
+.sb-check{border-color:rgba(255,255,255,.2)!important}
+.sb-check.done{background:var(--teal)!important;border-color:var(--teal)!important;color:#fff!important}
+.sb-check.current{border-color:var(--aw-pink)!important}
+.sb-group-toggle{color:rgba(255,255,255,.35)!important}
+.sb-group-toggle:hover{background:rgba(255,255,255,.05)!important;color:rgba(255,255,255,.65)!important}
+.sb-chevron{color:rgba(255,255,255,.22)!important}
+.sb-subitem{color:rgba(255,255,255,.35)!important}
+.sb-subdot{border-color:rgba(255,255,255,.18)!important}
+.sb-footer{border-top:1px solid rgba(255,255,255,.07)!important}
+.prog-label{color:rgba(255,255,255,.3)!important}
+.prog-track{background:rgba(255,255,255,.1)!important}
+.prog-fill{background:var(--aw-accent-grad)!important}
+#prog-txt{color:var(--aw-pink)!important;font-weight:600;font-family:var(--font-mono)}
+/* .mod-bar override navy rimosso (shell v4): le pagine utility usano la mod-bar chiara di base */
+.sect-nav{background:var(--aw-navy)!important;border-bottom:1px solid var(--aw-line)!important}
+.sect-tab{color:rgba(255,255,255,.38)!important}
+.sect-tab:hover{color:rgba(255,255,255,.7)!important}
+.sect-tab.active{color:#fff!important;border-color:var(--aw-pink)!important;font-weight:600!important}
+.sect-tab.done{color:rgba(100,220,180,.7)!important}
+.tab-dot{background:rgba(255,255,255,.18)!important}
+.sect-tab.active .tab-dot{background:var(--aw-pink)!important}
+.sect-tab.done .tab-dot{background:var(--teal)!important}
+.aw-navbottom{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:var(--aw-navy);border-top:1px solid var(--aw-line);flex-shrink:0}
+.aw-navbottom-btn-back{padding:9px 18px;border-radius:6px;font-size:13px;font-weight:500;border:1px solid rgba(255,255,255,.2);background:transparent;color:rgba(255,255,255,.6);cursor:pointer;font-family:var(--font);transition:all .15s;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.aw-navbottom-btn-back:hover{background:rgba(255,255,255,.07);color:#fff}
+.aw-navbottom-btn-next{padding:9px 22px;border-radius:6px;font-size:13px;font-weight:600;border:none;background:var(--aw-accent-grad-135);color:#fff;cursor:pointer;font-family:var(--font);transition:opacity .15s;display:inline-flex;align-items:center;gap:6px}
+.aw-navbottom-btn-next:hover{opacity:.88}
+.aw-navbottom-meta{font-size:11px;color:rgba(255,255,255,.35)}
+/* Footer coerente su tutte le pagine shell: superficie chiara, testo quieto (no blocco navy) */
+.aw-footer{text-align:center;padding:14px 24px 18px;font-size:11px;color:var(--text3);background:transparent}
+
+/* ════════════════════════════════════════════════
+   GLOBAL SHELL v4 — rail navy + topbar chiara (centralizzato in shared.js)
+   Shell a due livelli: rail icone globale + (nei moduli) percorso verticale.
+   Tutti i colori via token → dark-mode-ready. Il rail resta navy in entrambi i temi.
+   ════════════════════════════════════════════════ */
+/* ── RAIL (64px chiuso, fisso, navy, identico ovunque) ── */
+/* rail SOTTO la topbar full-width (top:52px); la topbar passa sopra (z 1100 > 1000) */
+.aw-rail{position:fixed;left:0;top:52px;bottom:0;width:64px;background:var(--aw-navy);display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:4px;z-index:1000}
+/* hamburger per aprire/chiudere il rail — in fondo, sopra il ? */
+.aw-rail-toggle{width:40px;height:40px;border:none;background:none;border-radius:10px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.7);cursor:pointer;flex-shrink:0;margin-top:auto;font-family:var(--font);transition:background .15s,color .15s}
+.aw-rail-toggle:hover{color:#fff;background:rgba(255,255,255,.08)}
+.aw-rail-toggle svg{width:20px;height:20px}
+body.aw-rail-open .aw-rail-toggle{width:auto;height:40px;justify-content:flex-start;gap:12px;padding:0 11px;align-self:stretch;margin-top:auto}
+body.aw-rail-open .aw-rail-toggle .aw-rail-label{display:inline;font-size:13px;font-weight:500;color:rgba(255,255,255,.82)}
+.aw-rail-logo{width:36px;height:36px;border-radius:9px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;margin-bottom:10px;color:#fff;flex-shrink:0}
+.aw-rail-logo svg{width:22px;height:auto;display:block}
+.aw-rail a{position:relative;width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.55);cursor:pointer;text-decoration:none;transition:background .15s,color .15s;flex-shrink:0}
+.aw-rail a:hover{color:#fff;background:rgba(255,255,255,.08)}
+.aw-rail a.active{color:var(--aw-pink);background:rgba(224,49,138,.16)}
+.aw-rail a.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:22px;background:var(--aw-pink);border-radius:0 2px 2px 0}
+.aw-rail a svg{width:20px;height:20px;flex-shrink:0}
+.aw-rail .aw-rail-sp{margin-top:0}
+/* Voce "coming soon" nel rail (es. Knowledge Base): attenuata, non cliccabile */
+.aw-rail a.aw-rail-soon{color:rgba(255,255,255,.4);cursor:default}
+.aw-rail a.aw-rail-soon:hover{background:transparent;color:rgba(255,255,255,.5)}
+.aw-rail a::after{content:attr(data-tip);position:absolute;left:calc(100% + 9px);top:50%;transform:translateY(-50%);background:var(--aw-navy-2);color:#fff;font-size:11px;font-weight:500;padding:4px 9px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;box-shadow:var(--e2);z-index:1001}
+.aw-rail a:hover::after{opacity:1}
+/* Separatori di sezione nel rail */
+.aw-rail-div{width:36px;height:1px;background:rgba(255,255,255,.1);margin:6px auto 4px;flex-shrink:0}
+.aw-rail-sec{display:none;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.28);padding:8px 12px 2px;flex-shrink:0}
+
+/* body offset quando la shell è presente + sticky footer (footer sempre in fondo) */
+body.aw-shell{padding-left:64px;padding-top:52px;transition:padding-left .18s ease;display:flex;flex-direction:column;min-height:100vh}
+body.aw-shell .aw-footer{margin-top:auto}
+/* sotto la shell il body-flex gestisce l'altezza piena: niente min-height:100vh sul
+   contenuto (sommato alla topbar spingerebbe il footer sotto il fold) */
+body.aw-shell .layout{min-height:0}
+.aw-rail{transition:width .18s ease}
+/* ── Rail espandibile: mostra etichette, user card e sezioni. Il logo completo è in topbar. ── */
+.aw-rail-label{display:none;font-size:13px;font-weight:500;color:rgba(255,255,255,.82);white-space:nowrap}
+/* Solo le voci di navigazione (<a>, es. Knowledge Base) troncano con ellipsis se
+   il testo tradotto non entra; il pulsante "Menu" (<button>, testo centrato di
+   default) resta escluso per non farsi allargare/centrare l'etichetta. */
+.aw-rail a .aw-rail-label{overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1 1 auto}
+.aw-rail-logo-full{display:none!important}
+body.aw-rail-open{padding-left:220px}
+body.aw-rail-open .aw-rail{width:220px;align-items:stretch;padding:12px}
+body.aw-rail-open .aw-rail a{width:auto;justify-content:flex-start;gap:12px;padding:0 11px;height:40px}
+body.aw-rail-open .aw-rail-label{display:inline}
+body.aw-rail-open .aw-rail a.active .aw-rail-label{color:var(--aw-pink)}
+body.aw-rail-open .aw-rail a.active::before{left:-11px;height:26px}
+body.aw-rail-open .aw-rail a::after{display:none}
+body.aw-rail-open .aw-rail a.aw-rail-logo{background:none;justify-content:flex-start;padding-left:10px;margin-bottom:10px}
+body.aw-rail-open .aw-rail-sec{display:block}
+body.aw-rail-open .aw-rail-div{display:none}
+
+/* ── TOPBAR NAVY (full-width, fissa in cima sopra tutto, anche sopra il rail) ── */
+.aw-tb{height:52px;background:var(--aw-navy);border-bottom:.5px solid var(--aw-line);display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:fixed;top:0;left:0;right:0;z-index:1100;transform:translateZ(0);will-change:transform}
+.aw-tb-left,.aw-tb-right{display:flex;align-items:center;gap:13px}
+.aw-tb-burger,.aw-tb-ico{position:relative;background:none;border:none;cursor:pointer;color:rgba(255,255,255,.72);display:flex;align-items:center;justify-content:center;padding:5px;border-radius:7px;transition:background .15s,color .15s;font-family:var(--font)}
+.aw-tb-burger:hover,.aw-tb-ico:hover{background:rgba(255,255,255,.1);color:#fff}
+.aw-tb-burger svg{width:20px;height:20px}
+.aw-tb-ico svg{width:18px;height:18px}
+.aw-tb-avatar{width:28px;height:28px;border-radius:50%;background:var(--aw-pink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;cursor:default}
+/* Logo a sinistra nella topbar — topbar sempre navy → logo sempre NEGATIVO (bianco).
+   Il PNG ha molto margine trasparente: il link è dimensionato sul contenuto (≈185×30) con
+   overflow:hidden e l'img sovradimensionata e centrata → ritaglia il vuoto simmetricamente senza
+   toccare la topbar (così il menu lingua a tendina non viene clippato). pointer-events:none così
+   il vuoto non ruba i click. justify-content:center per non clippare la lettera finale. */
+.aw-tb-logo{width:185px;height:30px;display:flex;align-items:center;justify-content:center;overflow:hidden;text-decoration:none;flex-shrink:0}
+.aw-tb-logo img{height:131px;width:auto;flex-shrink:0;pointer-events:none}
+.aw-tb-logo-pos{display:none}
+.aw-tb-logo-neg{display:block}
+/* su finestre molto strette nascondi il logo per non comprimere le icone */
+@media(max-width:520px){.aw-tb-logo{display:none}}
+/* titolo centrato nella topbar */
+.aw-tb-title{position:absolute;left:50%;transform:translateX(-50%);font-size:var(--fs-h4);font-weight:var(--fw-sb);color:rgba(255,255,255,.9);letter-spacing:.01em;pointer-events:none;white-space:nowrap}
+/* menu lingua nella topbar */
+.aw-lang{position:relative}
+.aw-lang-btn{display:flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;color:rgba(255,255,255,.72);font-family:var(--font);font-size:12px;font-weight:500;padding:5px 8px;border-radius:7px;transition:background .15s,color .15s}
+.aw-lang-btn:hover{background:rgba(255,255,255,.1);color:#fff}
+.aw-lang-btn svg{width:18px;height:18px}
+.aw-lang-menu{display:none;position:absolute;right:0;top:calc(100% + 6px);min-width:150px;background:var(--bg);border:.5px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:var(--e3);z-index:1002}
+.aw-lang-menu.open{display:block}
+.aw-lang-menu a{display:block;padding:10px 14px;color:var(--text2);font-size:13px;text-decoration:none;transition:background .15s}
+.aw-lang-menu a:hover{background:var(--bg2);color:var(--text)}
+.aw-lang-menu a.cur{color:var(--purple-d);font-weight:600;background:var(--purple-l)}
+
+/* ── DRAWER MODULI (apre dal rail "Moduli") ── */
+.aw-drawer-ov{position:fixed;inset:0;background:rgba(15,39,87,.35);z-index:1100;opacity:0;pointer-events:none;transition:opacity .2s}
+.aw-drawer-ov.open{opacity:1;pointer-events:auto}
+.aw-drawer{position:fixed;left:64px;top:0;bottom:0;width:300px;max-width:84vw;background:var(--bg);border-right:.5px solid var(--border);z-index:1101;transform:translateX(-115%);transition:transform .24s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:var(--e3)}
+.aw-drawer.open{transform:none}
+.aw-drawer-hd{padding:16px 18px 12px;border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.aw-drawer-hd h3{font-size:14px;font-weight:600;color:var(--text);margin:0}
+.aw-drawer-x{background:none;border:none;cursor:pointer;color:var(--text3);font-size:20px;line-height:1;padding:2px 7px;border-radius:6px}
+.aw-drawer-x:hover{background:var(--bg2);color:var(--text)}
+.aw-drawer-body{padding:10px 12px;overflow-y:auto;flex:1}
+.aw-mod-link{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:8px;text-decoration:none;color:var(--text);transition:background .15s;margin-bottom:2px}
+.aw-mod-link:hover{background:var(--bg2)}
+.aw-mod-link.locked{opacity:.5;cursor:not-allowed;pointer-events:none}
+.aw-mod-ic{width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.aw-mod-ic.done{background:var(--teal);color:#fff}
+.aw-mod-ic.cur{background:var(--bg);border:2px solid var(--purple);color:var(--purple-d)}
+.aw-mod-ic.lock{background:var(--bg3);color:var(--text3);border:1px solid var(--border2)}
+.aw-mod-ic svg{width:13px;height:13px}
+.aw-mod-tx{flex:1;min-width:0}
+.aw-mod-t{font-size:13px;font-weight:500;line-height:1.3}
+.aw-mod-s{font-size:11px;color:var(--text3)}
+
+/* ── PERCORSO VERTICALE SEZIONI (moduli) — UNICA nav di sezione ── */
+.aw-mod-layout{display:flex;flex:1 0 auto;min-height:calc(100vh - 52px)}
+.aw-mod-main{flex:1;min-width:0;display:flex;flex-direction:column}
+.aw-spath{width:188px;flex-shrink:0;align-self:stretch;background:var(--bg);border-right:.5px solid var(--border);box-shadow:3px 0 14px rgba(15,39,87,.05);transition:width .24s cubic-bezier(.4,0,.2,1);z-index:5}
+/* contenuto sticky: la colonna riempie l'intera altezza (bg fino in fondo), il contenuto scorre e resta agganciato sotto la topbar */
+.aw-spath-inner{display:flex;flex-direction:column;padding:14px 0;position:sticky;top:52px;height:calc(100vh - 52px);max-height:100%;overflow-y:auto}
+.aw-spath-back{display:flex;align-items:center;gap:6px;padding:10px 16px;font-size:11px;font-weight:600;color:var(--text3);text-decoration:none;letter-spacing:.06em;text-transform:uppercase;border-bottom:.5px solid var(--border);margin-bottom:12px;transition:color .15s}
+.aw-spath-back:hover{color:var(--aw-pink)}
+.aw-spath-back svg{width:13px;height:13px;flex-shrink:0}
+.aw-spath-hd{padding:0 16px 4px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.aw-spath-eyebrow{font-size:10px;letter-spacing:.06em;color:var(--text3);text-transform:uppercase;white-space:nowrap}
+.aw-spath-collapse{background:none;border:none;cursor:pointer;color:var(--text3);padding:2px;border-radius:5px;display:flex;flex-shrink:0}
+.aw-spath-collapse:hover{color:var(--text);background:var(--bg2)}
+.aw-spath-collapse svg{width:15px;height:15px}
+.aw-spath-title{padding:0 16px 14px;font-size:13px;font-weight:500;line-height:1.3;color:var(--text)}
+.aw-steps{padding:0 16px;position:relative}
+.aw-steps-line{position:absolute;left:23px;top:14px;bottom:14px;width:2px;background:var(--bg3)}
+.aw-step{display:flex;align-items:center;gap:10px;padding:7px 0;position:relative;cursor:pointer;background:none;border:none;width:100%;text-align:left;font-family:var(--font)}
+.aw-step-dot{width:18px;height:18px;border-radius:50%;background:var(--bg);border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--text3);z-index:1;flex-shrink:0}
+.aw-step-dot svg{width:10px;height:10px}
+.aw-step.done .aw-step-dot{background:var(--teal);border-color:var(--teal);color:#fff}
+.aw-step.current .aw-step-dot{border:2px solid var(--aw-pink);background:var(--bg)}
+.aw-step.current .aw-step-dot::after{content:'';width:7px;height:7px;border-radius:50%;background:var(--aw-pink)}
+.aw-step-lbl{flex:1;font-size:12px;color:var(--text2)}
+.aw-step.done .aw-step-lbl{color:var(--teal-d)}
+.aw-step.current .aw-step-lbl{color:var(--text);font-weight:500}
+.aw-step.locked{cursor:not-allowed}
+.aw-step.locked .aw-step-lbl{color:var(--text3)}
+.aw-step-time{font-size:10px;color:var(--text3);flex-shrink:0;font-family:var(--font-mono)}
+.aw-spath-foot{margin-top:auto;padding:14px 16px 0}
+.aw-spath-foot-lbl{font-size:10px;color:var(--text3);margin-bottom:5px}
+.aw-spath-track{height:5px;background:var(--bg3);border-radius:4px;overflow:hidden}
+.aw-spath-fill{height:100%;background:var(--purple);border-radius:4px;transition:width .4s}
+.aw-spath-reset{display:flex;align-items:center;gap:7px;margin:14px 12px 4px;padding:8px 10px;width:calc(100% - 24px);background:transparent;border:1px solid var(--border);border-radius:9px;color:var(--text3);font-size:11px;font-weight:var(--fw-sb);cursor:pointer;transition:color .15s,border-color .15s,background .15s}
+.aw-spath-reset:hover{color:var(--red);border-color:var(--red)}
+.aw-spath-reset svg{width:14px;height:14px;flex-shrink:0}
+body.sb-collapsed .aw-spath{width:0;padding-left:0;padding-right:0;border:none;overflow:hidden}
+body.sb-collapsed .aw-spath-inner{opacity:0}
+
+/* ── MOD-BAR contenuto (light): back + titolo + durata ── */
+.aw-modbar{height:44px;background:var(--bg);border-bottom:.5px solid var(--border);display:flex;align-items:center;gap:10px;padding:0 16px}
+.aw-modbar-back{background:none;border:none;cursor:pointer;color:var(--text2);display:flex;align-items:center;padding:5px;border-radius:6px;text-decoration:none;flex-shrink:0}
+.aw-modbar-back:hover{background:var(--bg2);color:var(--text)}
+.aw-modbar-back svg{width:16px;height:16px}
+.aw-modbar-title{font-size:13px;font-weight:500;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
+.aw-modbar-meta{font-size:11px;color:var(--text3);flex-shrink:0;font-family:var(--font-mono)}
+/* pagine utility: la mod-bar chiara mantiene back+titolo; il vecchio toggle sidebar è inutile (niente sidebar) */
+body.aw-shell .mod-bar .sb-toggle{display:none}
+body.aw-shell .mod-bar{padding:0 16px}
+
+@media(max-width:720px){
+  .aw-spath{position:fixed;left:64px;top:52px;height:calc(100vh - 52px);overflow:hidden;z-index:850;box-shadow:var(--e3)}
+  body:not(.sb-collapsed) .aw-spath{width:188px}
+  .aw-spath-inner{position:static;max-height:none;height:100%;overflow-y:auto}
+}
+
+/* ── dashboard ── */
+.db-body{font-family:'Inter',system-ui,sans-serif;color:#1a1a18;background:var(--aw-navy);min-height:100vh;display:flex;flex-direction:column}
+.db-hero{background:var(--aw-hero-grad);padding:32px 40px 28px;flex-shrink:0}
+.db-hero-inner{max-width:1200px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.db-hero-eyebrow{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.38);margin-bottom:8px}
+.db-hero-title{font-size:28px;font-weight:700;color:#fff;line-height:1.2;letter-spacing:-.3px}
+.db-hero-title span{background:var(--aw-accent-grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.db-hero-sub{font-size:13px;color:rgba(255,255,255,.45);margin-top:6px}
+.db-hero-meta{font-size:11px;color:rgba(255,255,255,.3);text-align:right;white-space:nowrap}
+.db-content{flex:1;background:var(--aw-db-body-grad);padding:32px 40px 48px}
+.db-inner{max-width:1200px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+.db-sec-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:14px;display:flex;align-items:center;gap:12px}
+.db-sec-label::after{content:'';flex:1;height:.5px;background:rgba(255,255,255,.1)}
+/* kpi grid */
+.db-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.db-kpi-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:10px;overflow:hidden}
+.db-kpi-accent{height:3px}
+.db-kpi-body{padding:20px 22px 18px}
+.db-kpi-val{font-size:36px;font-weight:700;color:#fff;line-height:1;letter-spacing:-.5px}
+.db-kpi-lbl{font-size:11px;color:rgba(255,255,255,.45);margin-top:5px;font-weight:500}
+.db-kpi-trend{display:flex;align-items:center;gap:5px;margin-top:10px;font-size:11px;font-weight:600}
+.db-kpi-trend.up{color:var(--aw-ok)}
+.db-kpi-trend.warn{color:var(--aw-pink)}
+/* analytics row */
+.db-analytics{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.db-panel{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:22px 24px}
+.db-panel-title{font-size:12px;font-weight:700;color:rgba(255,255,255,.7);margin-bottom:18px;letter-spacing:.02em}
+/* funnel bars */
+.db-funnel-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.db-funnel-label{font-size:11px;color:rgba(255,255,255,.5);width:100px;flex-shrink:0}
+.db-funnel-track{flex:1;height:8px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden}
+.db-funnel-fill{height:100%;border-radius:4px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.db-funnel-pct{font-size:11px;color:rgba(255,255,255,.55);width:36px;text-align:right;flex-shrink:0}
+.db-funnel-count{font-size:10px;color:rgba(255,255,255,.3);width:60px;text-align:right;flex-shrink:0}
+/* quiz dist */
+.db-quiz-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.db-quiz-range{font-size:10px;color:rgba(255,255,255,.4);width:60px;flex-shrink:0;font-variant-numeric:tabular-nums}
+.db-quiz-bar-wrap{flex:1;height:20px;background:rgba(255,255,255,.05);border-radius:4px;overflow:hidden;position:relative}
+.db-quiz-bar{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:8px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.db-quiz-bar-n{font-size:10px;font-weight:700;color:#fff;position:absolute;left:8px;top:50%;transform:translateY(-50%)}
+/* operator table */
+.db-table-controls{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.db-filter-btn{padding:5px 14px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid rgba(255,255,255,.15);background:transparent;color:rgba(255,255,255,.45);cursor:pointer;font-family:'Inter',system-ui,sans-serif;transition:all .15s}
+.db-filter-btn.active,.db-filter-btn:hover{background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.3)}
+.db-table-wrap{overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,.08)}
+.db-table{width:100%;border-collapse:collapse;font-size:12px}
+.db-table thead th{background:rgba(255,255,255,.05);color:rgba(255,255,255,.45);font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:10px 14px;text-align:left;white-space:nowrap;cursor:pointer;user-select:none;transition:color .15s}
+.db-table thead th:hover{color:rgba(255,255,255,.8)}
+.db-table thead th .sort-arrow{opacity:.35;margin-left:4px;font-style:normal}
+.db-table thead th.sorted .sort-arrow{opacity:1;color:var(--aw-active-lilac)}
+.db-table tbody tr{border-top:1px solid rgba(255,255,255,.05);transition:background .1s}
+.db-table tbody tr:hover{background:rgba(255,255,255,.04)}
+.db-table tbody td{padding:12px 14px;color:rgba(255,255,255,.75);vertical-align:middle}
+.db-table .op-name{font-weight:600;color:#fff}
+.db-mod-dot{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:10px;font-weight:700;flex-shrink:0}
+.db-mod-dot.done{background:rgba(15,110,86,.3);color:var(--aw-ok);border:1px solid rgba(15,110,86,.4)}
+.db-mod-dot.skip{background:rgba(255,255,255,.06);color:rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.1)}
+.db-mod-dot.lock{background:rgba(255,255,255,.04);color:rgba(255,255,255,.15);border:1px dashed rgba(255,255,255,.12)}
+.db-status-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.03em;white-space:nowrap}
+.db-status-pill.uptodate{background:rgba(15,110,86,.2);color:var(--aw-ok);border:1px solid rgba(15,110,86,.3)}
+.db-status-pill.inprogress{background:rgba(69,101,173,.25);color:var(--aw-active-lilac);border:1px solid rgba(69,101,173,.4)}
+.db-status-pill.notstarted{background:rgba(224,49,138,.1);color:var(--aw-pink);border:1px solid rgba(224,49,138,.25)}
+.db-score{font-variant-numeric:tabular-nums;font-weight:600}
+.db-score.high{color:var(--aw-ok)}
+.db-score.mid{color:var(--aw-active-lilac)}
+.db-score.low{color:var(--aw-pink)}
+.db-score.none{color:rgba(255,255,255,.2)}
+.db-time{color:rgba(255,255,255,.55);font-variant-numeric:tabular-nums}
+.db-last{color:rgba(255,255,255,.3);font-size:11px}
+/* weekly sparkline panel */
+.db-sparkline-panel{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.db-spark-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:18px 20px}
+.db-spark-val{font-size:22px;font-weight:700;color:#fff;line-height:1}
+.db-spark-lbl{font-size:10px;color:rgba(255,255,255,.35);margin-top:4px;letter-spacing:.04em;text-transform:uppercase}
+.db-spark-delta{font-size:11px;font-weight:600;margin-top:8px}
+.db-spark-delta.pos{color:var(--aw-ok)}
+.db-spark-delta.neg{color:var(--aw-pink)}
+.db-spark-svg{margin-top:10px;opacity:.7}
+/* topbar back link */
+.db-back-link{display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,.55);text-decoration:none;padding:5px 12px;border-radius:6px;border:1px solid rgba(255,255,255,.15);transition:all .15s}
+.db-back-link:hover{background:rgba(255,255,255,.07);color:#fff}
+@media(max-width:900px){.db-kpi-grid{grid-template-columns:repeat(2,1fr)}.db-analytics{grid-template-columns:1fr}.db-sparkline-panel{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.db-kpi-grid{grid-template-columns:1fr 1fr}.db-hero{padding:24px 20px 20px}.db-content{padding:20px 16px 40px}}
+
+/* ============================================================
+   MOTION LAYER — micro-interazioni + celebrazione (2026-07-07)
+   Additivo: non tocca gate logic né layout. Rispetta reduced-motion.
+   ============================================================ */
+
+/* Micro-interazioni bottoni: lift su hover, press su click */
+.btn{transition:background .15s,transform .12s,box-shadow .15s}
+.btn:hover{transform:translateY(-1px);box-shadow:var(--e1)}
+.btn:active{transform:translateY(0) scale(.98)}
+.iv-cta:hover{transform:translateY(-2px);box-shadow:var(--e2)}
+.iv-cta:active{transform:translateY(0) scale(.98)}
+
+/* Barre di progresso: fill con easing più morbido */
+.prog-fill,.va-progress-fill,.hd-bar-fill,.ml-bar-fill,.mo-bar-fill{transition:width .6s cubic-bezier(.22,.61,.36,1)}
+
+/* Freccia inline di avanzamento: entra con un piccolo pop + nudge su hover */
+.next-inline{animation:awArrowIn .3s ease}
+.next-inline:hover{transform:translateX(3px)}
+@keyframes awArrowIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
+
+/* Celebrazione completamento: la card entra con scale, il sigillo brilla una volta */
+#cc-unlocked{animation:awCelebrate .55s cubic-bezier(.2,.8,.25,1)}
+@keyframes awCelebrate{from{opacity:0;transform:scale(.94) translateY(10px)}to{opacity:1;transform:none}}
+.seal.pass{animation:sealin .4s ease,awSealGlow 1.7s ease .4s}
+@keyframes awSealGlow{0%,100%{filter:none}45%{filter:drop-shadow(0 0 9px var(--teal))}}
+
+/* Accessibilità: chi preferisce meno movimento non ha animazioni */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+}
+
+/* ============================================================
+   RICERCA GLOBALE — dropdown nella topbar (2026-07-07)
+   ============================================================ */
+.aw-search{position:relative}
+.aw-search-panel{display:none;position:absolute;top:calc(100% + 8px);right:0;width:380px;max-width:92vw;
+  background:var(--bg);border:.5px solid var(--border2);border-radius:12px;box-shadow:var(--e3);z-index:1200;overflow:hidden}
+.aw-search-panel.open{display:block;animation:awFadeDown .15s ease}
+@keyframes awFadeDown{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
+.aw-search-bar{display:flex;align-items:center;gap:8px;padding:11px 12px;border-bottom:.5px solid var(--border)}
+.aw-search-bar>svg{width:16px;height:16px;color:var(--text3);flex-shrink:0}
+.aw-search-bar input{flex:1;min-width:0;border:none;background:none;outline:none;font-family:var(--font);font-size:var(--fs-body);color:var(--text)}
+.aw-search-bar input::placeholder{color:var(--text3)}
+.aw-search-x{border:none;background:none;color:var(--text3);font-size:20px;line-height:1;cursor:pointer;padding:0 4px}
+.aw-search-x:hover{color:var(--text)}
+.aw-search-res{max-height:min(60vh,420px);overflow-y:auto;padding:4px 0}
+.aw-search-msg{padding:20px 14px;color:var(--text3);font-size:var(--fs-sm);text-align:center}
+.aw-search-grp{padding:11px 14px 5px;font-size:var(--fs-2xs);font-weight:var(--fw-b);letter-spacing:.05em;text-transform:uppercase;color:var(--text3)}
+.aw-search-grp span{opacity:.7;font-weight:var(--fw-sb)}
+/* righe neutre, monocrome — divisori + ombra interna per profondità/stacco; nessun colore (look "prodotto vero", non AI) */
+.aw-search-item{display:flex;align-items:center;gap:11px;padding:10px 14px;text-decoration:none;color:var(--text);transition:background .12s;
+  border-bottom:.5px solid var(--border);box-shadow:inset 0 -6px 7px -7px rgba(15,39,87,.16)}
+[data-theme="dark"] .aw-search-item{box-shadow:inset 0 -6px 7px -7px rgba(0,0,0,.42)}
+.aw-search-item:last-child{border-bottom:none;box-shadow:none}
+.aw-search-item:hover,.aw-search-item.sel{background:var(--bg2)}
+.aw-search-ic{width:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text3)}
+.aw-search-ic svg{width:16px;height:16px}
+.aw-search-tx{display:flex;flex-direction:column;min-width:0}
+.aw-search-t{font-size:var(--fs-sm);font-weight:var(--fw-sb);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aw-search-s{font-size:var(--fs-xs);color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ============================================================
+   NOTIFICHE — campana (assegnazioni/sessioni per me) + mail (annunci team) (2026-07-08)
+   Stesso pattern visivo della ricerca globale (righe neutre, divisorie + ombra interna).
+   ============================================================ */
+.aw-notif{position:relative}
+.aw-notif-panel{display:none;position:absolute;top:calc(100% + 8px);right:0;width:340px;max-width:92vw;
+  background:var(--bg);border:.5px solid var(--border2);border-radius:12px;box-shadow:var(--e3);z-index:1200;overflow:hidden}
+.aw-notif-panel.open{display:block;animation:awFadeDown .15s ease}
+.aw-notif-hd{padding:11px 14px;border-bottom:.5px solid var(--border);font-size:var(--fs-sm);font-weight:var(--fw-sb);color:var(--text)}
+.aw-notif-list{max-height:min(60vh,420px);overflow-y:auto;padding:4px 0}
+.aw-notif-empty{padding:20px 14px;color:var(--text3);font-size:var(--fs-sm);text-align:center}
+.aw-notif-item{position:relative;display:flex;align-items:flex-start;gap:11px;padding:10px 14px 10px 28px;text-decoration:none;color:var(--text);transition:background .12s;
+  border-bottom:.5px solid var(--border);box-shadow:inset 0 -6px 7px -7px rgba(15,39,87,.16)}
+[data-theme="dark"] .aw-notif-item{box-shadow:inset 0 -6px 7px -7px rgba(0,0,0,.42)}
+.aw-notif-item:last-child{border-bottom:none;box-shadow:none}
+.aw-notif-item:hover{background:var(--bg2)}
+.aw-notif-item.t-overdue{border-left:3px solid var(--red)}
+.aw-notif-item.t-overdue .aw-notif-ic{color:var(--red-d)}
+.aw-notif-ic{width:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text3);margin-top:1px}
+.aw-notif-ic svg{width:16px;height:16px}
+.aw-notif-tx{display:flex;flex-direction:column;min-width:0;gap:1px}
+.aw-notif-t{font-size:var(--fs-sm);font-weight:var(--fw-sb);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aw-notif-s{font-size:var(--fs-xs);color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aw-notif-dot{position:absolute;left:11px;top:16px;width:7px;height:7px;border-radius:50%;background:var(--aw-pink)}
+.aw-tb-badge{position:absolute;top:1px;right:1px;min-width:15px;height:15px;padding:0 3px;border-radius:8px;background:var(--red);color:#fff;
+  font-size:9px;font-weight:var(--fw-b);line-height:15px;text-align:center;display:none;align-items:center;justify-content:center;pointer-events:none}
+.aw-notif-viewall{display:block;text-align:center;padding:9px 14px;font-size:var(--fs-xs);font-weight:var(--fw-sb);color:var(--text2);text-decoration:none;border-top:.5px solid var(--border);transition:background .12s,color .12s}
+.aw-notif-viewall:hover{background:var(--bg2);color:var(--aw-pink)}
+
+/* ═══════════════════════════════════════════════════════════════════
+   VIDEO section (shared) — unico modello per OP-01/02/03
+   Layout a due colonne: player (sinistra) + pannello Trascrizione (destra),
+   scorrevole in modo indipendente, riga corrente evidenziata + click-to-jump.
+   Su mobile collassa in un unico disclosure "Trascrizione" sotto il video.
+   Sostituisce il vecchio rail a chip + pannello narrazione (.va-timeline/.va-detail).
+   ═══════════════════════════════════════════════════════════════════ */
+.va-wrap{max-width:1180px;margin:0 auto}
+/* layout a due colonne: player (sinistra, dominante) + trascrizione (destra) */
+.va-layout{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:22px;align-items:start;margin-top:16px}
+.va-main{min-width:0}
+.va-main .va-stage{max-width:none;margin:0}
+.va-vdesc{margin-top:13px;font-size:var(--fs-body);color:var(--text2);line-height:var(--lh-body);max-width:640px}
+/* #va-src: i nodi capitolo sono solo SORGENTE dati per la trascrizione (mai mostrati) */
+#va-src{display:none}
+/* stage */
+.va-stage{background:#0a0a1a;border-radius:14px;overflow:hidden;position:relative;border:.5px solid var(--border);max-width:760px;margin:0 auto}
+.va-stage.is-placeholder{aspect-ratio:16/9;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.va-stage video{width:100%;display:block;aspect-ratio:16/9;object-fit:contain}
+.va-play{width:72px;height:72px;border-radius:50%;background:var(--aw-pink);display:flex;align-items:center;justify-content:center;position:relative;z-index:2;box-shadow:0 10px 32px rgba(224,49,138,.35);transition:transform .2s,box-shadow .2s}
+.va-stage:hover .va-play{transform:scale(1.08);box-shadow:0 14px 40px rgba(224,49,138,.5)}
+.va-play::before{content:'';width:0;height:0;border-top:13px solid transparent;border-bottom:13px solid transparent;border-left:20px solid #fff;margin-left:5px}
+.va-stage-cap{position:absolute;left:0;right:0;bottom:0;padding:14px 20px;background:linear-gradient(0deg,rgba(0,0,0,.62),transparent);color:rgba(255,255,255,.75);display:flex;align-items:center;justify-content:space-between;font-size:11px;letter-spacing:.04em}
+.va-stage-tag{position:absolute;top:14px;left:14px;background:rgba(0,0,0,.52);color:rgba(255,255,255,.75);padding:4px 10px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.08em;display:flex;align-items:center;gap:6px;z-index:2}
+.va-stage-tag.rec::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--aw-pink);animation:vaRec 1.5s ease-in-out infinite;flex-shrink:0}
+@keyframes vaRec{0%,100%{opacity:1}50%{opacity:.28}}
+.va-progress{position:absolute;left:0;right:0;bottom:0;height:5px;background:rgba(255,255,255,.18);z-index:3}
+.va-progress-fill{height:100%;width:0;background:var(--aw-pink);transition:width .12s linear}
+.va-fs{position:absolute;top:12px;right:12px;width:30px;height:30px;border-radius:8px;background:rgba(0,0,0,.5);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:3;transition:background .15s}
+.va-fs:hover{background:rgba(0,0,0,.72)}
+.va-fs svg{width:15px;height:15px;color:rgba(255,255,255,.9)}
+.va-cc-overlay{position:absolute;top:10px;right:10px;z-index:5;padding:3px 9px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.06em;background:rgba(0,0,0,.55);color:#fff;border:1.5px solid rgba(255,255,255,.3);cursor:pointer;transition:background .15s,border-color .15s;line-height:1.6}
+.va-cc-overlay.cc-active{background:rgba(69,101,173,.85);border-color:var(--purple)}
+/* ── pannello Trascrizione (colonna destra) ─────────────────────────────
+   Elenco verticale di righe (timecode + testo) raggruppate per capitolo,
+   sempre visibile durante la riproduzione, con scroll indipendente. */
+/* altezza sincronizzata via JS (syncTrHeight in shared.js, chiamata da render()+resize) a quella
+   della colonna video (.va-main): il calc() qui sotto è solo il fallback prima che il JS giri al
+   primo render (poi sovrascritto da un'altezza FISSA inline, non max-height — vedi commento su
+   syncTrHeight: con max-height la sezione seguiva il contenuto e "si allungava" leggermente
+   aprendo i capitoli). Così il pannello non supera/cambia mai rispetto al video, qualunque sia il
+   numero di capitoli aperti cumulativamente — solo la lista interna scrolla, mai la pagina intera. */
+.va-tr{display:flex;flex-direction:column;background:var(--bg);border:.5px solid var(--border);border-radius:14px;box-shadow:var(--e1);position:sticky;top:64px;overflow:hidden;transition:none}
+/* "finestra" espansa (come le Sticky Notes di Windows: riquadro più grande e centrato, non a piena
+   pagina) — attivata da .va-tr-expand-btn/awVaExpandToggle in shared.js. syncTrHeight() adatta di
+   conseguenza l'altezza della lista interna (86vh invece dell'altezza della colonna video). */
+.va-tr.is-expanded{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:min(760px,92vw);
+  height:86vh;z-index:2100;box-shadow:var(--e3)}
+.va-tr-backdrop{position:fixed;inset:0;background:rgba(15,39,87,.35);z-index:2099}
+[data-theme="dark"] .va-tr-backdrop{background:rgba(0,0,0,.55)}
+.va-tr-sum,.va-tr-tools,.va-tr-selbar{flex-shrink:0}
+.va-tr-sum{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 15px;font-size:var(--fs-sm);font-weight:var(--fw-sb);color:var(--text);border-bottom:.5px solid var(--border);cursor:default;pointer-events:none}
+.va-tr-sum::-webkit-details-marker{display:none}
+.va-tr-sum-l{display:flex;align-items:center;gap:9px;min-width:0}
+.va-tr-sum-ic{width:17px;height:17px;color:var(--aw-blue);flex-shrink:0;display:flex}
+.va-tr-sum-ic svg{width:17px;height:17px}
+.va-tr-sum-r{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.va-tr-sum-count{font-size:var(--fs-3xs);font-weight:var(--fw-b);color:#fff;background:var(--aw-pink);
+  padding:2px 9px;border-radius:20px;letter-spacing:.02em;font-variant-numeric:tabular-nums;transition:background .2s}
+.va-tr-sum-count.is-done{background:var(--teal)}
+/* pointer-events:auto necessario: .va-tr-sum (il <summary>) ha pointer-events:none per disattivare
+   il toggle nativo dei <details> su desktop — senza, questo bottone risulterebbe non cliccabile */
+.va-tr-expand-btn{pointer-events:auto;width:24px;height:24px;flex-shrink:0;border:0;background:none;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;color:var(--text3);cursor:pointer;transition:background .12s,color .12s}
+.va-tr-expand-btn svg{width:14px;height:14px}
+.va-tr-expand-btn:hover{background:var(--bg3);color:var(--text)}
+.va-tr-expand-btn[aria-pressed="true"]{color:var(--aw-pink)}
+.va-tr-chev{width:16px;height:16px;color:var(--text3);transition:transform .2s;display:none;flex-shrink:0}
+.va-tr-list{max-height:calc(100vh - 150px);min-height:0;overflow-y:auto;padding:6px 6px 12px;scrollbar-width:thin;scroll-behavior:smooth}
+/* blocco capitolo (titolo + suo testo): il RAGGRUPPAMENTO visivo vive qui, non sul solo titolo.
+   "done" NIENTE PIÙ tinta di sfondo (era --purple-l: sommata al testo, anche se ora sempre a piena
+   opacità, rendeva la lettura meno immediata sui capitoli passati — segnalato da Giulia 2026-07-18
+   ter, dopo aver già scartato il verde/teal lo stesso giorno) — resta piatto come "upcoming", lo
+   stato completato si legge SOLO dall'header (badge+etichetta), il corpo testo resta sempre a piena
+   leggibilità qualunque sia lo stato. Solo "corrente" resta una card sollevata con ombra. */
+.va-tr-group{border-radius:12px;margin-top:10px;overflow:hidden;transition:background .18s,box-shadow .18s}
+.va-tr-group:first-child{margin-top:2px}
+.va-tr-group.is-upcoming,.va-tr-group.is-done{background:transparent}
+.va-tr-group.is-current{background:var(--bg);box-shadow:var(--e2)}
+/* intestazione capitolo: stati completato (navy tenue) / corrente (navy pieno+magenta) / a venire (grigio)
+   fa anche da "titolo" richiudibile: bordo inferiore + tipografia più marcata la distinguono
+   nettamente dalle righe di testo sottostanti (chevron per aprire/chiudere, chiuso di base) */
+.va-tr-chap{display:flex;align-items:center;gap:8px;width:100%;box-sizing:border-box;text-align:left;background:none;border:0;border-bottom:.5px solid var(--border);padding:11px 8px 9px 10px;cursor:pointer;font:inherit;transition:background .15s}
+.va-tr-chap:hover{background:var(--bg2)}
+.va-tr-chap:focus-visible{outline:2px solid var(--aw-blue);outline-offset:1px}
+/* numero capitolo: badge tondo (sostituisce "CH 0X" + puntino colorato) */
+.va-tr-chap-n{width:22px;height:22px;flex-shrink:0;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:var(--fs-3xs);font-weight:var(--fw-b);color:var(--text2);background:var(--bg3);transition:background .15s,color .15s}
+.va-tr-chap-t{font-size:var(--fs-h4);font-weight:var(--fw-b);color:var(--text);flex:1;min-width:0;line-height:var(--lh-snug)}
+.va-tr-chap-st{font-size:var(--fs-3xs);font-weight:var(--fw-sb);letter-spacing:.05em;color:var(--text3);flex-shrink:0;text-transform:uppercase}
+.va-tr-chap.is-done .va-tr-chap-n{background:var(--bg);color:var(--purple-d)}
+.va-tr-chap.is-done .va-tr-chap-st{color:var(--purple-d)}
+.va-tr-chap.is-current{background:var(--aw-navy);border-bottom-color:transparent}
+.va-tr-chap.is-current:hover{background:var(--aw-navy)}
+.va-tr-chap.is-current .va-tr-chap-n{background:var(--aw-pink);color:#fff}
+.va-tr-chap.is-current .va-tr-chap-t{color:#fff}
+.va-tr-chap.is-current .va-tr-chap-st{color:var(--aw-pink)}
+/* chevron di espandi/comprimi capitolo (chiuso di base, si apre da solo quando la riproduzione lo raggiunge) */
+.va-tr-chap-toggle{width:22px;height:22px;flex-shrink:0;border:0;background:none;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;color:var(--text3);cursor:pointer;transition:background .12s,color .12s}
+.va-tr-chap-toggle:hover{background:rgba(255,255,255,.12)}
+.va-tr-chap-chev{width:13px;height:13px;transition:transform .18s}
+.va-tr-chap.is-open .va-tr-chap-chev{transform:rotate(180deg)}
+.va-tr-chap.is-current .va-tr-chap-toggle{color:rgba(255,255,255,.65)}
+/* riga di trascrizione: solo lettura/selezione testo (il salto video è un'azione ESPLICITA sul
+   solo timecode, non sull'intera riga — vedi shared.js render(): prima cliccare ovunque sulla
+   riga faceva saltare e ripartire il video, impedendo di rileggere con calma).
+   separatore leggero fra righe: rende inequivocabile dove finisce il titolo/una riga e inizia la successiva */
+.va-tr-line{display:flex;gap:10px;width:100%;box-sizing:border-box;text-align:left;background:none;border:0;border-left:2px solid transparent;border-bottom:.5px solid var(--border);padding:8px 10px 8px 11px;font:inherit;user-select:text;transition:background .12s}
+.va-tr-line:hover{background:var(--bg2)}
+/* timecode = bottone reale, unico punto della riga che comanda il video */
+.va-tr-tc{flex:0 0 42px;border:0;background:none;font:inherit;text-align:left;padding:1px 0 0;border-radius:4px;font-size:var(--fs-xs);font-weight:var(--fw-sb);color:var(--text3);font-variant-numeric:tabular-nums;cursor:pointer;transition:color .12s,background .12s}
+.va-tr-tc:hover{color:var(--aw-blue);background:var(--bg3)}
+.va-tr-tc:focus-visible{outline:2px solid var(--aw-blue);outline-offset:1px}
+.va-tr-tx{flex:1;min-width:0;font-size:var(--fs-sm);color:var(--text2);line-height:var(--lh-body)}
+.va-tr-line.is-current{border-left-color:var(--aw-pink);background:var(--bg2)}
+.va-tr-line.is-current .va-tr-tc{color:var(--aw-pink)}
+.va-tr-line.is-current .va-tr-tx{color:var(--text);font-weight:var(--fw-med)}
+/* "torna al punto corrente" (appare quando l'utente scrolla manualmente) */
+.va-tr-jump{position:absolute;left:50%;transform:translateX(-50%);bottom:12px;display:inline-flex;align-items:center;gap:6px;padding:7px 15px;border-radius:20px;border:none;background:var(--aw-pink);color:#fff;font-size:var(--fs-xs);font-weight:var(--fw-sb);cursor:pointer;box-shadow:var(--e2)}
+.va-tr-jump svg{width:13px;height:13px}
+.va-tr-jump[hidden]{display:none}
+/* riga "prossima sezione" */
+.va-next{display:none;align-items:center;justify-content:center;gap:14px;margin-top:20px;padding-top:16px;border-top:.5px solid var(--border)}
+.va-next.show{display:flex}
+.va-next-lbl{font-size:13px;font-weight:var(--fw-sb);color:var(--teal-d);display:inline-flex;align-items:center;gap:7px}
+/* responsive: sotto 900px una sola colonna, trascrizione = disclosure espandibile */
+@media(max-width:900px){
+  .va-layout{grid-template-columns:1fr;gap:16px}
+  .va-tr{position:static;top:auto}
+  .va-tr-sum{cursor:pointer;pointer-events:auto}
+  .va-tr-chev{display:block}
+  .va-tr[open] .va-tr-chev{transform:rotate(180deg)}
+  .va-tr-list{max-height:62vh}
+}
+@media(prefers-reduced-motion:reduce){.va-tr-list{scroll-behavior:auto}}
+
+/* ═══════════════════════════════════════════════════════════════════
+   VIDEO section — estensioni (2026-07-16 quater): ricerca, follow-along,
+   azioni riga (copy/link/nota), termini Glossary in linea, marcatori
+   capitolo sulla scrubber. Additivo: non tocca il modello a due colonne.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* toast generico (riusato dalle azioni riga) */
+.aw-toast{position:fixed;left:50%;bottom:32px;transform:translateX(-50%) translateY(12px);
+  background:var(--aw-navy);color:#fff;font-size:var(--fs-sm);font-weight:var(--fw-sb);
+  padding:10px 18px;border-radius:20px;box-shadow:var(--e3);opacity:0;pointer-events:none;
+  transition:opacity .18s,transform .18s;z-index:1200;white-space:nowrap}
+.aw-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* marcatori di capitolo sulla scrubber del player */
+.va-chaprail{position:relative;display:flex;height:8px;margin-top:10px;border-radius:5px;
+  background:var(--bg3);overflow:hidden;cursor:pointer}
+.va-chaprail-seg{position:relative;z-index:1;height:100%;background:transparent;border:0;
+  border-right:2px solid var(--bg);padding:0;margin:0;cursor:pointer;flex-shrink:0}
+.va-chaprail-seg:last-child{border-right:0}
+.va-chaprail-seg:hover{background:rgba(255,255,255,.12)}
+.va-chaprail-seg.is-done{background:rgba(20,184,166,.16)}
+.va-chaprail-fill{position:absolute;left:0;top:0;height:100%;width:0;background:var(--aw-pink);
+  opacity:.55;pointer-events:none;transition:width .12s linear;z-index:0}
+.va-chaprail:focus-visible{outline:2px solid var(--aw-blue);outline-offset:2px}
+
+/* barra strumenti trascrizione: ricerca + follow-along */
+.va-tr-tools{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:.5px solid var(--border);flex-wrap:wrap}
+.va-tr-search{display:flex;align-items:center;gap:5px;flex:1;min-width:0;background:var(--bg2);
+  border:.5px solid var(--border);border-radius:9px;padding:5px 8px}
+.va-tr-search-ic{width:14px;height:14px;color:var(--text3);flex-shrink:0}
+.va-tr-search-in{flex:1;min-width:0;border:0;background:none;font:inherit;font-size:var(--fs-xs);color:var(--text);outline:none}
+.va-tr-search-in::placeholder{color:var(--text3)}
+.va-tr-count{font-size:var(--fs-3xs);font-weight:var(--fw-sb);color:var(--text3);white-space:nowrap;flex-shrink:0}
+.va-tr-count.is-empty{color:var(--red)}
+.va-tr-navbtn{width:20px;height:20px;flex-shrink:0;border:0;background:none;border-radius:5px;
+  display:flex;align-items:center;justify-content:center;color:var(--text3);cursor:pointer;transition:background .12s,color .12s}
+.va-tr-navbtn svg{width:12px;height:12px}
+.va-tr-navbtn:hover:not(:disabled){background:var(--bg3);color:var(--text)}
+.va-tr-navbtn:disabled{opacity:.35;cursor:default}
+
+/* stati di ricerca sulle righe */
+.va-tr-line.is-dim{opacity:.4}
+.va-tr-line.is-hit{background:var(--amber-l)}
+.va-tr-line.is-hit-cur{background:var(--aw-pink);border-left-color:var(--aw-pink)}
+.va-tr-line.is-hit-cur .va-tr-tc,.va-tr-line.is-hit-cur .va-tr-tx{color:#fff}
+.va-tr-line.is-hit-cur .va-gterm{color:#fff;border-color:rgba(255,255,255,.6)}
+
+/* termini Glossary in linea nel testo (evidenziazione discreta, cliccabile) */
+.va-gterm{border-bottom:1.5px dotted var(--aw-blue);color:var(--aw-blue);cursor:pointer;transition:background .12s}
+.va-gterm:hover,.va-gterm:focus-visible{background:var(--bg2);outline:none}
+.va-gpop{position:fixed;z-index:1300;max-width:260px;background:var(--bg);border:.5px solid var(--border2);
+  border-radius:10px;box-shadow:var(--e3);padding:11px 13px;opacity:0;pointer-events:none;transition:opacity .12s}
+.va-gpop.show{opacity:1;pointer-events:auto}
+.va-gpop-term{font-size:var(--fs-xs);font-weight:var(--fw-b);color:var(--text);margin-bottom:4px}
+.va-gpop-def{font-size:var(--fs-3xs);color:var(--text2);line-height:var(--lh-body);margin-bottom:7px}
+.va-gpop-link{font-size:var(--fs-3xs);font-weight:var(--fw-sb);color:var(--aw-pink);text-decoration:none;cursor:pointer}
+.va-gpop-link:hover{text-decoration:underline}
+
+/* pulsanti icona nella toolbar (Select lines / Download SRT) */
+.va-tr-iconbtn{width:26px;height:26px;flex-shrink:0;border:.5px solid transparent;background:none;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;color:var(--text3);cursor:pointer;transition:background .12s,color .12s,border-color .12s}
+.va-tr-iconbtn svg{width:14px;height:14px}
+.va-tr-iconbtn:hover{background:var(--bg3);color:var(--text)}
+.va-tr-iconbtn[aria-pressed="true"]{background:var(--aw-pink);color:#fff;border-color:var(--aw-pink)}
+
+/* barra di selezione multipla (compare SOLO quando "Select lines" è attivo).
+   [hidden] esplicito: senza, la regola display:flex qui sotto vince sempre sull'attributo
+   hidden (stessa specificità, ma le regole autore battono lo user-agent) e la barra restava
+   visibile anche a riposo (bug osservato) — stesso pattern già usato per .va-tr-jump[hidden]. */
+.va-tr-selbar[hidden]{display:none}
+.va-tr-selbar{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg2);
+  border-bottom:.5px solid var(--border)}
+.va-tr-selbar-txt{font-size:var(--fs-3xs);font-weight:var(--fw-sb);color:var(--text2);flex:1}
+.va-tr-selbar-txt #va-tr-selcount{color:var(--aw-pink);font-weight:var(--fw-b)}
+.va-tr-selbar-cancel,.va-tr-selbar-save,.va-tr-selbar-all{border:0;border-radius:8px;padding:6px 12px;font-size:var(--fs-3xs);
+  font-weight:var(--fw-sb);cursor:pointer;transition:background .12s,opacity .12s}
+.va-tr-selbar-cancel,.va-tr-selbar-all{background:none;color:var(--text2)}
+.va-tr-selbar-cancel:hover,.va-tr-selbar-all:hover{background:var(--bg3)}
+.va-tr-selbar-all{border:.5px solid var(--border2)}
+.va-tr-selbar-save{background:var(--aw-pink);color:#fff}
+.va-tr-selbar-save:hover{background:var(--aw-pink-d,var(--aw-pink))}
+.va-tr-selbar-save:disabled{opacity:.4;cursor:default}
+
+/* checkbox di selezione riga (visibile solo in modalità selezione) */
+.va-tr-sel{display:none;align-items:center;justify-content:center;width:17px;height:17px;flex-shrink:0;margin-top:1px;
+  border-radius:5px;border:1.5px solid var(--border2);color:transparent;transition:background .12s,border-color .12s,color .12s}
+.va-tr-sel svg{width:11px;height:11px}
+.va-tr-list.sel-mode .va-tr-sel{display:flex}
+.va-tr-line.is-selected .va-tr-sel{background:var(--aw-pink);border-color:var(--aw-pink);color:#fff}
+.va-tr-line.is-selected{background:var(--amber-l)}
+
+.va-tr-chap.is-current{box-shadow:var(--e1)}
+.va-tr-line.is-current{box-shadow:var(--e1)}
+.va-tr{box-shadow:var(--e2)}
+
+@media(max-width:900px){
+  .va-tr-tools{padding:8px 10px}
+}

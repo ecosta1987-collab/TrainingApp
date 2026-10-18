@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title data-i18n="title.login">autoware · Training Platform</title>
+<script>(function(){var t=localStorage.getItem('aw_theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})()</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+/* font self-hosted (offline file://) — vedi shared.css per la definizione canonica */
+@font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/ibm-plex-sans-v23-latin-ext-regular.woff2') format('woff2')}
+@font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/ibm-plex-sans-v23-latin-ext-500.woff2') format('woff2')}
+@font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:600;font-display:swap;src:url('fonts/ibm-plex-sans-v23-latin-ext-600.woff2') format('woff2')}
+@font-face{font-family:'IBM Plex Sans';font-style:normal;font-weight:700;font-display:swap;src:url('fonts/ibm-plex-sans-v23-latin-ext-700.woff2') format('woff2')}
+@font-face{font-family:'IBM Plex Sans Devanagari';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/IBMPlexSansDevanagari-Regular.woff2') format('woff2');unicode-range:U+0900-097F,U+1CD0-1CF9,U+200C-200D,U+20A8,U+20B9,U+25CC,U+A830-A839,U+A8E0-A8FF}
+@font-face{font-family:'IBM Plex Sans Devanagari';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/IBMPlexSansDevanagari-Medium.woff2') format('woff2');unicode-range:U+0900-097F,U+1CD0-1CF9,U+200C-200D,U+20A8,U+20B9,U+25CC,U+A830-A839,U+A8E0-A8FF}
+@font-face{font-family:'IBM Plex Sans Devanagari';font-style:normal;font-weight:600;font-display:swap;src:url('fonts/IBMPlexSansDevanagari-SemiBold.woff2') format('woff2');unicode-range:U+0900-097F,U+1CD0-1CF9,U+200C-200D,U+20A8,U+20B9,U+25CC,U+A830-A839,U+A8E0-A8FF}
+@font-face{font-family:'IBM Plex Sans Devanagari';font-style:normal;font-weight:700;font-display:swap;src:url('fonts/IBMPlexSansDevanagari-Bold.woff2') format('woff2');unicode-range:U+0900-097F,U+1CD0-1CF9,U+200C-200D,U+20A8,U+20B9,U+25CC,U+A830-A839,U+A8E0-A8FF}
+
+:root{
+  --font:'IBM Plex Sans','IBM Plex Sans Devanagari','Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,sans-serif;
+  --mono:ui-monospace,'SFMono-Regular','Consolas',monospace;
+  --lg-navy:#0F2757;--lg-navy-2:#13294f;--lg-pink:#E0318A;
+  --lg-bg:#fff;--lg-bg2:#f4f5f7;--lg-text:#1a1a18;--lg-text2:#5a5a56;--lg-text3:#9a9a94;
+  --lg-border:rgba(15,39,87,.14);--lg-border2:rgba(15,39,87,.22);--lg-input-bg:#f4f5f7;
+  --lg-red-l:#FCEBEB;--lg-red-d:#791F1F;--lg-red-bd:#e3a3a3;
+  --lg-e3:0 10px 28px rgba(15,39,87,.16),0 18px 44px rgba(15,39,87,.12);
+  /* stato di linea Cockpit (varianti brillanti, leggibili su navy) — colore = stato, mai decoro */
+  --st-run:#26B981;--st-stop:#F26157;--st-starv:#E3A33A;--st-block:#4E93E6;
+  /* accenti di brand Autoware (frecce pink+azzurro del sito) + oro "Golden Day"=traguardo.
+     Costanti: vivono solo nel pannello navy, indipendenti dal tema. */
+  --lg-blue:#4E9BE6;--lg-gold:#E6B45F;
+}
+[data-theme="dark"]{
+  /* 15/10: grafite come il resto dell'app in scuro (tema-2026.css), non più blu-grigio */
+  --lg-bg:#1B1F26;--lg-bg2:#161A20;--lg-text:#e4e8f0;--lg-text2:#8fa4c0;--lg-text3:#6b82a4;
+  --lg-border:rgba(255,255,255,.12);--lg-border2:rgba(255,255,255,.20);--lg-input-bg:#161A20;
+  --lg-red-l:#2c0e0e;--lg-red-d:#e89090;--lg-red-bd:rgba(232,144,144,.32);
+  --lg-e3:0 8px 24px rgba(0,0,0,.44),0 16px 40px rgba(0,0,0,.36);
+}
+html,body{height:100%;font-family:var(--font)}
+body{min-height:100vh;background:var(--lg-bg)}
+
+.lg-shell{display:flex;min-height:100vh}
+
+/* ══════════════════════════════════════════════════════════════════
+   PANNELLO VISIVO (sinistra) — sempre navy: è il brand, non segue il tema.
+   Ospita brand + una mini-board Cockpit "viva" (l'estetica quadro di comando).
+   ══════════════════════════════════════════════════════════════════ */
+.lg-visual{flex:1 1 auto;background:var(--lg-navy);position:relative;overflow:hidden;isolation:isolate;z-index:1;
+  display:flex;flex-direction:column;padding:34px 48px 40px;color:#fff}
+/* foto di brand (Variante A): riempie il pannello; degrada a navy se il file manca (onerror) */
+.lg-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:0}
+/* velo navy per leggibilità del testo bianco sopra la foto (scrim, non decoro) */
+.lg-scrim{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(180deg,rgba(11,23,48,.62) 0%,rgba(15,39,87,.30) 34%,rgba(15,39,87,.44) 56%,rgba(9,19,40,.92) 100%)}
+/* motivo grafico proprietario leggero — griglia 1px, niente gradienti decorativi */
+.lg-visual::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:2;
+  background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);
+  background-size:34px 34px;
+  -webkit-mask-image:radial-gradient(120% 120% at 30% 0%,#000 40%,transparent 100%);
+          mask-image:radial-gradient(120% 120% at 30% 0%,#000 40%,transparent 100%)}
+
+/* logo — stesso ritaglio del lockup usato in topbar (contenuto reale ~22% centrale del PNG) */
+.lg-brand{position:relative;z-index:3;display:block;width:210px;height:41px;overflow:hidden;flex-shrink:0}
+.lg-brand img{position:absolute;left:50%;top:50%;height:179px;width:auto;transform:translate(-50%,-50%);pointer-events:none}
+
+/* hero ancorato in basso, stile editoriale sopra la foto */
+.lg-visual-mid{position:relative;z-index:3;flex:1;display:flex;flex-direction:column;justify-content:flex-end;max-width:500px;margin-top:0}
+.lg-eyebrow{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:13px}
+.lg-h1{font-size:34px;font-weight:700;line-height:1.16;letter-spacing:-.6px;margin-bottom:12px;text-shadow:0 2px 20px rgba(0,0,0,.35)}
+.lg-p{font-size:14.5px;line-height:1.6;color:rgba(255,255,255,.72);margin-bottom:0;max-width:420px}
+/* firma di brand, unica riga in fondo — al posto della vecchia banda affollata */
+.lg-signoff{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:rgba(255,255,255,.5);
+  margin-top:22px;padding-top:16px;border-top:1px solid rgba(255,255,255,.14)}
+
+/* attributi piattaforma (chip) */
+.lg-badges{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.lg-badge{font-family:var(--mono);font-size:10.5px;letter-spacing:.03em;color:rgba(255,255,255,.78);
+  border:1px solid rgba(255,255,255,.16);border-radius:20px;padding:5px 12px 5px 10px;display:inline-flex;align-items:center;gap:7px}
+.lg-badge::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--lg-pink);flex-shrink:0}
+/* i tre accenti in vetrina: azione(pink) · dati(azzurro) · traguardo(oro) */
+.lg-badges .lg-badge:nth-child(2)::before{background:var(--lg-blue)}
+.lg-badges .lg-badge:nth-child(3)::before{background:var(--lg-gold)}
+
+/* watermark del marchio AW — texture di brand, non decoro casuale */
+.lg-wm{position:absolute;right:-56px;bottom:-40px;width:440px;height:auto;opacity:.05;pointer-events:none;z-index:0}
+.lg-wm path{fill:#fff}
+
+/* banda di contesto Autoware (in fondo al pannello) */
+.lg-context{position:relative;z-index:3;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1)}
+.lg-ctx-brand{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.lg-ctx-brand .lg-ctx-mark{width:24px;height:auto;flex-shrink:0}
+.lg-ctx-brand .lg-ctx-mark path{fill:#fff}
+.lg-ctx-brand span{font-size:12.5px;font-weight:600;color:rgba(255,255,255,.82);letter-spacing:.02em}
+.lg-ctx-sub{font-size:12px;color:rgba(255,255,255,.44);line-height:1.5;max-width:392px}
+
+/* ── firma di piattaforma: percorso di certificazione (animato, course-agnostic) ── */
+.lg-journey{background:var(--lg-navy-2);border:1px solid rgba(255,255,255,.08);border-radius:14px;
+  padding:14px 18px 15px;box-shadow:0 22px 54px rgba(0,0,0,.34)}
+.lg-journey-top{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(255,255,255,.5);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.lg-journey-top i{width:6px;height:6px;border-radius:50%;background:var(--lg-gold);flex-shrink:0}
+.lg-steps{position:relative}
+.lg-steps::before{content:'';position:absolute;left:12px;top:13px;bottom:13px;width:2px;background:rgba(255,255,255,.13)}
+.lg-steps-fill{position:absolute;left:12px;top:13px;width:2px;height:0;background:var(--lg-blue);transition:height .5s ease;border-radius:2px}
+.lg-step{position:relative;z-index:1;display:flex;align-items:center;gap:14px;padding:6px 0}
+.lg-step-mk{width:26px;height:26px;flex-shrink:0;border-radius:50%;border:2px solid rgba(255,255,255,.16);
+  background:var(--lg-navy-2);color:transparent;display:flex;align-items:center;justify-content:center;position:relative;
+  transition:border-color .4s,background .4s,box-shadow .4s,transform .4s}
+.lg-step-mk svg{width:13px;height:13px;opacity:0;transition:opacity .3s}
+.lg-step-lbl{font-size:13.5px;font-weight:600;color:rgba(255,255,255,.5);transition:color .4s}
+/* stato: done (superato) */
+.lg-step.done .lg-step-mk{border-color:var(--lg-blue);background:var(--lg-blue);color:#fff}
+.lg-step.done .lg-step-mk svg{opacity:1}
+.lg-step.done .lg-step-lbl{color:rgba(255,255,255,.9)}
+/* stato: active (corrente) — il pink si guadagna sul progresso dell'utente */
+.lg-step.active .lg-step-mk{border-color:var(--lg-pink);box-shadow:0 0 0 5px rgba(224,49,138,.18)}
+.lg-step.active .lg-step-mk::after{content:'';width:9px;height:9px;border-radius:50%;background:var(--lg-pink);animation:lgpulse 1.6s infinite}
+.lg-step.active .lg-step-lbl{color:#fff;font-weight:700}
+/* ultimo step = certificazione: quando raggiunto, il sigillo si "timbra" in pink */
+.lg-step.cert.done .lg-step-mk{border-color:var(--lg-gold);background:var(--lg-gold);color:var(--lg-navy);animation:lgstamp .5s ease}
+
+.lg-visual-foot{position:relative;z-index:1;font-family:var(--mono);font-size:10.5px;color:rgba(255,255,255,.3);letter-spacing:.06em;margin-top:24px}
+
+/* ══════════════════════════════════════════════════════════════════
+   PANNELLO FORM (destra) — theme-aware, come il resto del prodotto.
+   Il brand è portato dal pannello sinistro: qui niente logo (no doppione).
+   ══════════════════════════════════════════════════════════════════ */
+.lg-formside{flex:0 0 clamp(360px,34%,460px);display:flex;flex-direction:column;min-width:0;position:relative;z-index:2;
+  background:var(--lg-bg);box-shadow:-26px 0 60px -22px rgba(9,19,40,.5)}
+.lg-formside::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--lg-pink)}
+.lg-topbar{display:flex;justify-content:flex-end;gap:10px;padding:18px 24px 0}
+.lg-formwrap{flex:1;display:flex;align-items:center;justify-content:center;padding:24px}
+.lg-card{width:100%;max-width:366px}
+
+.card-label{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--lg-pink);text-align:center;margin-bottom:12px}
+.card-title{font-size:26px;font-weight:700;color:var(--lg-text);text-align:center;margin-bottom:8px;line-height:1.25;letter-spacing:-.4px}
+.card-sub{font-size:13.5px;color:var(--lg-text2);text-align:center;margin-bottom:30px;line-height:1.6}
+
+.field{margin-bottom:16px}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--lg-text2);margin-bottom:7px;letter-spacing:.04em;transition:color .18s}
+.field:focus-within label{color:var(--lg-pink)}
+.field input{width:100%;padding:13px 16px;background:var(--lg-input-bg);border:1px solid var(--lg-border2);border-radius:10px;
+  font-size:14px;color:var(--lg-text);font-family:var(--font);outline:none;transition:border-color .18s,background .18s,box-shadow .18s}
+.field input::placeholder{color:var(--lg-text3)}
+.field input:hover{border-color:var(--lg-pink)}
+.field input:focus{border-color:var(--lg-pink);background:var(--lg-bg);box-shadow:0 0 0 3px var(--lg-pink);box-shadow:0 0 0 3px color-mix(in srgb,var(--lg-pink) 18%,transparent)}
+
+.btn{width:100%;margin-top:10px;padding:14px;border:none;border-radius:10px;background:var(--lg-pink);color:#fff;
+  font-size:14px;font-weight:700;font-family:var(--font);cursor:pointer;letter-spacing:.03em;
+  transition:background .18s,box-shadow .18s,transform .12s}
+.btn:hover{box-shadow:0 8px 22px rgba(224,49,138,.32);transform:translateY(-1px)}
+.btn:active{transform:translateY(0);box-shadow:0 3px 10px rgba(224,49,138,.28)}
+.btn:focus-visible{outline:none;box-shadow:0 0 0 3px var(--lg-bg),0 0 0 5px var(--lg-pink)}
+
+.error{display:none;margin-top:12px;padding:10px 14px;background:var(--lg-red-l);border:1px solid var(--lg-red-bd);
+  border-radius:8px;font-size:12px;color:var(--lg-red-d);text-align:center}
+
+.footer-txt{font-family:var(--mono);font-size:10.5px;color:var(--lg-text3);text-align:center;padding:0 24px 22px;letter-spacing:.03em}
+
+/* controlli tema/lingua — sul pannello form, quindi theme-aware */
+[data-theme-btn]{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;
+  border:1px solid var(--lg-border2);background:var(--lg-bg2);color:var(--lg-text2);cursor:pointer;transition:background .2s,border-color .2s}
+[data-theme-btn]:hover{background:var(--lg-border);border-color:var(--lg-pink);color:var(--lg-pink)}
+[data-lang-menu]{position:relative;font-family:var(--font)}
+[data-lang-menu]>button{display:flex;align-items:center;gap:8px;padding:7px 14px;border-radius:20px;border:1px solid var(--lg-border2);
+  background:var(--lg-bg2);color:var(--lg-text2);font-size:12px;font-weight:600;cursor:pointer;transition:background .2s,border-color .2s;letter-spacing:.04em}
+[data-lang-menu]>button:hover{background:var(--lg-border);border-color:var(--lg-pink)}
+[data-lang-menu]>div{display:none;position:absolute;right:0;top:calc(100% + 6px);min-width:150px;background:var(--lg-bg);
+  border:1px solid var(--lg-border2);border-radius:12px;overflow:hidden;box-shadow:var(--lg-e3);z-index:30}
+[data-lang-menu] a{display:flex;align-items:center;gap:10px;padding:11px 16px;color:var(--lg-text2);font-size:13px;
+  font-weight:500;text-decoration:none;transition:background .15s}
+[data-lang-menu] a:hover{background:var(--lg-border)}
+[data-lang-menu] a.cur{background:var(--lg-border);color:var(--lg-text);font-weight:700}
+
+/* ── entrata in sequenza (reveal), disattivata con reduced-motion ── */
+@keyframes lgpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.82)}}
+@keyframes lgstamp{0%{transform:scale(.4);opacity:.3}60%{transform:scale(1.14)}100%{transform:scale(1);opacity:1}}
+@keyframes lgUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.rv{opacity:0;animation:lgUp .5s cubic-bezier(.2,.7,.3,1) forwards}
+.rv-1{animation-delay:.05s}.rv-2{animation-delay:.13s}.rv-3{animation-delay:.21s}
+.rv-4{animation-delay:.29s}.rv-5{animation-delay:.37s}.rv-6{animation-delay:.45s}
+@media(prefers-reduced-motion:reduce){
+  .rv{opacity:1;animation:none}
+  .lg-step.active .lg-step-mk::after{animation:none!important}
+  .lg-step.cert.done .lg-step-mk{animation:none!important}
+}
+
+@media(max-width:880px){
+  .lg-shell{flex-direction:column}
+  .lg-visual{flex:none;max-width:none;width:100%;min-height:150px;padding:20px 24px}
+  .lg-visual-mid{display:none}
+  .lg-formside{flex:1 1 auto;box-shadow:none}
+}
+</style>
+<script src="edition.js?v=202610161633"></script>
+<script src="shared.js?v=20261016f"></script>
+<script src="translations.js?v=20261016e"></script>
+<script src="content.js?v=202610161633"></script>
+</head>
+<body>
+
+<div class="lg-shell">
+
+  <!-- ══ Pannello visivo (livello piattaforma ATP): brand Autoware + firma percorso ══ -->
+  <div class="lg-visual">
+    <!-- foto di brand: login-bg.webp = foto della linea SENZA marchi (15/10: la .png ha le bottiglie col marchio del cliente).
+         Se il file manca, onerror la rimuove e il pannello resta navy (fallback pulito). -->
+    <img class="lg-photo" src="login-bg.webp" alt="" aria-hidden="true" onerror="this.remove()">
+    <div class="lg-scrim"></div>
+    <a class="lg-brand" href="login.html" aria-label="autoware">
+      <img src="logo-full-negative.png?t=57" alt="autoware">
+    </a>
+
+    <div class="lg-visual-mid">
+      <div class="lg-eyebrow rv rv-1" data-i18n="login.program">Autoware Training Platform</div>
+      <h1 class="lg-h1 rv rv-2" data-i18n="login.hero.h1">All your training, one platform.</h1>
+      <p class="lg-p rv rv-3" data-i18n="login.hero.sub">Self-paced modules that replace live classroom sessions, with the same certification, on your schedule.</p>
+
+      <div class="lg-signoff rv rv-4">Autoware · Beyond Operations Management</div>
+    </div>
+
+  </div>
+
+  <!-- ══ Pannello form ══ -->
+  <div class="lg-formside">
+    <div class="lg-topbar">
+      <button data-theme-btn onclick="applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark')" title="Toggle dark mode" aria-label="Toggle dark mode">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <div data-lang-menu>
+        <button onclick="var m=this.nextElementSibling;m.style.display=m.style.display==='block'?'none':'block'">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span data-lang-btn>EN</span> &#9662;
+        </button>
+        <div id="lg-lang-opts">
+          <a data-lang="en" onclick="setLoginLang('en');return false;" href="#">English</a>
+          <a data-lang="it" onclick="setLoginLang('it');return false;" href="#">Italiano</a>
+          <a data-lang="da" onclick="setLoginLang('da');return false;" href="#">Dansk</a>
+          <a data-lang="zh" onclick="setLoginLang('zh');return false;" href="#">中文</a>
+          <a data-lang="nl" onclick="setLoginLang('nl');return false;" href="#">Nederlands</a>
+        </div>
+        <script>// 08/10: le voci vengono dalle lingue dell'edizione (fiera: en/it/es/pt-BR/hi); laboratorio: le stesse 5 di sopra.
+        (function () { var b = document.getElementById('lg-lang-opts'); if (!b || !window.awLangList) return;
+          b.innerHTML = awLangList().map(function (l) { return '<a data-lang="' + l + '" onclick="setLoginLang(\'' + l + '\');return false;" href="#">' + (AW_LANGS[l] || l) + '</a>'; }).join(''); })();</script>
+      </div>
+    </div>
+
+    <div class="lg-formwrap">
+      <div class="lg-card">
+        <div class="card-label rv rv-1" data-i18n="login.program">Autoware Training Platform</div>
+        <div class="card-title rv rv-2" data-i18n="login.mock.signin">Sign in to continue</div>
+        <div class="card-sub rv rv-3" data-i18n="login.desc">Access your training modules. Use your company credentials to continue.</div>
+
+        <div class="field rv rv-4">
+          <label data-i18n="login.lbl.email">Email</label>
+          <input type="email" id="email" placeholder="you@company.com" autocomplete="email" data-i18n-attr="placeholder:login.ph.email">
+        </div>
+        <div class="field rv rv-5">
+          <label data-i18n="login.lbl.password">Password</label>
+          <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+        </div>
+
+        <button class="btn rv rv-6" onclick="doLogin()" data-i18n="login.btn">Access Training →</button>
+        <div class="error" id="error-msg" data-i18n="login.error">Incorrect email or password. Please try again.</div>
+        <div id="ed-extra"></div>
+      </div>
+    </div>
+
+    <div class="footer-txt">© <span id="yr"></span> autoware · Beyond Operations Management</div>
+  </div>
+
+</div>
+
+<script>
+function doLogin(){
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const err = document.getElementById('error-msg');
+
+  if(!email || !password){
+    err.textContent = (typeof T!=='undefined'&&T[LANG]&&T[LANG]['login.error.empty'])||'Please enter your email and password.';
+    err.style.display = 'block';
+    return;
+  }
+  // Finta autenticazione - qualsiasi credenziale valida entra
+  if(email.indexOf('@') === -1){
+    err.textContent = (typeof T!=='undefined'&&T[LANG]&&T[LANG]['login.error.email'])||'Please enter a valid email address.';
+    err.style.display = 'block';
+    return;
+  }
+  err.style.display = 'none';
+
+  // ── Fresh start: se entra una mail DIVERSA da quella salvata (o è il primo accesso),
+  //    azzera il progresso di apprendimento → la MVP riparte "mai usata".
+  //    Le preferenze (lingua/tema) e i dati demo del manager (siti/utenti/assegnazioni)
+  //    NON vengono toccati.
+  try {
+    var prevEmail = '';
+    var prevRaw = localStorage.getItem('aw_user');
+    if (prevRaw) { try { prevEmail = (JSON.parse(prevRaw) || {}).email || ''; } catch (e) {} }
+    if (prevEmail.toLowerCase() !== email.toLowerCase()) {
+      var PROGRESS_KEYS = ['aw_progress','aw_progress_at','aw_quiz_score','aw_sect','aw_notes','aw_gloss_fav','aw_notif_read','aw_mail_read','aw_sb_collapsed'];
+      PROGRESS_KEYS.forEach(function(k){ localStorage.removeItem(k); });
+      // anche eventuali chiavi legacy per-modulo aw_mod_XX
+      Object.keys(localStorage).forEach(function(k){ if(/^aw_mod_/.test(k)) localStorage.removeItem(k); });
+    }
+  } catch (e) {}
+
+  // Deriva nome + iniziali dall'email (es. giulia.anfossi@autoware.it → "Giulia Anfossi", "GA")
+  // e li salva per la sessione. In produzione questi dati arriveranno dall'autenticazione.
+  try {
+    var local = email.split('@')[0];
+    var parts = local.split(/[._\-]+/).filter(Boolean);
+    var name = parts.map(function(p){ return p.charAt(0).toUpperCase() + p.slice(1); }).join(' ');
+    var initials = (parts.slice(0, 2).map(function(p){ return p.charAt(0).toUpperCase(); }).join('')) || name.charAt(0).toUpperCase();
+    localStorage.setItem('aw_user', JSON.stringify({ name: name, initials: initials, email: email }));
+  } catch (e) {}
+  // Edizione demo: il profilo scelto decide cosa si vede (awIsConfigurator in shared.js).
+  if (window.AW_EDITION) {
+    var pSel = document.querySelector('input[name="ed-profile"]:checked');
+    try { localStorage.setItem('aw_profile', pSel ? pSel.value : 'learner'); } catch (e) {}
+  }
+  // Redirect to training
+  window.location.href='index.html';
+}
+
+// Edizione demo (edition.js): scelta del profilo, se l'edizione ne ha più di uno, e "Ripristina demo".
+// Nel laboratorio (nessun edition.js) non compare niente.
+(function () {
+  var E = window.AW_EDITION, box = document.getElementById('ed-extra');
+  if (!E || !box) return;
+  var h = '';
+  if ((E.profiles || []).length > 1) {
+    var LBL = { learner: 'Learner & manager', admin: 'Admin (content editor)' };
+    h += '<div style="margin-top:18px;font-size:13px;color:var(--text2)">Sign in as</div><div style="display:flex;gap:16px;margin-top:6px;font-size:14px">'
+      + E.profiles.map(function (p, i) {
+          return '<label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="ed-profile" value="' + p + '"' + (i ? '' : ' checked') + '>' + (LBL[p] || p) + '</label>';
+        }).join('') + '</div>';
+  }
+  // 09/10: testo e conferma tradotti (ed.reset / ed.reset.confirm in translations.js).
+  h += '<button type="button" data-i18n="ed.reset" onclick="if(confirm((T[localStorage.getItem(\'aw_lang\')]||T.en)[\'ed.reset.confirm\']||T.en[\'ed.reset.confirm\'])){awResetDemo();location.reload();}" '
+    + 'style="margin-top:18px;background:none;border:none;padding:0;color:var(--text2);font-size:13px;text-decoration:underline;cursor:pointer">Reset demo</button>';
+  box.innerHTML = h;
+})();
+
+// Enter key support
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Enter') doLogin();
+});
+document.getElementById('yr').textContent = new Date().getFullYear();
+</script>
+
+<script>
+document.addEventListener('click',function(e){document.querySelectorAll('[data-lang-menu]').forEach(function(m){if(!m.contains(e.target))m.querySelector('div').style.display='none';});});
+function markCurLang(lang){
+  document.querySelectorAll('[data-lang-menu] a').forEach(function(a){a.classList.toggle('cur', a.getAttribute('data-lang')===lang)});
+}
+function setLoginLang(lang){
+  localStorage.setItem('aw_lang', lang);
+  applyLang(lang);
+  markCurLang(lang);
+}
+</script>
+
+<script>
+// ── Percorso di certificazione "vivo": avanza di step, riempie la linea, timbra il sigillo ──
+(function(){
+  var steps = [].slice.call(document.querySelectorAll('#lgJourney .lg-step'));
+  var fill  = document.getElementById('lgFill');
+  var cont  = document.querySelector('#lgJourney .lg-steps');
+  if(!steps.length || !fill || !cont) return;
+  var n = steps.length;
+  function render(active){
+    steps.forEach(function(st, idx){
+      var done = idx < active || (idx === active && idx === n-1);   // l'ultimo (certificato) è "done" appena raggiunto
+      st.classList.toggle('done', done);
+      st.classList.toggle('active', idx === active && idx < n-1);
+    });
+    var frac = n > 1 ? active/(n-1) : 0;
+    fill.style.height = (frac * Math.max(0, cont.clientHeight - 26)) + 'px';
+  }
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  if(reduce){ render(n-1); return; }        // niente moto: percorso completo, statico
+  var a = 0, to;
+  (function stepOn(){
+    render(a);
+    var last = (a === n-1);
+    to = setTimeout(function(){ a = last ? 0 : a+1; stepOn(); }, last ? 2200 : 1100);
+  })();
+  window.addEventListener('pagehide', function(){ clearTimeout(to); });
+})();
+</script>
+
+<script>
+var LANG = localStorage.getItem('aw_lang') || 'en';
+applyLang(LANG);
+markCurLang(LANG);
+// sincronizza l'icona del toggle tema con lo stato corrente (prima restava sulla luna)
+applyTheme(localStorage.getItem('aw_theme') === 'dark' ? 'dark' : 'light');
+</script>
+</body>
+</html>
